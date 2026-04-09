@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pratibmb</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Pratibmb</h1>
+    <div class="year-control">
+      <label for="year">talking to you in</label>
+      <input type="range" id="year" min="2010" max="2025" value="2018" />
+      <output id="year-value">2018</output>
+    </div>
+  </header>
+
+  <main id="chat">
+    <div class="bubble bubble-past"><em>drop a WhatsApp .txt or a Facebook export to get started.</em></div>
+  </main>
+
+  <form id="composer">
+    <input type="text" id="input" placeholder="what do you want to ask past-you?" autocomplete="off" />
+    <button type="submit">send</button>
+  </form>
+
+  <footer>
+    <span class="tag">100% local</span>
+    <span class="tag">no cloud</span>
+    <span class="tag">no telemetry</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
