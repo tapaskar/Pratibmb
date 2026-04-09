@@ -14,10 +14,67 @@
       <input type="range" id="year" min="2010" max="2025" value="2018" />
       <output id="year-value">2018</output>
     </div>
+    <button id="help-btn" class="icon-btn" title="How to export your chats">?</button>
   </header>
 
+  <!-- Export help modal -->
+  <div id="help-overlay" class="overlay hidden">
+    <div class="modal">
+      <button class="modal-close" id="help-close">&times;</button>
+      <h2>How to export your chats</h2>
+
+      <div class="help-section">
+        <h3>WhatsApp</h3>
+        <ol>
+          <li>Open any chat in WhatsApp</li>
+          <li>Tap <b>Menu (three dots)</b> or swipe down on the chat name</li>
+          <li>Tap <b>More</b> &rarr; <b>Export Chat</b></li>
+          <li>Choose <b>Without Media</b> (faster, smaller)</li>
+          <li>Save the <code>.txt</code> file to your computer</li>
+          <li>Drag it into this window, or use the import button</li>
+        </ol>
+        <p class="help-note">Repeat for each chat you want to include. Group chats work too.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>Facebook / Messenger</h3>
+        <ol>
+          <li>Go to <a href="https://www.facebook.com/dyi" target="_blank">facebook.com/dyi</a> (Download Your Information)</li>
+          <li>Click <b>Request a download</b></li>
+          <li>Select <b>JSON</b> format (not HTML)</li>
+          <li>Under "Your information", select <b>Messages</b> and/or <b>Posts</b></li>
+          <li>Click <b>Create File</b> &mdash; Facebook will email you when it's ready (can take hours)</li>
+          <li>Download and unzip the archive</li>
+          <li>Point Pratibmb at the unzipped folder</li>
+        </ol>
+        <p class="help-note">This is the richest source for pre-2015 data. Posts, comments, Messenger DMs &mdash; everything.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>Instagram</h3>
+        <ol>
+          <li>Go to <a href="https://www.instagram.com/download/request/" target="_blank">Instagram &rarr; Download Your Information</a></li>
+          <li>Choose <b>JSON</b> format</li>
+          <li>Select <b>Messages</b> and/or <b>Posts</b></li>
+          <li>Request download &mdash; Instagram will email you</li>
+          <li>Unzip and point Pratibmb at the folder</li>
+        </ol>
+      </div>
+
+      <div class="help-section">
+        <h3>Coming soon</h3>
+        <p>Gmail (Google Takeout), iMessage (macOS), Telegram, Twitter/X archive, Discord</p>
+      </div>
+
+      <div class="help-section privacy-note">
+        <h3>Your data stays here</h3>
+        <p>Everything is processed locally on your machine. Nothing is uploaded. Ever. You can verify this yourself &mdash; the source code is open.</p>
+      </div>
+    </div>
+  </div>
+
   <main id="chat">
-    <div class="bubble bubble-past"><em>drop a WhatsApp .txt or a Facebook export to get started.</em></div>
+    <div class="bubble bubble-past"><em>drop a WhatsApp .txt or a Facebook export to get started, or click <b>?</b> for help.</em></div>
   </main>
 
   <form id="composer">

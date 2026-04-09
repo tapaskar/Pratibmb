@@ -52,6 +52,23 @@ header h1 {
   margin-left: auto;
 }
 
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
 .year-control input[type=range] {
   width: 220px;
   accent-color: var(--accent);
@@ -128,6 +145,17 @@ form#composer button {
 }
 
 form#composer button:hover { filter: brightness(0.95); }
+form#composer button:disabled { opacity: 0.5; cursor: default; }
+form#composer input:disabled { opacity: 0.6; }
+
+.context-hint {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 14px;
+  white-space: pre-wrap;
+  max-width: 70%;
+  align-self: flex-start;
+}
 
 footer {
   display: flex;
@@ -143,3 +171,98 @@ footer {
   border-radius: 999px;
   background: #fff;
 }
+
+/* Help modal */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.overlay.hidden { display: none; }
+
+.modal {
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 32px 36px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+.modal h2 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.modal-close:hover { color: var(--fg); }
+
+.help-section {
+  margin-bottom: 20px;
+}
+
+.help-section h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--accent);
+}
+
+.help-section ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.help-section ol li {
+  margin-bottom: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.help-section p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
+
+.help-note {
+  color: var(--muted);
+  font-size: 12px !important;
+  font-style: italic;
+}
+
+.help-section code {
+  background: var(--bubble-past);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.help-section a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.privacy-note {
+  background: var(--bubble-past);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+.privacy-note h3 { color: var(--fg) !important; }
+.privacy-note p { margin: 4px 0 0; }
