@@ -5,7 +5,7 @@
   "identifier": "app.pratibmb",
   "build": {
     "frontendDist": "../ui",
-    "devUrl": "../ui"
+    "devUrl": "http://localhost:1420"
   },
   "app": {
     "windows": [

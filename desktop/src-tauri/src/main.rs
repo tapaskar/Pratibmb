@@ -38,7 +38,7 @@ async fn chat_turn(args: ChatTurnArgs) -> Result<ChatTurnResult, String> {
 }
 
 #[tauri::command]
-async fn import_file(path: String) -> Result<u64, String> {
+async fn import_file(_path: String) -> Result<u64, String> {
     // TODO: call into the Python importer layer via a bundled sidecar.
     Ok(0)
 }
