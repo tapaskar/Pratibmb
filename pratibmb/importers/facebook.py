@@ -59,6 +59,7 @@ class FacebookDYI:
             return
         # Walk messenger inbox
         for root in ("your_activity_across_facebook/messages/inbox",
+                     "your_facebook_activity/messages/inbox",
                      "messages/inbox"):
             inbox = path / root
             if inbox.exists():
@@ -70,6 +71,7 @@ class FacebookDYI:
                 break
         # Walk posts
         for root in ("your_activity_across_facebook/posts",
+                     "your_facebook_activity/posts",
                      "posts"):
             posts = path / root
             if posts.exists():

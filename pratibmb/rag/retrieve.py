@@ -24,6 +24,10 @@ class Retriever:
         if qn == 0:
             return []
         q = q / qn
+        # Filter out zero-norm vectors to avoid NaN in cosine similarity
+        norms = np.linalg.norm(corpus, axis=1, keepdims=True)
+        norms = np.where(norms == 0, 1.0, norms)  # avoid div-by-zero
+        corpus = corpus / norms
         sims = corpus @ q
         # Light time-decay: small boost to more recent messages within window.
         # (kept simple; ranking is dominated by cosine)

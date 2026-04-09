@@ -36,3 +36,15 @@ def test_strip_hr_separator():
 
 def test_idempotent_clean_reply():
     assert _clean("yeah i'm fine bro, tired but ok") == "yeah i'm fine bro, tired but ok"
+
+
+def test_truncate_long_reply():
+    raw = "First sentence. Second sentence. Third sentence. Fourth sentence."
+    result = _clean(raw)
+    assert result == "First sentence. Second sentence."
+
+
+def test_strip_ai_identity_preamble():
+    raw = "As an AI assistant, I can help.\nActual reply here."
+    result = _clean(raw)
+    assert result == "Actual reply here."
