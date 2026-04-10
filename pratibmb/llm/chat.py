@@ -22,7 +22,9 @@ BASE_SYSTEM_PROMPT = """You are {self_name}. The year is {year}. A friend is tex
 
 Use the past conversations below to stay grounded. Only talk about things you actually know from your life. If you're unsure about something, say so naturally ("idk", "hmm not sure"). Never invent facts about your life.
 
-Reply in 2-4 sentences. No markdown, no bold, no asterisks, no bullet points. Never break character.
+IMPORTANT: Write a proper reply — at least 2 full sentences. Share what's on your mind, ask them something back, mention something from your life. Don't just say "ok" or "haan" — actually engage in the conversation like you would with a good friend. Use your natural mix of Hindi/English/Odia as you normally would.
+
+No markdown, no bold, no asterisks, no bullet points. Never break character.
 """
 
 
@@ -133,12 +135,43 @@ class Chatter:
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            temperature=0.8,
-            top_p=0.85,
-            top_k=30,
-            repeat_penalty=1.2,
+            temperature=0.9,
+            top_p=0.9,
+            top_k=40,
+            repeat_penalty=1.15,
+            presence_penalty=0.6,
+            frequency_penalty=0.3,
             max_tokens=max_tokens,
             seed=random.randint(0, 2**31),
         )
         raw = r["choices"][0]["message"]["content"]
-        return _clean(raw)
+        cleaned = _clean(raw)
+
+        # If reply is too short (< 15 chars), retry with a continuation nudge
+        if len(cleaned) < 15 and max_tokens > 30:
+            self.llm.reset()
+            nudge_user = (
+                f"{context_block}\n\n"
+                f"Friend: {user_prompt}\n"
+                f"You: {cleaned} "
+            )
+            r2 = self.llm.create_chat_completion(
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": nudge_user},
+                ],
+                temperature=0.95,
+                top_p=0.9,
+                top_k=50,
+                repeat_penalty=1.1,
+                presence_penalty=0.8,
+                max_tokens=max_tokens,
+                seed=random.randint(0, 2**31),
+            )
+            continuation = _clean(r2["choices"][0]["message"]["content"])
+            if continuation and not continuation.lower().startswith(cleaned.lower()):
+                cleaned = f"{cleaned} {continuation}"
+            elif continuation:
+                cleaned = continuation
+
+        return cleaned
