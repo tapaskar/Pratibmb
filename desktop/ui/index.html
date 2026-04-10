@@ -137,6 +137,116 @@
     </div>
   </div>
 
+  <!-- Onboarding wizard (first-run) -->
+  <div id="onboarding" class="onboarding hidden">
+    <!-- Step 0: Welcome -->
+    <div class="ob-step" data-step="0">
+      <div class="ob-icon">&#127881;</div>
+      <h2>Welcome to Pratibmb</h2>
+      <p class="ob-tagline">Chat with your 10-years-younger self.</p>
+      <div class="ob-privacy-box">
+        <h3>Before we start &mdash; a promise</h3>
+        <ul>
+          <li><b>100% local.</b> Your messages never leave this machine. Not now, not ever.</li>
+          <li><b>No cloud.</b> The AI model runs on your hardware. No API calls, no OpenAI, no servers.</li>
+          <li><b>No telemetry.</b> We don't track anything. No analytics, no crash reports, no phone-home.</li>
+          <li><b>Open source.</b> Every line of code is auditable. Don't trust us &mdash; verify.</li>
+        </ul>
+      </div>
+      <button class="btn-ob-next" id="ob-start">Let's go</button>
+    </div>
+
+    <!-- Step 1: Your name -->
+    <div class="ob-step hidden" data-step="1">
+      <div class="ob-icon">&#128100;</div>
+      <h2>What's your name?</h2>
+      <p>This is how we'll identify your messages in group chats and conversations.</p>
+      <input type="text" id="ob-name" class="ob-input" placeholder="e.g. Tapas Kar" autocomplete="name" />
+      <p class="ob-hint">Use your full name as it appears in your chat exports.</p>
+      <div class="ob-log" id="ob-name-log"></div>
+      <button class="btn-ob-next" id="ob-name-next" disabled>Continue</button>
+    </div>
+
+    <!-- Step 2: Import -->
+    <div class="ob-step hidden" data-step="2">
+      <div class="ob-icon">&#128229;</div>
+      <h2>Import your conversations</h2>
+      <p>Drop your chat exports here, or click the button to browse.</p>
+      <div class="ob-drop-zone" id="ob-drop-zone">
+        <p class="ob-drop-label">Drop .txt (WhatsApp) or folder (Facebook/Instagram) here</p>
+        <p class="ob-drop-sub">or</p>
+        <button class="btn-ob-browse" id="ob-browse">Browse files</button>
+      </div>
+      <div class="ob-log" id="ob-import-log"></div>
+      <div class="ob-privacy-inline">
+        <span class="ob-lock">&#128274;</span>
+        Files are read locally and stored in an encrypted database on your machine. They are never uploaded.
+      </div>
+      <div class="ob-actions">
+        <button class="btn-ob-skip" id="ob-import-skip">Skip for now</button>
+        <button class="btn-ob-next" id="ob-import-next" disabled>Continue</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Embed -->
+    <div class="ob-step hidden" data-step="3">
+      <div class="ob-icon">&#129504;</div>
+      <h2>Building your memory index</h2>
+      <p>Creating semantic embeddings so past-you can recall relevant conversations.</p>
+      <div class="ob-log" id="ob-embed-log"></div>
+      <div class="ob-privacy-inline">
+        <span class="ob-lock">&#128274;</span>
+        The embedding model (84MB) runs entirely on your CPU/GPU. No text leaves this device.
+      </div>
+      <button class="btn-ob-next" id="ob-embed-start">Build index</button>
+    </div>
+
+    <!-- Step 4: Profile -->
+    <div class="ob-step hidden" data-step="4">
+      <div class="ob-icon">&#128161;</div>
+      <h2>Learning who you are</h2>
+      <p>The local AI reads your messages to build a structured identity profile &mdash; relationships, life events, interests, and your communication style.</p>
+      <div class="ob-log" id="ob-profile-log"></div>
+      <div class="ob-privacy-inline">
+        <span class="ob-lock">&#128274;</span>
+        Profile extraction uses a local 2.3GB LLM. Your identity data is stored in a local-only database. Nothing is uploaded, nothing is shared.
+      </div>
+      <div class="ob-actions">
+        <button class="btn-ob-skip" id="ob-profile-skip">Skip (do later from &#9881;)</button>
+        <button class="btn-ob-next" id="ob-profile-start">Extract profile</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Done -->
+    <div class="ob-step hidden" data-step="5">
+      <div class="ob-icon">&#10024;</div>
+      <h2>You're all set!</h2>
+      <p>Pick a year on the slider and start chatting with past-you.</p>
+      <div class="ob-summary" id="ob-summary"></div>
+      <div class="ob-privacy-box">
+        <h3>What just happened &mdash; and what didn't</h3>
+        <ul>
+          <li>Your messages were imported into a <b>local SQLite database</b> on this machine.</li>
+          <li>Embeddings were computed <b>on-device</b> using a small model.</li>
+          <li><b>Zero network requests</b> were made during this entire process.</li>
+          <li>You can verify this by checking your firewall &mdash; Pratibmb made no outbound connections.</li>
+        </ul>
+      </div>
+      <p class="ob-hint">Tip: click the &#9881; gear icon to fine-tune the model on your style for even more authentic replies.</p>
+      <button class="btn-ob-next" id="ob-done">Start chatting</button>
+    </div>
+
+    <!-- Progress indicator -->
+    <div class="ob-progress">
+      <div class="ob-dot active" data-dot="0"></div>
+      <div class="ob-dot" data-dot="1"></div>
+      <div class="ob-dot" data-dot="2"></div>
+      <div class="ob-dot" data-dot="3"></div>
+      <div class="ob-dot" data-dot="4"></div>
+      <div class="ob-dot" data-dot="5"></div>
+    </div>
+  </div>
+
   <main id="chat">
     <div class="bubble bubble-past"><em>drop a WhatsApp .txt or a Facebook export to get started, or click <b>?</b> for help.</em></div>
   </main>

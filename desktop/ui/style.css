@@ -394,3 +394,232 @@ footer {
   color: var(--muted);
 }
 .pipeline-footer p { margin: 0; }
+
+/* Onboarding wizard */
+.onboarding {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.onboarding.hidden { display: none; }
+
+.ob-step {
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  animation: obFadeIn 0.3s ease;
+}
+.ob-step.hidden { display: none; }
+
+@keyframes obFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ob-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.ob-step h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.ob-step p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.ob-tagline {
+  font-size: 16px !important;
+  color: var(--accent) !important;
+}
+
+.ob-privacy-box {
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin: 20px 0;
+}
+
+.ob-privacy-box h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.ob-privacy-box ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.ob-privacy-box li {
+  font-size: 13px;
+  line-height: 1.7;
+  padding-left: 20px;
+  position: relative;
+  color: var(--fg);
+}
+
+.ob-privacy-box li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: #3b7a3b;
+  font-weight: 700;
+}
+
+.ob-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 16px;
+  text-align: center;
+  outline: none;
+  background: #fff;
+}
+.ob-input:focus { border-color: var(--accent); }
+
+.ob-hint {
+  font-size: 12px !important;
+  color: var(--muted) !important;
+  font-style: italic;
+}
+
+.ob-log {
+  text-align: left;
+  font-family: "SF Mono", "Menlo", monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  max-height: 180px;
+  overflow-y: auto;
+  margin: 16px 0;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  border-left: 3px solid var(--accent);
+}
+.ob-log:empty { display: none; }
+
+.ob-privacy-inline {
+  font-size: 12px;
+  color: var(--muted);
+  background: #f8f6f2;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.ob-lock {
+  margin-right: 4px;
+}
+
+.btn-ob-next {
+  display: inline-block;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.btn-ob-next:hover { filter: brightness(0.92); }
+.btn-ob-next:disabled { opacity: 0.4; cursor: default; }
+
+.btn-ob-skip {
+  padding: 12px 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.btn-ob-skip:hover { border-color: var(--accent); }
+
+.btn-ob-browse {
+  padding: 10px 24px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--accent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ob-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.ob-drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin: 16px 0;
+  background: #fff;
+  transition: border-color 0.2s, background 0.2s;
+}
+.ob-drop-zone.dragover {
+  border-color: var(--accent);
+  background: #fdf8f3;
+}
+.ob-drop-label { font-size: 14px; color: var(--muted); margin: 0 0 6px; }
+.ob-drop-sub { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+
+.ob-summary {
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ob-progress {
+  position: fixed;
+  bottom: 28px;
+  display: flex;
+  gap: 8px;
+}
+
+.ob-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.3s;
+}
+.ob-dot.active { background: var(--accent); }
+.ob-dot.done { background: #3b7a3b; }

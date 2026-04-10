@@ -163,10 +163,14 @@ fn spawn_python_server() -> Option<Child> {
         "python".to_string(),
     ];
 
+    let pythonpath = get_pythonpath();
+    eprintln!("[tauri] PYTHONPATH = {}", pythonpath);
+
     for py in &pythons {
+        eprintln!("[tauri] trying: {} -m pratibmb.server 11435", py);
         match Command::new(py)
             .args(["-m", "pratibmb.server", "11435"])
-            .env("PYTHONPATH", get_pythonpath())
+            .env("PYTHONPATH", &pythonpath)
             .spawn()
         {
             Ok(child) => {
@@ -183,13 +187,20 @@ fn spawn_python_server() -> Option<Child> {
 }
 
 fn get_pythonpath() -> String {
-    // Add the Pratibmb package root to PYTHONPATH
+    // Check env var first (user override)
+    if let Ok(v) = std::env::var("PRATIBMB_ROOT") {
+        if std::path::Path::new(&v).join("pratibmb").is_dir() {
+            eprintln!("[tauri] PYTHONPATH from PRATIBMB_ROOT: {}", v);
+            return v;
+        }
+    }
+
+    // Walk up from the executable to find the repo root
     let exe = std::env::current_exe().unwrap_or_default();
     let mut dir = exe.parent().unwrap_or(std::path::Path::new(".")).to_path_buf();
-    // In dev: exe is in target/release or target/debug
-    // Walk up to find the repo root containing pratibmb/
-    for _ in 0..6 {
+    for _ in 0..10 {
         if dir.join("pratibmb").is_dir() {
+            eprintln!("[tauri] PYTHONPATH from exe walk: {}", dir.display());
             return dir.to_string_lossy().to_string();
         }
         if let Some(parent) = dir.parent() {
@@ -198,7 +209,30 @@ fn get_pythonpath() -> String {
             break;
         }
     }
-    // Fallback: current directory
+
+    // Check current working directory
+    if let Ok(cwd) = std::env::current_dir() {
+        if cwd.join("pratibmb").is_dir() {
+            eprintln!("[tauri] PYTHONPATH from cwd: {}", cwd.display());
+            return cwd.to_string_lossy().to_string();
+        }
+    }
+
+    // Common dev locations
+    let home = std::env::var("HOME").unwrap_or_default();
+    let candidates = [
+        format!("{}/Pratibmb", home),
+        "/Volumes/wininstall/Pratibmb".to_string(),
+    ];
+    for c in &candidates {
+        let p = std::path::Path::new(c);
+        if p.join("pratibmb").is_dir() {
+            eprintln!("[tauri] PYTHONPATH from known path: {}", c);
+            return c.clone();
+        }
+    }
+
+    eprintln!("[tauri] WARNING: could not find pratibmb package, using cwd");
     std::env::current_dir()
         .map(|p| p.to_string_lossy().to_string())
         .unwrap_or_else(|_| ".".to_string())

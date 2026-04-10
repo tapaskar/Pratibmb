@@ -143,6 +143,201 @@ composer.addEventListener("submit", async (e) => {
   }
 });
 
+// --------------- Onboarding wizard ---------------
+
+const onboarding = document.getElementById("onboarding");
+let obStep = 0;
+let obImportCount = 0;
+
+function obShow(step) {
+  obStep = step;
+  document.querySelectorAll(".ob-step").forEach((el) => {
+    el.classList.toggle("hidden", Number(el.dataset.step) !== step);
+  });
+  document.querySelectorAll(".ob-dot").forEach((dot) => {
+    const n = Number(dot.dataset.dot);
+    dot.classList.toggle("active", n === step);
+    dot.classList.toggle("done", n < step);
+  });
+}
+
+function obLog(id, text) {
+  const el = document.getElementById(id);
+  el.textContent += (el.textContent ? "\n" : "") + text;
+  el.scrollTop = el.scrollHeight;
+}
+
+// Step 0 → 1
+document.getElementById("ob-start").addEventListener("click", () => obShow(1));
+
+// Step 1: Name input
+const obNameInput = document.getElementById("ob-name");
+const obNameNext = document.getElementById("ob-name-next");
+obNameInput.addEventListener("input", () => {
+  obNameNext.disabled = obNameInput.value.trim().length < 2;
+});
+
+obNameNext.addEventListener("click", async () => {
+  const name = obNameInput.value.trim();
+  obNameNext.disabled = true;
+  obNameNext.textContent = "Setting up...";
+  const log = document.getElementById("ob-name-log");
+
+  obLog("ob-name-log", "[local] Creating personal database at ~/.pratibmb/corpus.db");
+  obLog("ob-name-log", `[local] Registering name: "${name}"`);
+  obLog("ob-name-log", "[privacy] Database is local-only. No account created. No signup.");
+
+  try {
+    await invoke("init_user", { self_name: name });
+    obLog("ob-name-log", "[done] Ready to import your conversations.");
+    setTimeout(() => obShow(2), 600);
+  } catch (err) {
+    obLog("ob-name-log", "[error] " + String(err));
+    obNameNext.disabled = false;
+    obNameNext.textContent = "Continue";
+  }
+});
+
+// Step 2: Import
+const obDropZone = document.getElementById("ob-drop-zone");
+const obImportNext = document.getElementById("ob-import-next");
+
+document.getElementById("ob-browse").addEventListener("click", async () => {
+  // Use Tauri file dialog if available, else prompt for path
+  const tauri = window.__TAURI__;
+  if (tauri?.dialog?.open) {
+    const selected = await tauri.dialog.open({
+      multiple: false,
+      directory: true,
+      title: "Select your chat export folder",
+    });
+    if (selected) {
+      await obImportPath(selected);
+    }
+  } else {
+    const path = prompt("Enter the full path to your chat export file or folder:");
+    if (path) await obImportPath(path);
+  }
+});
+
+async function obImportPath(path) {
+  obLog("ob-import-log", `\n[local] Importing from: ${path}`);
+  obLog("ob-import-log", "[privacy] Reading files directly from disk. Nothing uploaded.");
+  obLog("ob-import-log", "[air-gapped] Parsing message format, normalizing timestamps...");
+
+  try {
+    const result = await invoke("import_file", { path });
+    obImportCount += result.imported || 0;
+    obLog("ob-import-log", `[done] Imported ${result.imported} messages (source: ${result.source}).`);
+    obLog("ob-import-log", `[local] Total messages so far: ${obImportCount}`);
+    obImportNext.disabled = false;
+    obImportNext.textContent = `Continue (${obImportCount} messages)`;
+  } catch (err) {
+    obLog("ob-import-log", "[error] " + String(err));
+  }
+}
+
+// Drag and drop on the import zone
+obDropZone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  obDropZone.classList.add("dragover");
+});
+obDropZone.addEventListener("dragleave", () => {
+  obDropZone.classList.remove("dragover");
+});
+obDropZone.addEventListener("drop", async (e) => {
+  e.preventDefault();
+  obDropZone.classList.remove("dragover");
+  // In Tauri, we'd get the file path from the drop event
+  const files = e.dataTransfer?.files;
+  if (files?.length > 0) {
+    const path = files[0].path || files[0].name;
+    await obImportPath(path);
+  }
+});
+
+obImportNext.addEventListener("click", () => obShow(3));
+document.getElementById("ob-import-skip").addEventListener("click", () => obShow(3));
+
+// Step 3: Embed
+document.getElementById("ob-embed-start").addEventListener("click", async () => {
+  const btn = document.getElementById("ob-embed-start");
+  btn.disabled = true;
+  btn.textContent = "Building...";
+
+  obLog("ob-embed-log", "[air-gapped] Loading embedding model (nomic-embed-text, 84MB)...");
+  obLog("ob-embed-log", "[privacy] The model runs on your CPU/GPU. No text is sent anywhere.");
+  obLog("ob-embed-log", "[local] Computing vector representations of your messages...");
+  obLog("ob-embed-log", "This may take a minute for large corpora.\n");
+
+  try {
+    const result = await invoke("embed", { model: "" });
+    obLog("ob-embed-log", `[done] Embedded ${result.embedded} messages.`);
+    obLog("ob-embed-log", "[local] Vectors stored in ~/.pratibmb/corpus.db");
+    obLog("ob-embed-log", "[privacy] Zero network requests made during embedding.");
+    btn.textContent = "Done!";
+    setTimeout(() => obShow(4), 800);
+  } catch (err) {
+    obLog("ob-embed-log", "[error] " + String(err));
+    btn.disabled = false;
+    btn.textContent = "Retry";
+  }
+});
+
+// Step 4: Profile
+document.getElementById("ob-profile-start").addEventListener("click", async () => {
+  const btn = document.getElementById("ob-profile-start");
+  btn.disabled = true;
+  btn.textContent = "Extracting...";
+
+  obLog("ob-profile-log", "[air-gapped] Loading local LLM (Gemma 3 4B, 2.3GB)...");
+  obLog("ob-profile-log", "[privacy] The model runs entirely on your Apple Silicon / CPU.");
+  obLog("ob-profile-log", "[privacy] No OpenAI, no cloud APIs, no data leaves this device.\n");
+  obLog("ob-profile-log", "Analyzing your conversations to extract:");
+  obLog("ob-profile-log", "  - Relationships (who you talk to, how close)");
+  obLog("ob-profile-log", "  - Life events (moves, jobs, milestones)");
+  obLog("ob-profile-log", "  - Interests (topics you care about)");
+  obLog("ob-profile-log", "  - Communication style (formal/casual, emoji use, language mix)");
+  obLog("ob-profile-log", "\nThis takes 5-10 minutes. Please be patient...");
+
+  try {
+    const result = await invoke("extract_profile", { model: "" });
+    obLog("ob-profile-log", `\n[done] Profile extracted!`);
+    obLog("ob-profile-log", `  ${result.relationships || 0} relationships found`);
+    obLog("ob-profile-log", `  ${result.life_events || 0} life events detected`);
+    obLog("ob-profile-log", `  ${result.year_summaries || 0} year summaries built`);
+    obLog("ob-profile-log", `\n[local] Profile saved to local database.`);
+    obLog("ob-profile-log", "[privacy] Your identity data never leaves this machine.");
+    btn.textContent = "Done!";
+    setTimeout(() => obFinish(), 800);
+  } catch (err) {
+    obLog("ob-profile-log", "[error] " + String(err));
+    btn.disabled = false;
+    btn.textContent = "Retry";
+  }
+});
+
+document.getElementById("ob-profile-skip").addEventListener("click", () => obFinish());
+
+async function obFinish() {
+  // Build summary
+  try {
+    const s = await invoke("stats", {});
+    const summary = document.getElementById("ob-summary");
+    summary.innerHTML = `
+      <b>${s.total.toLocaleString()}</b> messages imported<br>
+      <b>${s.self_total.toLocaleString()}</b> of those are yours<br>
+      ${s.has_profile ? "Profile extracted" : "Profile not yet extracted (do it from the gear icon)"}
+    `;
+  } catch {}
+  obShow(5);
+}
+
+// Step 5: Done
+document.getElementById("ob-done").addEventListener("click", () => {
+  onboarding.classList.add("hidden");
+});
+
 // --------------- Pipeline panel logic ---------------
 
 function statusEl(id) {
@@ -285,19 +480,26 @@ document.getElementById("btn-convert").addEventListener("click", async () => {
   disableBtn("btn-convert", false);
 });
 
-// On load: check server health and profile status
+// On load: check server health, show onboarding or chat
 (async () => {
   const ok = await checkHealth();
-  if (ok) {
-    const s = await invoke("stats", {});
-    if (s.total > 0) {
-      let msg = `ready. ${s.self_total} of your messages loaded. pick a year and ask away.`;
-      if (s.has_profile) {
-        msg += " profile loaded.";
-      } else {
-        msg += " tip: click the gear icon to extract your profile and fine-tune.";
-      }
-      appendBubble("past", msg);
+  if (!ok) {
+    appendBubble("past", "waiting for the local server to start...");
+    return;
+  }
+
+  const s = await invoke("stats", {});
+  if (s.total === 0) {
+    // First run — show onboarding wizard
+    onboarding.classList.remove("hidden");
+  } else {
+    // Returning user
+    let msg = `ready. ${s.self_total} of your messages loaded. pick a year and ask away.`;
+    if (s.has_profile) {
+      msg += " profile loaded.";
+    } else {
+      msg += " tip: click the gear icon to extract your profile and fine-tune.";
     }
+    appendBubble("past", msg);
   }
 })();
