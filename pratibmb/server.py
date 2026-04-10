@@ -115,15 +115,26 @@ def _get_profile():
 
 
 def _get_profile_context(year: int, query: str = "") -> str:
-    """Build profile context for a given year, with caching."""
+    """Build profile context for a given year and query.
+
+    Identity questions ("who am I?", "tell me about yourself") get a rich
+    profile (~500 tokens). Normal chat gets a compact version (~200 tokens)
+    which is cached per-year.
+    """
     profile = _get_profile()
     if profile is None:
         return ""
-    # Cache key includes year (query-specific parts are cheap to add)
+    from .profile.context import build_profile_context, _is_identity_query
+
+    # Identity questions bypass cache and get the full profile
+    if query and _is_identity_query(query):
+        return build_profile_context(profile, year, query=query)
+
+    # Normal chat uses cached compact context
     if year not in _profile_ctx_cache:
-        from .profile.context import build_profile_context
         _profile_ctx_cache[year] = build_profile_context(profile, year)
     base = _profile_ctx_cache[year]
+
     # Add query-specific relationship info
     if query and profile:
         query_lower = query.lower()
