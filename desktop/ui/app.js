@@ -104,12 +104,16 @@ async function chatTurn(year, prompt) {
 }
 
 async function checkHealth() {
-  try {
-    await invoke("health", {});
-    return true;
-  } catch {
-    return false;
+  // Retry up to 10 times with 1s delay — server may still be starting
+  for (let i = 0; i < 10; i++) {
+    try {
+      await invoke("health", {});
+      return true;
+    } catch {
+      await new Promise((r) => setTimeout(r, 1000));
+    }
   }
+  return false;
 }
 
 async function showContext(used) {

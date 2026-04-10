@@ -242,7 +242,7 @@ fn main() {
     let child = spawn_python_server();
 
     // Give the server a moment to start
-    std::thread::sleep(std::time::Duration::from_millis(1500));
+    std::thread::sleep(std::time::Duration::from_millis(3000));
 
     tauri::Builder::default()
         .manage(ServerProcess(Mutex::new(child)))
