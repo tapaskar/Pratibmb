@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="mirror-glass" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#2e3d4f" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#1a2535" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4a574"/>
+      <stop offset="100%" stop-color="#b8845a"/>
+    </linearGradient>
+    <linearGradient id="cool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a9bae" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#6a7b8e" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#c9a96e"/>
+      <stop offset="50%" stop-color="#ddc088"/>
+      <stop offset="100%" stop-color="#a08050"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="0.3" cy="0.25" r="0.6">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="mirror-clip">
+      <ellipse cx="256" cy="230" rx="132" ry="168"/>
+    </clipPath>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- === MIRROR === -->
+  <!-- Outer frame -->
+  <ellipse cx="256" cy="230" rx="148" ry="183" fill="url(#frame)"/>
+  <!-- Frame inner bevel -->
+  <ellipse cx="256" cy="230" rx="140" ry="175" fill="#b8944e" opacity="0.3"/>
+  <!-- Inner glass -->
+  <ellipse cx="256" cy="230" rx="132" ry="168" fill="url(#mirror-glass)"/>
+  <!-- Glass shine -->
+  <ellipse cx="256" cy="230" rx="132" ry="168" fill="url(#shine)"/>
+
+  <!-- Vertical divider (mirror surface line) -->
+  <line x1="256" y1="65" x2="256" y2="395" stroke="#c9a96e" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4,6"/>
+
+  <!-- === FIGURES (clipped inside mirror) === -->
+  <g clip-path="url(#mirror-clip)">
+
+    <!-- PRESENT PERSON (right side) -->
+    <!-- Head -->
+    <circle cx="320" cy="185" r="26" fill="url(#warm)"/>
+    <!-- Neck -->
+    <rect x="314" y="209" width="12" height="14" rx="4" fill="url(#warm)"/>
+    <!-- Torso -->
+    <path d="M295 223 Q320 218 345 223 Q350 260 345 290 L295 290 Q290 260 295 223Z" fill="url(#warm)"/>
+    <!-- Left arm (reaching toward mirror) -->
+    <path d="M295 235 Q280 250 270 258" stroke="#c08a54" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <!-- Hand touching mirror -->
+    <circle cx="268" cy="260" r="7" fill="#d4a574"/>
+    <!-- Right arm (at side) -->
+    <path d="M345 235 Q358 255 355 280" stroke="#c08a54" stroke-width="7" stroke-linecap="round" fill="none"/>
+
+    <!-- REFLECTION (left side, faded) -->
+    <!-- Head -->
+    <circle cx="192" cy="185" r="26" fill="url(#cool)"/>
+    <!-- Neck -->
+    <rect x="186" y="209" width="12" height="14" rx="4" fill="url(#cool)"/>
+    <!-- Torso -->
+    <path d="M167 223 Q192 218 217 223 Q222 260 217 290 L167 290 Q162 260 167 223Z" fill="url(#cool)"/>
+    <!-- Right arm (reaching toward mirror) -->
+    <path d="M217 235 Q232 250 242 258" stroke="#7a8b9e" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <!-- Hand touching mirror -->
+    <circle cx="244" cy="260" r="7" fill="#8a9bae" opacity="0.5"/>
+    <!-- Left arm (at side) -->
+    <path d="M167 235 Q154 255 157 280" stroke="#7a8b9e" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.5"/>
+
+  </g>
+
+  <!-- === CHAT BUBBLES (outside mirror for clarity) === -->
+  <!-- Present person's bubble -->
+  <g filter="url(#glow)">
+    <rect x="348" y="140" rx="12" ry="12" width="58" height="30" fill="#d4a574"/>
+    <polygon points="352,170 360,170 348,182" fill="#d4a574"/>
+    <circle cx="365" cy="155" r="3.5" fill="#1a1a2e"/>
+    <circle cx="377" cy="155" r="3.5" fill="#1a1a2e"/>
+    <circle cx="389" cy="155" r="3.5" fill="#1a1a2e"/>
+  </g>
+
+  <!-- Reflection's bubble (faded) -->
+  <g filter="url(#glow)" opacity="0.5">
+    <rect x="106" y="140" rx="12" ry="12" width="58" height="30" fill="#8a9bae"/>
+    <polygon points="160,170 152,170 164,182" fill="#8a9bae"/>
+    <circle cx="123" cy="155" r="3.5" fill="#1a1a2e"/>
+    <circle cx="135" cy="155" r="3.5" fill="#1a1a2e"/>
+    <circle cx="147" cy="155" r="3.5" fill="#1a1a2e"/>
+  </g>
+
+  <!-- === TIME LABELS === -->
+  <text x="365" y="132" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#d4a574" font-weight="700" letter-spacing="1.5">NOW</text>
+  <text x="114" y="132" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#8a9bae" fill-opacity="0.6" font-weight="700" letter-spacing="1.5">THEN</text>
+
+  <!-- === MIRROR STAND === -->
+  <path d="M228 398 Q256 415 284 398 L280 430 Q256 440 232 430 Z" fill="url(#frame)"/>
+  <ellipse cx="256" cy="438" rx="40" ry="9" fill="url(#frame)" stroke="#8a6a3a" stroke-width="1"/>
+
+  <!-- === WORDMARK === -->
+  <text x="256" y="490" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="30" fill="#d4a574" font-weight="300" letter-spacing="8">PRATIBMB</text>
+</svg>

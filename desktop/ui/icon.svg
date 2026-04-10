@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <linearGradient id="mg" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#2e3d4f" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#1a2535" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="w" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4a574"/>
+      <stop offset="100%" stop-color="#b8845a"/>
+    </linearGradient>
+    <linearGradient id="c" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a9bae" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#6a7b8e" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="f" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#c9a96e"/>
+      <stop offset="50%" stop-color="#ddc088"/>
+      <stop offset="100%" stop-color="#a08050"/>
+    </linearGradient>
+    <radialGradient id="s" cx="0.3" cy="0.25" r="0.6">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="mc">
+      <ellipse cx="128" cy="128" rx="90" ry="108"/>
+    </clipPath>
+  </defs>
+
+  <!-- Frame -->
+  <ellipse cx="128" cy="128" rx="98" ry="118" fill="url(#f)"/>
+  <ellipse cx="128" cy="128" rx="93" ry="113" fill="#b8944e" opacity="0.3"/>
+  <!-- Glass -->
+  <ellipse cx="128" cy="128" rx="90" ry="108" fill="url(#mg)"/>
+  <ellipse cx="128" cy="128" rx="90" ry="108" fill="url(#s)"/>
+  <!-- Divider -->
+  <line x1="128" y1="22" x2="128" y2="234" stroke="#c9a96e" stroke-width="0.8" stroke-opacity="0.3" stroke-dasharray="3,5"/>
+
+  <g clip-path="url(#mc)">
+    <!-- Present (right) -->
+    <circle cx="162" cy="105" r="18" fill="url(#w)"/>
+    <rect x="157" y="122" width="10" height="10" rx="3" fill="url(#w)"/>
+    <path d="M145 132 Q162 128 179 132 Q183 155 179 175 L145 175 Q141 155 145 132Z" fill="url(#w)"/>
+    <path d="M145 140 Q135 150 130 155" stroke="#c08a54" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <circle cx="129" cy="156" r="5" fill="#d4a574"/>
+
+    <!-- Reflection (left) -->
+    <circle cx="94" cy="105" r="18" fill="url(#c)"/>
+    <rect x="89" y="122" width="10" height="10" rx="3" fill="url(#c)"/>
+    <path d="M77 132 Q94 128 111 132 Q115 155 111 175 L77 175 Q73 155 77 132Z" fill="url(#c)"/>
+    <path d="M111 140 Q121 150 126 155" stroke="#7a8b9e" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <circle cx="127" cy="156" r="5" fill="#8a9bae" opacity="0.5"/>
+  </g>
+
+  <!-- Chat bubbles -->
+  <g>
+    <rect x="175" y="72" rx="8" ry="8" width="38" height="22" fill="#d4a574"/>
+    <polygon points="178,94 184,94 175,102" fill="#d4a574"/>
+    <circle cx="186" cy="83" r="2.5" fill="#1a1a2e"/>
+    <circle cx="194" cy="83" r="2.5" fill="#1a1a2e"/>
+    <circle cx="202" cy="83" r="2.5" fill="#1a1a2e"/>
+  </g>
+  <g opacity="0.5">
+    <rect x="43" y="72" rx="8" ry="8" width="38" height="22" fill="#8a9bae"/>
+    <polygon points="78,94 72,94 81,102" fill="#8a9bae"/>
+    <circle cx="54" cy="83" r="2.5" fill="#1a1a2e"/>
+    <circle cx="62" cy="83" r="2.5" fill="#1a1a2e"/>
+    <circle cx="70" cy="83" r="2.5" fill="#1a1a2e"/>
+  </g>
+</svg>

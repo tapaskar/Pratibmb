@@ -36,6 +36,11 @@ header {
   gap: 24px;
 }
 
+.header-logo {
+  width: 32px;
+  height: 32px;
+}
+
 header h1 {
   margin: 0;
   font-size: 22px;

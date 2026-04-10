@@ -45,6 +45,13 @@ a:hover { text-decoration: underline; }
   background: linear-gradient(180deg, #141210 0%, var(--bg) 100%);
 }
 
+.hero-logo {
+  width: 200px;
+  height: auto;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 24px rgba(196, 149, 106, 0.2));
+}
+
 .hero h1 {
   font-size: 56px;
   font-weight: 700;
