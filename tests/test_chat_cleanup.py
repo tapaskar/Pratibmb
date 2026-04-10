@@ -39,9 +39,9 @@ def test_idempotent_clean_reply():
 
 
 def test_truncate_long_reply():
-    raw = "One. Two. Three. Four. Five. Six."
+    raw = "One. Two. Three. Four. Five. Six. Seven. Eight."
     result = _clean(raw)
-    assert result == "One. Two. Three. Four."
+    assert result == "One. Two. Three. Four. Five. Six."
 
 
 def test_strip_ai_identity_preamble():

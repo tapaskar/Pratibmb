@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pratibmb - Chat with your 10-years-younger self</title>
+<meta name="description" content="Pratibmb lets you chat with your past self using your own messaging history. 100% local, no cloud, no telemetry. Open source.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="container">
+    <h1>Pratibmb</h1>
+    <p class="tagline">Chat with your 10-years-younger self.</p>
+    <p class="subtitle">Import your WhatsApp, Facebook, Instagram, Gmail, iMessage, Telegram, Twitter, or Discord history. A local AI learns your voice and lets you text past-you. No cloud. No API. Everything runs on your machine.</p>
+    <div class="hero-cta">
+      <a href="#downloads" class="btn btn-primary">Download</a>
+      <a href="https://github.com/tapaskar/Pratibmb" class="btn btn-secondary">GitHub</a>
+    </div>
+    <div class="hero-badges">
+      <span class="badge">100% local</span>
+      <span class="badge">no cloud</span>
+      <span class="badge">no telemetry</span>
+      <span class="badge">AGPLv3</span>
+    </div>
+  </div>
+</header>
+
+<!-- How It Works -->
+<section class="how-it-works" id="how">
+  <div class="container">
+    <h2>How It Works</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-icon">1</div>
+        <h3>Import</h3>
+        <p>Export your chat history from any platform. Drop the files into Pratibmb. Messages are parsed and stored in a local SQLite database on your machine.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-icon">2</div>
+        <h3>Embed</h3>
+        <p>A local embedding model (84MB) creates semantic representations of your messages. This happens on your CPU/GPU. No text leaves your device.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-icon">3</div>
+        <h3>Profile</h3>
+        <p>A local LLM (2.3GB) analyzes your conversations to extract relationships, life events, interests, and communication style. All on-device.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-icon">4</div>
+        <h3>Chat</h3>
+        <p>Pick a year and start texting. Past-you responds in your voice, grounded in your real memories. Optional LoRA fine-tuning makes it even more authentic.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Supported Platforms -->
+<section class="platforms" id="platforms">
+  <div class="container">
+    <h2>8 Platforms Supported</h2>
+    <p class="section-sub">Export your history from any of these. Pratibmb auto-detects the format.</p>
+    <div class="platform-grid">
+      <div class="platform-card">
+        <div class="platform-icon">&#128172;</div>
+        <h3>WhatsApp</h3>
+        <p>Export Chat as .txt</p>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">&#128101;</div>
+        <h3>Facebook</h3>
+        <p>Download Your Information (JSON)</p>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">&#128247;</div>
+        <h3>Instagram</h3>
+        <p>Download Your Information (JSON)</p>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">&#9993;</div>
+        <h3>Gmail</h3>
+        <p>Google Takeout (MBOX)</p>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">&#128488;</div>
+        <h3>iMessage</h3>
+        <p>macOS chat.db (SQLite)</p>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">&#9992;</div>
+        <h3>Telegram</h3>
+        <p>Desktop Export (JSON)</p>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">&#128038;</div>
+        <h3>Twitter / X</h3>
+        <p>Download Archive (.js)</p>
+      </div>
+      <div class="platform-card">
+        <div class="platform-icon">&#127918;</div>
+        <h3>Discord</h3>
+        <p>DiscordChatExporter (JSON)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Downloads -->
+<section class="downloads" id="downloads">
+  <div class="container">
+    <h2>Download Pratibmb</h2>
+    <p class="section-sub">Free. Open source. Runs offline after first model download (~2.5GB one-time).</p>
+    <div class="download-grid">
+      <div class="download-card">
+        <div class="dl-icon">&#63743;</div>
+        <h3>macOS (Apple Silicon)</h3>
+        <p>M1/M2/M3/M4 Macs. Native Metal acceleration for fine-tuning via MLX.</p>
+        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_aarch64.dmg" class="btn btn-download">.dmg (arm64)</a>
+      </div>
+      <div class="download-card">
+        <div class="dl-icon">&#63743;</div>
+        <h3>macOS (Intel)</h3>
+        <p>2015-2020 Intel Macs. CPU-based inference.</p>
+        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_x64.dmg" class="btn btn-download">.dmg (x64)</a>
+      </div>
+      <div class="download-card">
+        <div class="dl-icon">&#128039;</div>
+        <h3>Linux</h3>
+        <p>Ubuntu/Debian (.deb) or universal (.AppImage). CUDA GPU or CPU.</p>
+        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_amd64.deb" class="btn btn-download">.deb (amd64)</a>
+        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_amd64.AppImage" class="btn btn-download">.AppImage</a>
+      </div>
+      <div class="download-card">
+        <div class="dl-icon">&#127987;</div>
+        <h3>Windows</h3>
+        <p>Windows 10/11 (64-bit). NVIDIA CUDA acceleration for fine-tuning.</p>
+        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_x64-setup.exe" class="btn btn-download">.exe installer</a>
+        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_x64_en-US.msi" class="btn btn-download">.msi</a>
+      </div>
+    </div>
+    <p class="dl-note">Requires Python 3.10+ and ~4GB RAM. Models are downloaded on first launch. <a href="https://github.com/tapaskar/Pratibmb#installation">Setup guide</a></p>
+  </div>
+</section>
+
+<!-- Fine-Tuning -->
+<section class="finetuning" id="finetune">
+  <div class="container">
+    <h2>Fine-Tune on Your Voice</h2>
+    <p class="section-sub">Optional LoRA training teaches the model your texting style. Here's what each platform uses:</p>
+    <table class="ft-table">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Training Backend</th>
+          <th>GPU Required?</th>
+          <th>Time (~1500 pairs)</th>
+          <th>Install</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>macOS (Apple Silicon)</td>
+          <td>MLX-LM</td>
+          <td>No (uses Metal)</td>
+          <td>~20 min</td>
+          <td><code>pip install mlx-lm</code></td>
+        </tr>
+        <tr>
+          <td>Windows (NVIDIA GPU)</td>
+          <td>PyTorch + PEFT + QLoRA</td>
+          <td>Yes (6GB+ VRAM)</td>
+          <td>~30 min</td>
+          <td><code>pip install "pratibmb[finetune-pytorch]"</code></td>
+        </tr>
+        <tr>
+          <td>Linux (NVIDIA GPU)</td>
+          <td>PyTorch + PEFT + QLoRA</td>
+          <td>Yes (6GB+ VRAM)</td>
+          <td>~30 min</td>
+          <td><code>pip install "pratibmb[finetune-pytorch]"</code></td>
+        </tr>
+        <tr>
+          <td>Linux (CPU-only)</td>
+          <td>PyTorch (no quantization)</td>
+          <td>No</td>
+          <td>~2 hours</td>
+          <td><code>pip install "pratibmb[finetune-pytorch]"</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="ft-note">Fine-tuning is optional. The base model works well out of the box with profile extraction and RAG. Fine-tuning adds your specific texting style (abbreviations, language mix, emoji patterns).</p>
+  </div>
+</section>
+
+<!-- Privacy -->
+<section class="privacy" id="privacy">
+  <div class="container">
+    <h2>Privacy by Architecture</h2>
+    <p class="section-sub">Not just a policy. The code enforces it.</p>
+    <div class="privacy-grid">
+      <div class="privacy-card">
+        <div class="priv-icon">&#128274;</div>
+        <h3>100% Local</h3>
+        <p>Every computation runs on your hardware. Messages, embeddings, models, and profiles never leave your machine.</p>
+      </div>
+      <div class="privacy-card">
+        <div class="priv-icon">&#9729;</div>
+        <h3>No Cloud</h3>
+        <p>No OpenAI API, no cloud inference, no remote servers. Works with Wi-Fi off after the initial model download.</p>
+      </div>
+      <div class="privacy-card">
+        <div class="priv-icon">&#128200;</div>
+        <h3>No Telemetry</h3>
+        <p>Zero analytics, no crash reports, no usage tracking, no phone-home. Check the source code yourself.</p>
+      </div>
+      <div class="privacy-card">
+        <div class="priv-icon">&#128736;</div>
+        <h3>Open Source</h3>
+        <p>AGPLv3 licensed. Every line is auditable. Don't trust us &mdash; verify. Community contributions welcome.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Open Source -->
+<section class="opensource" id="opensource">
+  <div class="container">
+    <h2>Built in the Open</h2>
+    <p>Pratibmb is free software under the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">AGPLv3 license</a>. The source code is on <a href="https://github.com/tapaskar/Pratibmb">GitHub</a>.</p>
+    <p>Your most intimate data &mdash; a decade of private messages &mdash; is the one dataset you should never upload to somebody else's API. That's why Pratibmb exists.</p>
+    <div class="os-links">
+      <a href="https://github.com/tapaskar/Pratibmb" class="btn btn-secondary">View on GitHub</a>
+      <a href="https://github.com/tapaskar/Pratibmb/issues" class="btn btn-secondary">Report Issue</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>Pratibmb &copy; 2025. <a href="https://github.com/tapaskar/Pratibmb/blob/main/LICENSE">AGPLv3</a> &middot; <a href="https://github.com/tapaskar/Pratibmb">Source</a> &middot; <a href="https://github.com/tapaskar/Pratibmb/blob/main/docs/HELP.md">Documentation</a></p>
+    <p class="footer-note">Made with care. No cookies, no tracking pixels, no external requests on this page.</p>
+  </div>
+</footer>
+
+</body>
+</html>

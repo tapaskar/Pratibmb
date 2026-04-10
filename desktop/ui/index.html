@@ -126,8 +126,58 @@
       </div>
 
       <div class="help-section">
-        <h3>Coming soon</h3>
-        <p>Gmail (Google Takeout), iMessage (macOS), Telegram, Twitter/X archive, Discord</p>
+        <h3>Gmail (Google Takeout)</h3>
+        <ol>
+          <li>Go to <a href="https://takeout.google.com" target="_blank">takeout.google.com</a></li>
+          <li>Click <b>Deselect all</b>, then select only <b>Mail</b></li>
+          <li>Click <b>Next step</b> &rarr; <b>Create export</b></li>
+          <li>Wait for the download link (can take hours for large mailboxes)</li>
+          <li>Download and unzip the archive</li>
+          <li>Point Pratibmb at the <code>.mbox</code> file or the <code>Takeout/Mail/</code> folder</li>
+        </ol>
+        <p class="help-note">Emails are threaded by References/In-Reply-To headers. Text-only (attachments are not imported).</p>
+      </div>
+
+      <div class="help-section">
+        <h3>iMessage (macOS only)</h3>
+        <ol>
+          <li>Open <b>System Settings</b> &rarr; <b>Privacy &amp; Security</b> &rarr; <b>Full Disk Access</b></li>
+          <li>Add your terminal app to the list</li>
+          <li>Point Pratibmb at <code>~/Library/Messages/chat.db</code></li>
+        </ol>
+        <p class="help-note">Quit Messages.app before importing. Both SMS and iMessage are included. macOS Ventura+ format supported.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>Telegram</h3>
+        <ol>
+          <li>Open <b>Telegram Desktop</b> (not mobile)</li>
+          <li>Go to <b>Settings</b> &rarr; <b>Advanced</b> &rarr; <b>Export Telegram data</b></li>
+          <li>Select chats, choose <b>Machine-readable JSON</b> format</li>
+          <li>Export, then point Pratibmb at the export folder</li>
+        </ol>
+        <p class="help-note">Desktop-only export. Private and group chats both supported.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>Twitter / X</h3>
+        <ol>
+          <li>Go to <b>Settings</b> &rarr; <b>Your Account</b> &rarr; <b>Download an archive</b></li>
+          <li>Wait 24-48 hours for the archive to be prepared</li>
+          <li>Download and unzip the archive</li>
+          <li>Point Pratibmb at the unzipped folder (contains <code>data/tweets.js</code>)</li>
+        </ol>
+        <p class="help-note">Both tweets and DMs are imported. The JS wrapper is stripped automatically.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>Discord</h3>
+        <ol>
+          <li>Download <a href="https://github.com/Tyrrrz/DiscordChatExporter" target="_blank">DiscordChatExporter</a> (open source)</li>
+          <li>Export your channels/DMs as <b>JSON</b></li>
+          <li>Point Pratibmb at the JSON file or export folder</li>
+        </ol>
+        <p class="help-note">No official Discord export exists. DiscordChatExporter is the community standard.</p>
       </div>
 
       <div class="help-section privacy-note">
