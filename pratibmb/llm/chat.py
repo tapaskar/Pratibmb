@@ -75,12 +75,33 @@ def _clean(text: str) -> str:
     return t.strip()
 
 
+def _resolve_lora_path(lora_path: Path | str | None) -> str | None:
+    """Resolve a LoRA adapter path, checking defaults if not specified."""
+    if lora_path is not None:
+        p = Path(lora_path)
+        if p.exists():
+            return str(p)
+        return None
+
+    # Auto-detect adapter in default location
+    import os
+    data_dir = Path(os.environ.get("PRATIBMB_DATA_DIR", "")) or (
+        Path.home() / ".pratibmb"
+    )
+    default = data_dir / "models" / "adapter.gguf"
+    if default.exists():
+        return str(default)
+    return None
+
+
 class Chatter:
     def __init__(self, model_path: Path, chat_format: str = "gemma",
-                 n_ctx: int = 8192, n_threads: int = 8):
+                 n_ctx: int = 8192, n_threads: int = 8,
+                 lora_path: Path | str | None = None):
         if Llama is None:
             raise RuntimeError("llama-cpp-python not installed")
-        self.llm = Llama(
+        resolved_lora = _resolve_lora_path(lora_path)
+        kwargs: dict = dict(
             model_path=str(model_path),
             chat_format=chat_format,
             n_ctx=n_ctx,
@@ -88,6 +109,11 @@ class Chatter:
             n_gpu_layers=-1,
             verbose=False,
         )
+        if resolved_lora:
+            kwargs["lora_path"] = resolved_lora
+            print(f"[chatter] Loading LoRA adapter: {resolved_lora}", flush=True)
+        self.llm = Llama(**kwargs)
+        self.lora_path = resolved_lora
 
     def reply(self, year: int, context_block: str, user_prompt: str,
               profile_context: str = "", self_name: str = "you",

@@ -220,5 +220,127 @@ def stats() -> None:
         store.close()
 
 
+@main.group()
+def finetune() -> None:
+    """LoRA fine-tuning pipeline."""
+
+
+@finetune.command("extract-pairs")
+@click.option("--db", type=click.Path(path_type=Path), default=None,
+              help="Path to corpus DB. Defaults to ~/.pratibmb/corpus.db.")
+@click.option("--max-pairs", type=int, default=3000,
+              help="Maximum number of training pairs.")
+@click.option("--output", type=click.Path(path_type=Path), default=None,
+              help="Output directory for JSONL files.")
+def finetune_extract(db: Path | None, max_pairs: int, output: Path | None) -> None:
+    """Extract training pairs and format as JSONL."""
+    from .finetune import extract_pairs, format_for_gemma, save_jsonl
+    from .finetune.format import split_dataset
+    import os
+
+    cfg = load_config()
+    self_name = cfg.get("self_name", "")
+    if not self_name:
+        console.print("[red]run `pratibmb init` first[/red]")
+        sys.exit(1)
+
+    db_file = db or db_path()
+    if not db_file.exists():
+        console.print(f"[red]database not found: {db_file}[/red]")
+        sys.exit(1)
+
+    store = Store(db_file)
+    try:
+        console.print("[cyan]extracting training pairs...[/cyan]")
+        pairs = extract_pairs(store, self_name=self_name, max_pairs=max_pairs)
+        console.print(f"[green]extracted {len(pairs)} training pairs[/green]")
+
+        if not pairs:
+            console.print("[red]no training pairs found[/red]")
+            sys.exit(1)
+
+        console.print("[cyan]formatting for Gemma...[/cyan]")
+        records = format_for_gemma(pairs)
+
+        # Split into train/val
+        train_recs, val_recs = split_dataset(records, train_ratio=0.9)
+
+        # Determine output directory
+        base = Path(os.environ.get("PRATIBMB_DATA_DIR", "")) or data_dir()
+        out = output or (base / "finetune" / "data")
+
+        n_train = save_jsonl(train_recs, out / "train.jsonl")
+        n_val = save_jsonl(val_recs, out / "valid.jsonl")
+
+        console.print(f"[green]saved {n_train} train + {n_val} val records to {out}[/green]")
+
+        # Show a few examples
+        for i, r in enumerate(records[:2]):
+            console.print(f"\n[dim]--- example {i+1} ---[/dim]")
+            console.print(r["text"][:300])
+    finally:
+        store.close()
+
+
+@finetune.command("train")
+@click.option("--model", default="google/gemma-3-4b-it",
+              help="HuggingFace model name.")
+@click.option("--epochs", type=int, default=2)
+@click.option("--lr", type=float, default=1e-4, help="Learning rate.")
+@click.option("--rank", type=int, default=16, help="LoRA rank.")
+def finetune_train(model: str, epochs: int, lr: float, rank: int) -> None:
+    """Run LoRA training via MLX-LM."""
+    from .finetune import train_lora, TrainConfig
+
+    config = TrainConfig(
+        model_name=model,
+        num_epochs=epochs,
+        learning_rate=lr,
+        lora_rank=rank,
+    )
+    console.print(f"[cyan]starting LoRA training (rank={rank}, epochs={epochs})...[/cyan]")
+    result = train_lora(config)
+
+    if result["status"] == "ok":
+        console.print(f"[green]training complete![/green]")
+        console.print(f"  adapter: {result['adapter_path']}")
+    elif result["status"] == "manual":
+        console.print("[yellow]mlx-lm not available. Manual instructions:[/yellow]")
+        console.print(result["instructions"])
+    else:
+        console.print(f"[red]training failed: {result.get('error', 'unknown')}[/red]")
+        sys.exit(1)
+
+
+@finetune.command("convert")
+@click.option("--adapter-dir", type=click.Path(path_type=Path), default=None,
+              help="Path to MLX adapter directory.")
+@click.option("--output", type=click.Path(path_type=Path), default=None,
+              help="Output GGUF path.")
+@click.option("--base-model", default="google/gemma-3-4b-it",
+              help="Base model name for conversion.")
+def finetune_convert(adapter_dir: Path | None, output: Path | None,
+                     base_model: str) -> None:
+    """Convert MLX adapter to GGUF format."""
+    from .finetune import convert_adapter
+    import os
+
+    if adapter_dir is None:
+        base = Path(os.environ.get("PRATIBMB_DATA_DIR", "")) or data_dir()
+        adapter_dir = base / "finetune" / "adapter"
+
+    console.print(f"[cyan]converting adapter from {adapter_dir}...[/cyan]")
+    result = convert_adapter(adapter_dir, output_path=output, base_model=base_model)
+
+    if result["status"] == "ok":
+        console.print(f"[green]converted! GGUF adapter: {result['output_path']}[/green]")
+    elif result["status"] == "manual":
+        console.print("[yellow]automatic conversion unavailable. Instructions:[/yellow]")
+        console.print(result["instructions"])
+    else:
+        console.print(f"[red]conversion failed: {result.get('error', 'unknown')}[/red]")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     main()

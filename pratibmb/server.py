@@ -11,6 +11,7 @@ Endpoints:
   POST /voice         {}
   POST /profile       {}           -- extract structured profile (one-time)
   POST /chat          {"year": 2022, "prompt": "hey"}
+  POST /finetune      {"step": "extract"|"train"|"convert"|"full"}
   GET  /stats         -> corpus summary
   GET  /health        -> {"ok": true}
 
@@ -172,6 +173,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._extract_profile(body)
             elif self.path == "/chat":
                 self._chat(body)
+            elif self.path == "/finetune":
+                self._finetune(body)
             else:
                 _json_response(self, 404, {"error": "not found"})
         except Exception as e:
@@ -334,6 +337,84 @@ class Handler(BaseHTTPRequestHandler):
                  "thread": h["thread_name"], "score": round(h["score"], 3)}
                 for h in hits]
         _json_response(self, 200, {"reply": reply, "used_messages": used})
+
+    def _finetune(self, body: dict):
+        """Run the fine-tuning pipeline (extract, optionally train+convert).
+
+        Body params:
+          step: "extract" | "train" | "convert" | "full" (default: "extract")
+          self_name: override self_name from config
+          max_pairs: max training pairs (default 3000)
+          model_name: HuggingFace model for training
+          epochs: number of training epochs
+          lora_rank: LoRA rank
+        """
+        step = body.get("step", "extract")
+        self_name = body.get("self_name", "") or _config.get("self_name", "")
+        if not self_name:
+            _json_response(self, 400, {"error": "self_name required (run /init first)"})
+            return
+
+        store = _get_store()
+
+        if step in ("extract", "full"):
+            from .finetune import extract_pairs, format_for_gemma, save_jsonl
+            from .finetune.format import split_dataset
+
+            max_pairs = body.get("max_pairs", 3000)
+            pairs = extract_pairs(store, self_name=self_name, max_pairs=max_pairs)
+            if not pairs:
+                _json_response(self, 200, {
+                    "status": "error",
+                    "error": "no training pairs found",
+                })
+                return
+
+            records = format_for_gemma(pairs)
+            train_recs, val_recs = split_dataset(records, train_ratio=0.9)
+
+            data_dir = _data_dir() / "finetune" / "data"
+            n_train = save_jsonl(train_recs, data_dir / "train.jsonl")
+            n_val = save_jsonl(val_recs, data_dir / "valid.jsonl")
+
+            result = {
+                "status": "ok",
+                "step": "extract",
+                "pairs": len(pairs),
+                "train": n_train,
+                "val": n_val,
+                "data_dir": str(data_dir),
+            }
+
+            if step == "extract":
+                _json_response(self, 200, result)
+                return
+
+        if step in ("train", "full"):
+            from .finetune import train_lora, TrainConfig
+            config = TrainConfig(
+                model_name=body.get("model_name", "google/gemma-3-4b-it"),
+                num_epochs=body.get("epochs", 2),
+                lora_rank=body.get("lora_rank", 16),
+            )
+            train_result = train_lora(config)
+            if step == "train":
+                _json_response(self, 200, train_result)
+                return
+            result["train_result"] = train_result
+
+        if step in ("convert", "full"):
+            from .finetune import convert_adapter
+            adapter_dir = body.get("adapter_dir", "") or str(
+                _data_dir() / "finetune" / "adapter"
+            )
+            convert_result = convert_adapter(adapter_dir)
+            if step == "convert":
+                _json_response(self, 200, convert_result)
+                return
+            result["convert_result"] = convert_result
+
+        _json_response(self, 200, result)
 
     def _stats(self):
         store = _get_store()

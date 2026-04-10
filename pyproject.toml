@@ -26,6 +26,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10"]
+finetune = ["mlx-lm>=0.18"]
 
 [project.scripts]
 pratibmb = "pratibmb.cli:main"
