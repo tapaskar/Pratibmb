@@ -27,6 +27,11 @@ exports/
 imports/
 models/
 *.gguf
+*.jsonl
+
+# Fine-tuning data (contains private messages)
+finetune/data/
+finetune/adapter/
 
 # OS
 .DS_Store
