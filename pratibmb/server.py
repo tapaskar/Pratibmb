@@ -5,7 +5,7 @@ Spawned by the Tauri desktop app as a sidecar process. No Flask/FastAPI —
 stdlib only so we don't add deps to the shipped binary.
 
 Endpoints:
-  POST /init          {"self_name": "Tapas"}
+  POST /init          {"self_name": "YourName"}
   POST /import        {"path": "/path/to/export"}
   POST /embed         {"model": "/path/to/embed.gguf"}
   POST /voice         {}
@@ -18,6 +18,7 @@ All responses are JSON. Server binds to 127.0.0.1 only — never exposed.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import traceback
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -27,6 +28,23 @@ from typing import Any
 from .store import Store
 from .importers import ALL_IMPORTERS, pick_importer
 from .voice import fingerprint, render_voice_directive
+
+
+def _env_model(env_key: str, default_name: str) -> str:
+    """Resolve a model path from env var, or look in common locations."""
+    v = os.environ.get(env_key, "")
+    if v and Path(v).exists():
+        return v
+    # Search common locations
+    for d in [
+        Path.home() / ".pratibmb" / "models",
+        Path.home() / "models",
+        Path.cwd() / "models",
+    ]:
+        p = d / default_name
+        if p.exists():
+            return str(p)
+    return ""
 
 # Lazy-loaded heavy objects
 _store: Store | None = None
@@ -183,13 +201,15 @@ class Handler(BaseHTTPRequestHandler):
             _json_response(self, 400, {"error": "year and prompt required"})
             return
 
-        model = body.get("model", "")
-        embed_model = body.get("embed_model", "")
+        model = body.get("model", "") or _env_model(
+            "PRATIBMB_CHAT_MODEL", "gemma-3-4b-it-q4_k_m.gguf")
+        embed_model = body.get("embed_model", "") or _env_model(
+            "PRATIBMB_EMBED_MODEL", "nomic-embed-text-v1.5-q4_k_m.gguf")
         chat_format = body.get("chat_format", "gemma")
 
         if _embedder is None:
             if not embed_model:
-                _json_response(self, 400, {"error": "embed_model required on first call"})
+                _json_response(self, 400, {"error": "embed model not found. Set PRATIBMB_EMBED_MODEL env var or place model in ~/.pratibmb/models/"})
                 return
             from .rag import Embedder
             _embedder = Embedder(Path(embed_model))
@@ -200,7 +220,7 @@ class Handler(BaseHTTPRequestHandler):
 
         if _chatter is None:
             if not model:
-                _json_response(self, 400, {"error": "model required on first call"})
+                _json_response(self, 400, {"error": "chat model not found. Set PRATIBMB_CHAT_MODEL env var or place model in ~/.pratibmb/models/"})
                 return
             from .llm import Chatter
             _chatter = Chatter(Path(model), chat_format=chat_format)

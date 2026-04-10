@@ -22,10 +22,11 @@ helpOverlay.addEventListener("click", (e) => {
 
 const SERVER = "http://127.0.0.1:11435";
 
-// Default model paths (overridable via settings later)
+// Default model paths — auto-discovered by the server.
+// Override by setting PRATIBMB_CHAT_MODEL / PRATIBMB_EMBED_MODEL env vars.
 const DEFAULTS = {
-  model: "/Volumes/wininstall/llm-eval/models/gemma-3-4b-it-q4_k_m.gguf",
-  embed_model: "/Volumes/wininstall/llm-eval/models/nomic-embed-text-v1.5-q4_k_m.gguf",
+  model: "",
+  embed_model: "",
   chat_format: "gemma",
 };
 

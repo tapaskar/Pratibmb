@@ -1,17 +1,21 @@
 """
 End-to-end smoke test for Pratibmb.
 
-Loads the synthetic WhatsApp corpus produced during model selection
-(/Volumes/wininstall/llm-eval/corpus.json), imports it into a temporary
-Pratibmb store, embeds it with the bundled nomic GGUF embedding model,
-fingerprints the voice, retrieves context for a test prompt, and runs
-one chat turn through Gemma-3-4B.
+Loads a synthetic WhatsApp corpus, imports it into a temporary Pratibmb
+store, embeds it, fingerprints the voice, retrieves context, and runs
+one chat turn.
+
+Requires env vars or model files in ~/.pratibmb/models/:
+    PRATIBMB_CORPUS       path to corpus.json
+    PRATIBMB_EMBED_MODEL  path to embedding GGUF
+    PRATIBMB_CHAT_MODEL   path to chat GGUF
 
 Run:
     python scripts/smoke.py
 """
 from __future__ import annotations
 import json
+import os
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,9 +26,21 @@ from pratibmb.rag import Embedder, Retriever, format_context
 from pratibmb.voice import fingerprint, render_voice_directive
 from pratibmb.llm import Chatter
 
-CORPUS = Path("/Volumes/wininstall/llm-eval/corpus.json")
-EMBED_MODEL = Path("/Volumes/wininstall/llm-eval/models/nomic-embed-text-v1.5-q4_k_m.gguf")
-CHAT_MODEL = Path("/Volumes/wininstall/llm-eval/models/gemma-3-4b-it-q4_k_m.gguf")
+
+def _resolve(env_key: str, default_name: str) -> Path:
+    v = os.environ.get(env_key, "")
+    if v:
+        return Path(v)
+    for d in [Path.home() / ".pratibmb" / "models", Path.cwd() / "models"]:
+        p = d / default_name
+        if p.exists():
+            return p
+    raise FileNotFoundError(f"Set {env_key} or place {default_name} in ~/.pratibmb/models/")
+
+
+CORPUS = Path(os.environ.get("PRATIBMB_CORPUS", "corpus.json"))
+EMBED_MODEL = _resolve("PRATIBMB_EMBED_MODEL", "nomic-embed-text-v1.5-q4_k_m.gguf")
+CHAT_MODEL = _resolve("PRATIBMB_CHAT_MODEL", "gemma-3-4b-it-q4_k_m.gguf")
 
 SELF_NAME = "you"
 

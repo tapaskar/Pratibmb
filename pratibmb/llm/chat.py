@@ -16,15 +16,9 @@ except ImportError:  # pragma: no cover
     Llama = None  # type: ignore
 
 
-BASE_SYSTEM_PROMPT = """Continue this text conversation. You are the sender of the past messages shown below. Year: {year}.
+BASE_SYSTEM_PROMPT = """Continue this text conversation as the sender of the past messages. Year: {year}.
 {voice_directive}
-STRICT:
-- Reply with 1 short text (max 15 words). Never write more than 2 sentences.
-- ONLY mention things from your past messages. NEVER invent names, places, jobs, or facts.
-- If you don't know, say "idk" or "not sure".
-- No markdown. No asterisks. No bullet points.
-- Match the language/style of your past messages exactly.
-- You are NOT an AI. You are a real person texting a friend.
+Reply in 2-4 casual sentences. Only reference things from the past messages — if you don't know, say "idk" or "not sure". Match the language style. No markdown. Never say you are an AI.
 """
 
 
@@ -69,10 +63,10 @@ def _clean(text: str) -> str:
             if t.startswith(lq) and t.endswith(rq):
                 t = t[len(lq):-len(rq)].strip()
                 break
-    # Hard truncate: keep at most 2 sentences
+    # Hard truncate: keep at most 4 sentences
     sentences = re.split(r'(?<=[.!?])\s+', t)
-    if len(sentences) > 2:
-        t = " ".join(sentences[:2])
+    if len(sentences) > 4:
+        t = " ".join(sentences[:4])
     return t.strip()
 
 
@@ -91,15 +85,15 @@ class Chatter:
         )
 
     def reply(self, year: int, voice_directive: str, context_block: str,
-              user_prompt: str, max_tokens: int = 40) -> str:
+              user_prompt: str, max_tokens: int = 120) -> str:
         system = BASE_SYSTEM_PROMPT.format(
             year=year,
             voice_directive=voice_directive or "",
         )
         user = (
             f"Your past messages for reference:\n{context_block}\n\n"
-            f"Friend's message: {user_prompt}\n"
-            f"Your reply (short, casual):"
+            f"Friend: {user_prompt}\n"
+            f"You:"
         )
         self.llm.reset()  # clear KV cache between turns
         r = self.llm.create_chat_completion(
@@ -107,7 +101,7 @@ class Chatter:
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            temperature=0.7,
+            temperature=0.8,
             top_p=0.85,
             top_k=30,
             repeat_penalty=1.2,
