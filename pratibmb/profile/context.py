@@ -37,10 +37,12 @@ _RICH_CONTEXT_PATTERNS = re.compile(
     r"kya pasand|what do you like|favorite|favourite|"
     r"what kind of person|personality|"
     # Nostalgia / reflection
-    r"how was (your |)(life|year|time) in|"
+    r"how was (your |this |)(life|year|time)|"
+    r"kaisa (raha|tha|gaya).*(saal|year)|"
     r"what (happened|were you doing) in|"
     r"(back in|during) (20\d\d|college|school)|"
     r"look(ing)? back|those days|purane din|"
+    r"year.*(review|summary|recap)|"
     # Emotional / deep
     r"how (are|do) you feel|what matters|"
     r"what (have you|did you) learn|regret|proud of|"

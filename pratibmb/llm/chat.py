@@ -18,15 +18,18 @@ except ImportError:  # pragma: no cover
 
 BASE_SYSTEM_PROMPT = """You are {self_name}. The year is {year}. A friend is texting you. Reply as yourself — casually, naturally, in character.
 
-{profile_context}
-
-Use the past conversations below to stay grounded. Only talk about things you actually know from your life. If you're unsure about something, say so naturally ("idk", "hmm not sure"). Never invent facts about your life.
-
-IMPORTANT: Write a proper reply — at least 2 full sentences. Share what's on your mind, ask them something back, mention something from your life. Don't just say "ok" or "haan" — actually engage in the conversation like you would with a good friend. Use your natural mix of Hindi/English/Odia as you normally would.
-
 You are a real person, NOT an AI. Never say you are a language model, chatbot, AI assistant, or created by anyone. You are {self_name} and you have a real life with real memories.
 
-No markdown, no bold, no asterisks, no bullet points. Never break character.
+RULES:
+1. NEVER copy-paste text from the past conversations below. They are for reference only — use them to remember facts, but always write your OWN fresh words.
+2. Write at least 2 full sentences. Share what's on your mind, ask them something back, or talk about your life.
+3. Use your natural mix of Hindi/English/Odia. Don't just say "ok" or "haan".
+4. If unsure about something, say so naturally ("hmm not sure", "idk").
+5. PRIORITIZE the "About you" section below over raw past messages — it has your verified life facts.
+6. No markdown, no bold, no asterisks, no bullet points.
+
+About you:
+{profile_context}
 """
 
 
@@ -72,10 +75,10 @@ def _clean(text: str) -> str:
             if t.startswith(lq) and t.endswith(rq):
                 t = t[len(lq):-len(rq)].strip()
                 break
-    # Hard truncate: keep at most 4 sentences
+    # Hard truncate: keep at most 6 sentences
     sentences = re.split(r'(?<=[.!?])\s+', t)
-    if len(sentences) > 4:
-        t = " ".join(sentences[:4])
+    if len(sentences) > 6:
+        t = " ".join(sentences[:6])
     return t.strip()
 
 
@@ -120,14 +123,16 @@ class Chatter:
 
     def reply(self, year: int, context_block: str, user_prompt: str,
               profile_context: str = "", self_name: str = "you",
-              max_tokens: int = 120) -> str:
+              max_tokens: int = 200) -> str:
         system = BASE_SYSTEM_PROMPT.format(
             self_name=self_name,
             year=year,
             profile_context=profile_context or "",
         )
         user = (
+            f"Reference messages from your past (DO NOT copy these, just use for context):\n"
             f"{context_block}\n\n"
+            f"Now reply naturally to your friend's message:\n"
             f"Friend: {user_prompt}\n"
             f"You:"
         )
@@ -149,13 +154,19 @@ class Chatter:
         raw = r["choices"][0]["message"]["content"]
         cleaned = _clean(raw)
 
-        # If reply is too short (< 15 chars), retry with a continuation nudge
-        if len(cleaned) < 15 and max_tokens > 30:
+        # The finetuned model tends toward very short replies (avg 5 words).
+        # If reply is too short, retry with continuation nudge up to 2 times.
+        attempts = 0
+        while len(cleaned.split()) < 8 and attempts < 2 and max_tokens > 30:
+            attempts += 1
             self.llm.reset()
             nudge_user = (
+                f"Reference messages from your past (DO NOT copy these):\n"
                 f"{context_block}\n\n"
+                f"Continue this conversation naturally — elaborate more, "
+                f"share details from your life:\n"
                 f"Friend: {user_prompt}\n"
-                f"You: {cleaned} "
+                f"You: {cleaned}"
             )
             r2 = self.llm.create_chat_completion(
                 messages=[
@@ -163,17 +174,20 @@ class Chatter:
                     {"role": "user", "content": nudge_user},
                 ],
                 temperature=0.95,
-                top_p=0.9,
+                top_p=0.92,
                 top_k=50,
                 repeat_penalty=1.1,
-                presence_penalty=0.8,
+                presence_penalty=0.9,
+                frequency_penalty=0.4,
                 max_tokens=max_tokens,
                 seed=random.randint(0, 2**31),
             )
             continuation = _clean(r2["choices"][0]["message"]["content"])
-            if continuation and not continuation.lower().startswith(cleaned.lower()):
-                cleaned = f"{cleaned} {continuation}"
-            elif continuation:
-                cleaned = continuation
+            if continuation:
+                # Merge: if continuation repeats the start, use it as replacement
+                if continuation.lower().startswith(cleaned.lower()[:20]):
+                    cleaned = continuation
+                else:
+                    cleaned = f"{cleaned} {continuation}"
 
         return cleaned
