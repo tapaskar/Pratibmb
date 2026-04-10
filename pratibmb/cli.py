@@ -266,7 +266,8 @@ def finetune_extract(db: Path | None, max_pairs: int, output: Path | None) -> No
         train_recs, val_recs = split_dataset(records, train_ratio=0.9)
 
         # Determine output directory
-        base = Path(os.environ.get("PRATIBMB_DATA_DIR", "")) or data_dir()
+        env_dir = os.environ.get("PRATIBMB_DATA_DIR", "")
+        base = Path(env_dir) if env_dir else data_dir()
         out = output or (base / "finetune" / "data")
 
         n_train = save_jsonl(train_recs, out / "train.jsonl")
@@ -326,7 +327,8 @@ def finetune_convert(adapter_dir: Path | None, output: Path | None,
     import os
 
     if adapter_dir is None:
-        base = Path(os.environ.get("PRATIBMB_DATA_DIR", "")) or data_dir()
+        env_dir = os.environ.get("PRATIBMB_DATA_DIR", "")
+        base = Path(env_dir) if env_dir else data_dir()
         adapter_dir = base / "finetune" / "adapter"
 
     console.print(f"[cyan]converting adapter from {adapter_dir}...[/cyan]")

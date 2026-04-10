@@ -85,9 +85,8 @@ def _resolve_lora_path(lora_path: Path | str | None) -> str | None:
 
     # Auto-detect adapter in default location
     import os
-    data_dir = Path(os.environ.get("PRATIBMB_DATA_DIR", "")) or (
-        Path.home() / ".pratibmb"
-    )
+    env_dir = os.environ.get("PRATIBMB_DATA_DIR", "")
+    data_dir = Path(env_dir) if env_dir else Path.home() / ".pratibmb"
     default = data_dir / "models" / "adapter.gguf"
     if default.exists():
         return str(default)

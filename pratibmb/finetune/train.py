@@ -60,9 +60,8 @@ class TrainConfig:
 
     def resolve_paths(self) -> None:
         """Fill in default paths if not set."""
-        base = Path(os.environ.get("PRATIBMB_DATA_DIR", "")) or (
-            Path.home() / ".pratibmb"
-        )
+        env_dir = os.environ.get("PRATIBMB_DATA_DIR", "")
+        base = Path(env_dir) if env_dir else Path.home() / ".pratibmb"
         if not self.data_dir:
             self.data_dir = str(base / "finetune" / "data")
         if not self.output_dir:
@@ -79,34 +78,44 @@ def check_mlx_available() -> bool:
 
 
 def _write_mlx_config(config: TrainConfig, config_path: Path) -> None:
-    """Write the mlx-lm LoRA training config YAML/JSON."""
+    """Write mlx-lm LoRA config JSON matching CONFIG_DEFAULTS format."""
+    # Calculate iters from epochs if max_steps not set
+    # mlx-lm uses iters, not epochs — estimate from data size
+    iters = config.max_steps
+    if iters <= 0:
+        # Estimate: count lines in train.jsonl
+        train_file = Path(config.data_dir) / "train.jsonl"
+        if train_file.exists():
+            n_samples = sum(1 for _ in open(train_file))
+            effective_batch = config.batch_size * config.grad_accum_steps
+            iters_per_epoch = max(1, n_samples // effective_batch)
+            iters = iters_per_epoch * config.num_epochs
+        else:
+            iters = 1000  # fallback
+
     cfg = {
         "model": config.model_name,
         "train": True,
         "data": config.data_dir,
         "adapter_path": config.output_dir,
-        "lora_layers": len(config.lora_target_modules) * 28,  # per-layer
+        "fine_tune_type": "lora",
+        "num_layers": -1,  # all layers
+        "batch_size": config.batch_size,
+        "iters": iters,
+        "learning_rate": config.learning_rate,
+        "steps_per_report": 10,
+        "steps_per_eval": config.steps_per_eval,
+        "save_every": config.save_every,
+        "max_seq_length": config.max_seq_length,
+        "grad_checkpoint": True,
+        "grad_accumulation_steps": config.grad_accum_steps,
         "lora_parameters": {
             "rank": config.lora_rank,
-            "alpha": config.lora_alpha,
             "dropout": config.lora_dropout,
-            "keys": config.lora_target_modules,
+            "scale": float(config.lora_alpha),
         },
-        "training_args": {
-            "batch_size": config.batch_size,
-            "iters": config.max_steps if config.max_steps > 0 else None,
-            "epochs": config.num_epochs,
-            "learning_rate": config.learning_rate,
-            "warmup_steps": config.warmup_steps,
-            "steps_per_eval": config.steps_per_eval,
-            "save_every": config.save_every,
-            "max_seq_length": config.max_seq_length,
-            "grad_checkpoint": True,
-        },
-    }
-    # Filter None values from training_args
-    cfg["training_args"] = {
-        k: v for k, v in cfg["training_args"].items() if v is not None
+        "mask_prompt": False,
+        "seed": 42,
     }
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config_path.write_text(json.dumps(cfg, indent=2))
@@ -153,22 +162,12 @@ def train_lora(
     config_path = data_dir / "train_config.json"
     _write_mlx_config(config, config_path)
 
-    # Build mlx-lm command
+    # Build mlx-lm command — use config file for LoRA params
+    # (CLI doesn't expose --lora-rank or --num-epochs directly)
     cmd = [
         sys.executable, "-m", "mlx_lm.lora",
-        "--model", config.model_name,
-        "--data", config.data_dir,
-        "--adapter-path", config.output_dir,
-        "--train",
-        "--batch-size", str(config.batch_size),
-        "--num-epochs", str(config.num_epochs),
-        "--learning-rate", str(config.learning_rate),
-        "--lora-rank", str(config.lora_rank),
-        "--max-seq-length", str(config.max_seq_length),
+        "-c", str(config_path),
     ]
-
-    if config.max_steps > 0:
-        cmd.extend(["--iters", str(config.max_steps)])
 
     print(f"[finetune] Running: {' '.join(cmd)}", flush=True)
 
