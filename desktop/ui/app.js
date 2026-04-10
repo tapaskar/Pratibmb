@@ -114,17 +114,18 @@ async function checkHealth() {
   return false;
 }
 
-async function showContext(used) {
-  if (!used || used.length === 0) return;
-  const summary = used
-    .slice(0, 3)
-    .map((m) => `[${m.year} ${m.thread}] ${m.text.slice(0, 60)}...`)
-    .join("\n");
-  const div = document.createElement("div");
-  div.className = "context-hint";
-  div.textContent = "retrieved: " + summary;
-  chat.appendChild(div);
-}
+// Context hints hidden in normal mode — chat should feel like texting.
+// Uncomment for debugging retrieval quality.
+// function showContext(used) {
+//   if (!used || used.length === 0) return;
+//   const summary = used.slice(0, 3)
+//     .map((m) => `[${m.year} ${m.thread}] ${m.text.slice(0, 60)}...`).join("\n");
+//   const div = document.createElement("div");
+//   div.className = "context-hint";
+//   div.textContent = "retrieved: " + summary;
+//   chat.appendChild(div);
+// }
+function showContext() {} // no-op
 
 composer.addEventListener("submit", async (e) => {
   e.preventDefault();
