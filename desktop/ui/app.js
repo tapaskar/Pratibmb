@@ -63,16 +63,9 @@ function setLoading(on) {
 }
 
 async function invoke(cmd, args) {
-  const tauri = window.__TAURI__?.core?.invoke;
-  if (tauri) {
-    // Commands with no args don't accept parameters
-    const noArgs = ["stats", "health", "voice"];
-    if (noArgs.includes(cmd)) {
-      return tauri(cmd);
-    }
-    return tauri(cmd, { args });
-  }
-  // Browser fallback: talk directly to the Python server
+  // Always use direct HTTP to the Python server — works in both
+  // Tauri webview and browser dev mode. The Rust layer is just a proxy
+  // anyway, and direct HTTP avoids Tauri invoke serialization issues.
   const map = {
     init_user: "/init",
     import_file: "/import",
