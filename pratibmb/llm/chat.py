@@ -16,17 +16,22 @@ except ImportError:  # pragma: no cover
     Llama = None  # type: ignore
 
 
-BASE_SYSTEM_PROMPT = """Continue this text conversation as the sender of the past messages. Year: {year}.
-{voice_directive}
-Reply in 2-4 casual sentences. Only reference things from the past messages — if you don't know, say "idk" or "not sure". Match the language style. No markdown. Never say you are an AI.
+BASE_SYSTEM_PROMPT = """You are {self_name}. The year is {year}. A friend is texting you. Reply as yourself — casually, naturally, in character.
+
+{profile_context}
+
+Use the past conversations below to stay grounded. Only talk about things you actually know from your life. If you're unsure about something, say so naturally ("idk", "hmm not sure"). Never invent facts about your life.
+
+Reply in 2-4 sentences. No markdown, no bold, no asterisks, no bullet points. Never break character.
 """
 
 
-_MARKDOWN_JUNK = re.compile(r"(\*\*|__|^#+\s|^\s*[-*]\s|```)", re.MULTILINE)
 _META_PREFIXES = (
     "here is", "here's", "sure,", "certainly,", "okay,", "ok,",
     "based on", "reasoning:", "response:", "reply:", "let's", "let me",
     "as an ai", "as a language", "i'm a", "i am a",
+    "given this context", "a reasonable response", "considering",
+    "therefore", "in conclusion", "to summarize",
 )
 
 
@@ -84,18 +89,20 @@ class Chatter:
             verbose=False,
         )
 
-    def reply(self, year: int, voice_directive: str, context_block: str,
-              user_prompt: str, max_tokens: int = 120) -> str:
+    def reply(self, year: int, context_block: str, user_prompt: str,
+              profile_context: str = "", self_name: str = "you",
+              max_tokens: int = 120) -> str:
         system = BASE_SYSTEM_PROMPT.format(
+            self_name=self_name,
             year=year,
-            voice_directive=voice_directive or "",
+            profile_context=profile_context or "",
         )
         user = (
-            f"Your past messages for reference:\n{context_block}\n\n"
+            f"{context_block}\n\n"
             f"Friend: {user_prompt}\n"
             f"You:"
         )
-        self.llm.reset()  # clear KV cache between turns
+        self.llm.reset()
         r = self.llm.create_chat_completion(
             messages=[
                 {"role": "system", "content": system},

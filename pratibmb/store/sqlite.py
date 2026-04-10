@@ -46,6 +46,11 @@ CREATE TABLE IF NOT EXISTS meta (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS profile (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL              -- JSON
+);
 """
 
 
@@ -188,3 +193,69 @@ class Store:
             "SELECT value FROM meta WHERE key = ?", (key,)
         ).fetchone()
         return row["value"] if row else None
+
+    # -- profile -------------------------------------------------------------
+
+    def save_profile(self, key: str, data: str) -> None:
+        """Store a profile JSON blob."""
+        with self.tx() as cur:
+            cur.execute(
+                "INSERT OR REPLACE INTO profile (key, value) VALUES (?, ?)",
+                (key, data),
+            )
+
+    def load_profile(self, key: str) -> str | None:
+        row = self.conn.execute(
+            "SELECT value FROM profile WHERE key = ?", (key,)
+        ).fetchone()
+        return row["value"] if row else None
+
+    # -- thread context ------------------------------------------------------
+
+    def get_thread_context(self, message_id: int, window: int = 3) -> dict:
+        """Get a message with surrounding context from its thread.
+
+        Returns dict with 'message' plus 'context_before' and 'context_after'
+        lists (each up to `window` messages).
+        """
+        msg = self.conn.execute(
+            "SELECT * FROM messages WHERE id = ?", (message_id,)
+        ).fetchone()
+        if msg is None:
+            return {}
+        tid = msg["thread_id"]
+        ts = msg["timestamp"]
+
+        before = list(self.conn.execute("""
+            SELECT id, author_name, text, timestamp
+            FROM messages
+            WHERE thread_id = ? AND timestamp < ? AND text != ''
+            ORDER BY timestamp DESC LIMIT ?
+        """, (tid, ts, window)))
+        before.reverse()
+
+        after = list(self.conn.execute("""
+            SELECT id, author_name, text, timestamp
+            FROM messages
+            WHERE thread_id = ? AND timestamp > ? AND text != ''
+            ORDER BY timestamp ASC LIMIT ?
+        """, (tid, ts, window)))
+
+        return {
+            "message": dict(msg),
+            "context_before": [dict(r) for r in before],
+            "context_after": [dict(r) for r in after],
+        }
+
+    def get_messages_enriched(self, ids: list[int],
+                              thread_window: int = 3) -> list[dict]:
+        """Get messages with thread context attached."""
+        results = []
+        for mid in ids:
+            ctx = self.get_thread_context(mid, window=thread_window)
+            if ctx:
+                merged = ctx["message"]
+                merged["context_before"] = ctx["context_before"]
+                merged["context_after"] = ctx["context_after"]
+                results.append(merged)
+        return results

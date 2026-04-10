@@ -1,8 +1,9 @@
 """
-Year-filtered cosine-similarity retrieval over the SQLite store.
+Year-filtered retrieval with thread-context expansion.
 
-Only `author = 'self'` messages are considered context — we want past-you's
-voice, not what other people said to you.
+Retrieves semantically similar self-authored messages, then expands each
+with surrounding thread context so the LLM sees full conversation flow,
+not isolated fragments.
 """
 from __future__ import annotations
 import numpy as np
@@ -14,7 +15,9 @@ class Retriever:
         self.store = store
         self.embedder = embedder
 
-    def retrieve(self, query: str, year_max: int, top_k: int = 8) -> list[dict]:
+    def retrieve(self, query: str, year_max: int, top_k: int = 8,
+                 thread_window: int = 3) -> list[dict]:
+        """Retrieve top-k messages with thread context expansion."""
         ids, corpus = self.store.load_embeddings(year_max=year_max, author="self")
         if corpus.shape[0] == 0:
             return []
@@ -24,17 +27,21 @@ class Retriever:
         if qn == 0:
             return []
         q = q / qn
-        # Filter out zero-norm vectors to avoid NaN in cosine similarity
+        # Normalize corpus vectors
         norms = np.linalg.norm(corpus, axis=1, keepdims=True)
-        norms = np.where(norms == 0, 1.0, norms)  # avoid div-by-zero
+        norms = np.where(norms == 0, 1.0, norms)
         corpus = corpus / norms
         sims = corpus @ q
-        # Light time-decay: small boost to more recent messages within window.
-        # (kept simple; ranking is dominated by cosine)
+
         order = np.argsort(-sims)[:top_k]
         chosen_ids = [ids[i] for i in order]
-        rows = self.store.get_messages(chosen_ids)
-        by_id = {r["id"]: r for r in rows}
+
+        # Get messages with thread context
+        enriched = self.store.get_messages_enriched(
+            chosen_ids, thread_window=thread_window
+        )
+        by_id = {r["id"]: r for r in enriched}
+
         out = []
         for rank, i in enumerate(order):
             row = by_id.get(ids[i])
@@ -46,19 +53,54 @@ class Retriever:
                 "timestamp": row["timestamp"],
                 "year": row["year"],
                 "thread_name": row["thread_name"],
+                "author_name": row.get("author_name", ""),
                 "source": row["source"],
                 "score": float(sims[i]),
                 "rank": rank,
+                "context_before": row.get("context_before", []),
+                "context_after": row.get("context_after", []),
             })
         return out
 
 
 def format_context(messages: list[dict]) -> str:
+    """Format retrieved messages as conversation snippets with thread context."""
     if not messages:
-        return "<past_messages_you_sent>(none)</past_messages_you_sent>"
-    lines = []
+        return "<past_conversations>(none)</past_conversations>"
+
+    # Group by thread to show coherent conversation flow
+    threads: dict[str, list[dict]] = {}
     for m in messages:
-        ts = m["timestamp"][:10]
-        lines.append(f"[{ts} · {m['thread_name']}] {m['text']}")
-    inner = "\n".join(lines)
-    return f"<past_messages_you_sent>\n{inner}\n</past_messages_you_sent>"
+        tn = m.get("thread_name", "unknown")
+        threads.setdefault(tn, []).append(m)
+
+    lines = []
+    for thread_name, msgs in threads.items():
+        msgs.sort(key=lambda x: x.get("timestamp", ""))
+        lines.append(f"[Thread: {thread_name}]")
+
+        seen_texts = set()  # avoid duplicate context lines
+        for m in msgs:
+            # Context before (other person's messages leading up to yours)
+            for ctx in m.get("context_before", []):
+                txt = ctx["text"][:120]
+                key = (ctx.get("author_name", ""), txt)
+                if key not in seen_texts:
+                    seen_texts.add(key)
+                    lines.append(f"  {ctx['author_name']}: {txt}")
+
+            # The actual retrieved self-message
+            lines.append(f"  {m.get('author_name', 'you')}: {m['text'][:150]}")
+            seen_texts.add((m.get("author_name", ""), m["text"][:150]))
+
+            # Context after
+            for ctx in m.get("context_after", []):
+                txt = ctx["text"][:120]
+                key = (ctx.get("author_name", ""), txt)
+                if key not in seen_texts:
+                    seen_texts.add(key)
+                    lines.append(f"  {ctx['author_name']}: {txt}")
+        lines.append("")
+
+    inner = "\n".join(lines).strip()
+    return f"<past_conversations>\n{inner}\n</past_conversations>"

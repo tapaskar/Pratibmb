@@ -9,6 +9,7 @@ Endpoints:
   POST /import        {"path": "/path/to/export"}
   POST /embed         {"model": "/path/to/embed.gguf"}
   POST /voice         {}
+  POST /profile       {}           -- extract structured profile (one-time)
   POST /chat          {"year": 2022, "prompt": "hey"}
   GET  /stats         -> corpus summary
   GET  /health        -> {"ok": true}
@@ -35,7 +36,6 @@ def _env_model(env_key: str, default_name: str) -> str:
     v = os.environ.get(env_key, "")
     if v and Path(v).exists():
         return v
-    # Search common locations
     for d in [
         Path.home() / ".pratibmb" / "models",
         Path.home() / "models",
@@ -51,7 +51,8 @@ _store: Store | None = None
 _embedder = None
 _retriever = None
 _chatter = None
-_voice_directive: str = ""
+_profile = None  # Profile object
+_profile_ctx_cache: dict[int, str] = {}  # year -> profile context string
 _config: dict = {}
 
 
@@ -69,6 +70,55 @@ def _get_store() -> Store:
         _data_dir().mkdir(parents=True, exist_ok=True)
         _store = Store(_db_path())
     return _store
+
+
+def _get_profile():
+    """Load profile from DB if available."""
+    global _profile
+    if _profile is not None:
+        return _profile
+    store = _get_store()
+    raw = store.load_profile("full_profile")
+    if raw:
+        from .profile.schema import (
+            Profile, Relationship, LifeEvent,
+            Interest, YearSummary, ThreadSummary,
+        )
+        data = json.loads(raw)
+        p = Profile(self_name=data.get("self_name", ""))
+        for r in data.get("relationships", []):
+            p.relationships.append(Relationship(**r))
+        for e in data.get("life_events", []):
+            p.life_events.append(LifeEvent(**e))
+        for i in data.get("interests", []):
+            p.interests.append(Interest(**i))
+        for ys in data.get("year_summaries", []):
+            p.year_summaries.append(YearSummary(**ys))
+        for ts in data.get("thread_summaries", []):
+            p.thread_summaries.append(ThreadSummary(**ts))
+        p.communication_style = data.get("communication_style", {})
+        _profile = p
+    return _profile
+
+
+def _get_profile_context(year: int, query: str = "") -> str:
+    """Build profile context for a given year, with caching."""
+    profile = _get_profile()
+    if profile is None:
+        return ""
+    # Cache key includes year (query-specific parts are cheap to add)
+    if year not in _profile_ctx_cache:
+        from .profile.context import build_profile_context
+        _profile_ctx_cache[year] = build_profile_context(profile, year)
+    base = _profile_ctx_cache[year]
+    # Add query-specific relationship info
+    if query and profile:
+        query_lower = query.lower()
+        for r in profile.relationships:
+            if r.person_name.lower() in query_lower and r.summary:
+                base += f"\nAbout {r.person_name}: {r.summary}"
+                break
+    return base
 
 
 def _json_response(handler: BaseHTTPRequestHandler, code: int, body: Any):
@@ -118,6 +168,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._embed(body)
             elif self.path == "/voice":
                 self._voice(body)
+            elif self.path == "/profile":
+                self._extract_profile(body)
             elif self.path == "/chat":
                 self._chat(body)
             else:
@@ -168,9 +220,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def _embed(self, body: dict):
         global _embedder
-        model_path = body.get("model", "")
+        model_path = body.get("model", "") or _env_model(
+            "PRATIBMB_EMBED_MODEL", "nomic-embed-text-v1.5-q4_k_m.gguf")
         if not model_path:
-            _json_response(self, 400, {"error": "model path required"})
+            _json_response(self, 400, {"error": "embed model not found"})
             return
         if _embedder is None:
             from .rag import Embedder
@@ -185,16 +238,50 @@ class Handler(BaseHTTPRequestHandler):
         _json_response(self, 200, {"embedded": total})
 
     def _voice(self, body: dict):
-        global _voice_directive
         store = _get_store()
         fp = fingerprint(store)
-        _voice_directive = render_voice_directive(fp)
+        vd = render_voice_directive(fp)
         voice_path = _data_dir() / "voice.json"
         voice_path.write_text(json.dumps(fp, indent=2))
-        _json_response(self, 200, {"fingerprint": fp, "directive": _voice_directive})
+        _json_response(self, 200, {"fingerprint": fp, "directive": vd})
+
+    def _extract_profile(self, body: dict):
+        """Run the profile extraction pipeline."""
+        global _profile, _profile_ctx_cache
+        model_path = body.get("model", "") or _env_model(
+            "PRATIBMB_CHAT_MODEL", "gemma-3-4b-it-q4_k_m.gguf")
+        if not model_path:
+            _json_response(self, 400, {"error": "chat model not found"})
+            return
+        self_name = _config.get("self_name", "")
+        if not self_name:
+            _json_response(self, 400, {"error": "run /init first"})
+            return
+
+        from .profile.extractor import ProfileExtractor
+        import dataclasses
+
+        store = _get_store()
+        extractor = ProfileExtractor(Path(model_path))
+        profile = extractor.extract(store, self_name)
+
+        # Serialize and save
+        profile_data = dataclasses.asdict(profile)
+        store.save_profile("full_profile", json.dumps(profile_data))
+
+        # Update cached profile
+        _profile = profile
+        _profile_ctx_cache = {}
+
+        _json_response(self, 200, {
+            "ok": True,
+            "relationships": len(profile.relationships),
+            "life_events": len(profile.life_events),
+            "year_summaries": len(profile.year_summaries),
+        })
 
     def _chat(self, body: dict):
-        global _chatter, _retriever, _embedder, _voice_directive
+        global _chatter, _retriever, _embedder
         year = body.get("year")
         prompt = body.get("prompt", "")
         if not year or not prompt:
@@ -226,13 +313,22 @@ class Handler(BaseHTTPRequestHandler):
             _chatter = Chatter(Path(model), chat_format=chat_format)
 
         from .rag import format_context
-        hits = _retriever.retrieve(prompt, year_max=int(year), top_k=8)
+
+        # Retrieve with thread context
+        hits = _retriever.retrieve(prompt, year_max=int(year), top_k=6,
+                                   thread_window=3)
         ctx = format_context(hits)
+
+        # Build profile context for this year
+        profile_ctx = _get_profile_context(int(year), query=prompt)
+        self_name = _config.get("self_name", "you")
+
         reply = _chatter.reply(
             year=int(year),
-            voice_directive=_voice_directive,
             context_block=ctx,
             user_prompt=prompt,
+            profile_context=profile_ctx,
+            self_name=self_name,
         )
         used = [{"text": h["text"][:100], "year": h["year"],
                  "thread": h["thread_name"], "score": round(h["score"], 3)}
@@ -243,26 +339,20 @@ class Handler(BaseHTTPRequestHandler):
         store = _get_store()
         total = store.count()
         self_total = store.count(author="self")
+        has_profile = store.load_profile("full_profile") is not None
         _json_response(self, 200, {
             "total": total,
             "self_total": self_total,
+            "has_profile": has_profile,
         })
 
 
 def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 11435
-    # Load existing config if present
     global _config
     cfg_path = _data_dir() / "config.json"
     if cfg_path.exists():
         _config = json.loads(cfg_path.read_text())
-    # Load existing voice directive
-    global _voice_directive
-    vp = _data_dir() / "voice.json"
-    if vp.exists():
-        import importlib
-        fp = json.loads(vp.read_text())
-        _voice_directive = render_voice_directive(fp)
 
     server = HTTPServer(("127.0.0.1", port), Handler)
     print(f"[pratibmb-server] listening on 127.0.0.1:{port}", flush=True)
