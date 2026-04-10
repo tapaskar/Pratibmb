@@ -8,8 +8,6 @@
 use serde::{Deserialize, Serialize};
 use std::process::{Child, Command};
 use std::sync::Mutex;
-use tauri::State;
-
 const SERVER_URL: &str = "http://127.0.0.1:11435";
 
 struct ServerProcess(Mutex<Option<Child>>);
@@ -27,12 +25,6 @@ struct ChatArgs {
 }
 
 #[derive(Serialize, Deserialize)]
-struct ChatResult {
-    reply: String,
-    used_messages: Vec<serde_json::Value>,
-}
-
-#[derive(Serialize, Deserialize)]
 struct InitArgs {
     self_name: String,
 }
@@ -47,14 +39,47 @@ struct EmbedArgs {
     model: String,
 }
 
+#[derive(Serialize, Deserialize)]
+struct ProfileArgs {
+    #[serde(default)]
+    model: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct FinetuneArgs {
+    #[serde(default = "default_finetune_step")]
+    step: String,
+    #[serde(default)]
+    max_pairs: Option<u32>,
+    #[serde(default)]
+    model_name: String,
+    #[serde(default)]
+    epochs: Option<u32>,
+    #[serde(default)]
+    lora_rank: Option<u32>,
+}
+
+fn default_finetune_step() -> String {
+    "extract".to_string()
+}
+
 // Generic proxy: POST JSON to the Python server
 async fn post_json(path: &str, body: &impl Serialize) -> Result<serde_json::Value, String> {
+    post_json_timeout(path, body, 120).await
+}
+
+// POST with custom timeout (seconds) for long-running operations
+async fn post_json_timeout(
+    path: &str,
+    body: &impl Serialize,
+    timeout_secs: u64,
+) -> Result<serde_json::Value, String> {
     let url = format!("{}{}", SERVER_URL, path);
     let client = reqwest::Client::new();
     let resp = client
         .post(&url)
         .json(body)
-        .timeout(std::time::Duration::from_secs(120))
+        .timeout(std::time::Duration::from_secs(timeout_secs))
         .send()
         .await
         .map_err(|e| format!("server request failed: {}", e))?;
@@ -98,6 +123,25 @@ async fn voice() -> Result<serde_json::Value, String> {
 #[tauri::command]
 async fn chat_turn(args: ChatArgs) -> Result<serde_json::Value, String> {
     post_json("/chat", &args).await
+}
+
+#[tauri::command]
+async fn extract_profile(args: ProfileArgs) -> Result<serde_json::Value, String> {
+    // Profile extraction is LLM-heavy — can take 5-10 minutes
+    post_json_timeout("/profile", &args, 900).await
+}
+
+#[tauri::command]
+async fn finetune(args: FinetuneArgs) -> Result<serde_json::Value, String> {
+    // Fine-tuning can take 30+ minutes for the full pipeline
+    let timeout = match args.step.as_str() {
+        "extract" => 120,
+        "train" => 3600,
+        "convert" => 300,
+        "full" => 7200,
+        _ => 120,
+    };
+    post_json_timeout("/finetune", &args, timeout).await
 }
 
 #[tauri::command]
@@ -172,7 +216,8 @@ fn main() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
-            init_user, import_file, embed, voice, chat_turn, stats, health
+            init_user, import_file, embed, voice, chat_turn,
+            extract_profile, finetune, stats, health
         ])
         .on_window_event(|_window, event| {
             if let tauri::WindowEvent::Destroyed = event {

@@ -14,8 +14,72 @@
       <input type="range" id="year" min="2010" max="2025" value="2018" />
       <output id="year-value">2018</output>
     </div>
+    <button id="pipeline-btn" class="icon-btn" title="Train your digital twin">&#9881;</button>
     <button id="help-btn" class="icon-btn" title="How to export your chats">?</button>
   </header>
+
+  <!-- Pipeline panel -->
+  <div id="pipeline-overlay" class="overlay hidden">
+    <div class="modal pipeline-modal">
+      <button class="modal-close" id="pipeline-close">&times;</button>
+      <h2>Train Your Digital Twin</h2>
+      <p class="pipeline-subtitle">These pipelines make past-you smarter. Run them once after importing your chats.</p>
+
+      <div class="pipeline-steps">
+        <div class="pipeline-step" id="step-profile">
+          <div class="step-header">
+            <span class="step-num">1</span>
+            <div>
+              <h3>Extract Profile</h3>
+              <p>Analyzes your messages to learn relationships, life events, interests, and communication style.</p>
+            </div>
+          </div>
+          <div class="step-status" id="profile-status"></div>
+          <button class="btn-pipeline" id="btn-profile">Extract Profile</button>
+        </div>
+
+        <div class="pipeline-step" id="step-finetune-extract">
+          <div class="step-header">
+            <span class="step-num">2</span>
+            <div>
+              <h3>Extract Training Pairs</h3>
+              <p>Finds natural conversation turn-pairs from your chats to train on your speaking style.</p>
+            </div>
+          </div>
+          <div class="step-status" id="extract-status"></div>
+          <button class="btn-pipeline" id="btn-extract">Extract Pairs</button>
+        </div>
+
+        <div class="pipeline-step" id="step-finetune-train">
+          <div class="step-header">
+            <span class="step-num">3</span>
+            <div>
+              <h3>Fine-Tune Model</h3>
+              <p>Trains a LoRA adapter on your conversation style. Takes 20-30 minutes on Apple Silicon.</p>
+            </div>
+          </div>
+          <div class="step-status" id="train-status"></div>
+          <button class="btn-pipeline" id="btn-train">Start Training</button>
+        </div>
+
+        <div class="pipeline-step" id="step-finetune-convert">
+          <div class="step-header">
+            <span class="step-num">4</span>
+            <div>
+              <h3>Convert Adapter</h3>
+              <p>Converts the trained adapter to GGUF format for fast inference. Restart the app after this step.</p>
+            </div>
+          </div>
+          <div class="step-status" id="convert-status"></div>
+          <button class="btn-pipeline" id="btn-convert">Convert to GGUF</button>
+        </div>
+      </div>
+
+      <div class="pipeline-footer">
+        <p>All processing happens on your machine. Models are never uploaded.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Export help modal -->
   <div id="help-overlay" class="overlay hidden">

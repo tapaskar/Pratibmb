@@ -33,15 +33,27 @@ from .voice import fingerprint, render_voice_directive
 
 
 def _env_model(env_key: str, default_name: str) -> str:
-    """Resolve a model path from env var, or look in common locations."""
+    """Resolve a model path from env var, or look in common locations.
+
+    For the chat model, also checks for a fine-tuned model first.
+    """
     v = os.environ.get(env_key, "")
     if v and Path(v).exists():
         return v
-    for d in [
+    search_dirs = [
         Path.home() / ".pratibmb" / "models",
         Path.home() / "models",
         Path.cwd() / "models",
-    ]:
+    ]
+    # Prefer fine-tuned model over base model for chat
+    if env_key == "PRATIBMB_CHAT_MODEL":
+        finetuned_name = "pratibmb-gemma-3-4b-finetuned-q4_k_m.gguf"
+        for d in search_dirs:
+            p = d / finetuned_name
+            if p.exists():
+                print(f"[server] using fine-tuned model: {p}", flush=True)
+                return str(p)
+    for d in search_dirs:
         p = d / default_name
         if p.exists():
             return str(p)

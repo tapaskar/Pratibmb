@@ -266,3 +266,131 @@ footer {
 }
 .privacy-note h3 { color: var(--fg) !important; }
 .privacy-note p { margin: 4px 0 0; }
+
+/* Pipeline panel */
+.pipeline-modal {
+  max-width: 640px;
+}
+
+.pipeline-subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin: -12px 0 20px;
+}
+
+.pipeline-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pipeline-step {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.step-header h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.step-header p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.step-status {
+  font-family: "SF Mono", "Menlo", "Monaco", monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 10px 0;
+  padding: 0;
+  color: var(--muted);
+}
+
+.step-status:empty {
+  display: none;
+}
+
+.step-running {
+  color: var(--accent);
+  background: #fdf8f3;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--accent);
+}
+
+.step-done {
+  color: #3b7a3b;
+  background: #f3f9f3;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid #3b7a3b;
+}
+
+.step-error {
+  color: #a33;
+  background: #fdf3f3;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid #a33;
+}
+
+.btn-pipeline {
+  display: inline-block;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-pipeline:hover { filter: brightness(0.92); }
+.btn-pipeline:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.pipeline-footer {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: var(--bubble-past);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+.pipeline-footer p { margin: 0; }
