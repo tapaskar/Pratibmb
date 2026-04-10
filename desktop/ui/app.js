@@ -65,6 +65,11 @@ function setLoading(on) {
 async function invoke(cmd, args) {
   const tauri = window.__TAURI__?.core?.invoke;
   if (tauri) {
+    // Commands with no args don't accept parameters
+    const noArgs = ["stats", "health", "voice"];
+    if (noArgs.includes(cmd)) {
+      return tauri(cmd);
+    }
     return tauri(cmd, { args });
   }
   // Browser fallback: talk directly to the Python server
@@ -486,24 +491,32 @@ document.getElementById("btn-convert").addEventListener("click", async () => {
 
 // On load: check server health, show onboarding or chat
 (async () => {
-  const ok = await checkHealth();
-  if (!ok) {
-    appendBubble("past", "waiting for the local server to start...");
-    return;
-  }
-
-  const s = await invoke("stats", {});
-  if (s.total === 0) {
-    // First run — show onboarding wizard
-    onboarding.classList.remove("hidden");
-  } else {
-    // Returning user
-    let msg = `ready. ${s.self_total} of your messages loaded. pick a year and ask away.`;
-    if (s.has_profile) {
-      msg += " profile loaded.";
-    } else {
-      msg += " tip: click the gear icon to extract your profile and fine-tune.";
+  try {
+    const ok = await checkHealth();
+    if (!ok) {
+      chat.innerHTML = "";
+      appendBubble("past", "waiting for the local server to start... please restart the app.");
+      return;
     }
-    appendBubble("past", msg);
+
+    const s = await invoke("stats", {});
+    chat.innerHTML = ""; // clear default HTML bubble
+
+    if (s.total === 0) {
+      // First run — show onboarding wizard
+      onboarding.classList.remove("hidden");
+    } else {
+      // Returning user
+      let msg = `ready. ${s.self_total} of your messages loaded. pick a year and ask away.`;
+      if (s.has_profile) {
+        msg += " profile loaded.";
+      } else {
+        msg += " tip: click the gear icon to extract your profile and fine-tune.";
+      }
+      appendBubble("past", msg);
+    }
+  } catch (err) {
+    chat.innerHTML = "";
+    appendBubble("past", "[startup error] " + String(err));
   }
 })();
