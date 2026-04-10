@@ -27,12 +27,12 @@ from typing import Any
 class TrainConfig:
     """LoRA training configuration."""
 
-    # Model
-    model_name: str = "google/gemma-3-4b-it"
+    # Model — use 8-bit (not QAT) for stable LoRA training
+    model_name: str = "mlx-community/gemma-3-4b-it-8bit"
 
-    # LoRA
-    lora_rank: int = 16
-    lora_alpha: int = 32
+    # LoRA — conservative settings to avoid divergence on quantized models
+    lora_rank: int = 8
+    lora_alpha: int = 16
     lora_dropout: float = 0.05
     lora_target_modules: list[str] = field(
         default_factory=lambda: ["q_proj", "v_proj", "k_proj", "o_proj"]
@@ -42,7 +42,7 @@ class TrainConfig:
     num_epochs: int = 2
     batch_size: int = 1
     grad_accum_steps: int = 4
-    learning_rate: float = 1e-4
+    learning_rate: float = 2e-5
     warmup_steps: int = 50
     max_seq_length: int = 512
 
@@ -99,7 +99,7 @@ def _write_mlx_config(config: TrainConfig, config_path: Path) -> None:
         "data": config.data_dir,
         "adapter_path": config.output_dir,
         "fine_tune_type": "lora",
-        "num_layers": -1,  # all layers
+        "num_layers": 16,  # top 16 layers — safer for quantized models
         "batch_size": config.batch_size,
         "iters": iters,
         "learning_rate": config.learning_rate,
