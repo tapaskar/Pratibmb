@@ -265,4 +265,4 @@ Click-based CLI: `init`, `import`, `embed`, `voice`, `chat`, `stats`.
 
 ## License
 
-Dual-licensed: AGPLv3 for open use. Commercial licenses available for proprietary products. Contact tapas.eric@gmail.com.
+Dual-licensed: AGPLv3 for open use. Commercial licenses available for proprietary products. Contact admin@sparkupcloud.com.

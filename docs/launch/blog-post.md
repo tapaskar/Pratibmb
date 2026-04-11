@@ -95,4 +95,4 @@ If you've ever wondered what you'd say to who you were 10 years ago — now you 
 
 ---
 
-*Pratibmb is AGPLv3 for personal use. Commercial use requires a separate license. Contact tapas.eric@gmail.com for terms.*
+*Pratibmb is AGPLv3 for personal use. Commercial use requires a separate license. Contact admin@sparkupcloud.com for terms.*

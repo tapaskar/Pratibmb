@@ -114,7 +114,7 @@ Selected after a blind evaluation of 6 candidate models and a head-to-head vs Ge
 **Dual-licensed.**
 
 - **Open source** — [AGPLv3](./LICENSE). Free to use, study, modify, and self-host. If you run a modified version as a hosted service, you must share your changes under the same license.
-- **Commercial** — Companies that cannot comply with AGPL (e.g., proprietary SaaS, embedding in closed-source products, or distributing without source disclosure) can purchase a commercial license. Contact **tapas.eric@gmail.com** for terms.
+- **Commercial** — Companies that cannot comply with AGPL (e.g., proprietary SaaS, embedding in closed-source products, or distributing without source disclosure) can purchase a commercial license. Contact **admin@sparkupcloud.com** for terms.
 
 This dual-license model keeps Pratibmb free for individuals, researchers, and open-source projects, while ensuring that commercial use contributes back — either in code or in funding.
 
