@@ -3,12 +3,18 @@ name: Publish Package Manifests
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.2.3)'
+        required: true
 
 permissions:
   contents: read
 
 env:
   GH_TOKEN: ${{ github.token }}
+  RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
 
 jobs:
   update-homebrew:
@@ -18,7 +24,7 @@ jobs:
       - name: Get release info
         id: release
         run: |
-          TAG="${GITHUB_REF_NAME}"
+          TAG="${RELEASE_TAG}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           # List actual asset filenames from this release
           gh release view "$TAG" --repo "${{ github.repository }}" --json assets --jq '.assets[].name' > assets.txt
@@ -108,7 +114,7 @@ jobs:
     steps:
       - name: Get release info
         id: release
-        run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+        run: echo "tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Download Linux release asset
         run: |
@@ -184,7 +190,7 @@ jobs:
     steps:
       - name: Get release info
         id: release
-        run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+        run: echo "tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Download Windows release assets
         run: |
