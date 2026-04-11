@@ -81,4 +81,4 @@ sudo apt remove pratibmb
 
 ## License
 
-Dual-licensed: [AGPLv3](https://github.com/tapaskar/Pratibmb/blob/main/LICENSE) for open use. [Commercial licenses](mailto:tapas.eric@gmail.com) available for proprietary products.
+Dual-licensed: [AGPLv3](https://github.com/tapaskar/Pratibmb/blob/main/LICENSE) for open use. [Commercial licenses](mailto:admin@sparkupcloud.com) available for proprietary products.
