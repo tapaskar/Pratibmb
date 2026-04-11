@@ -407,6 +407,22 @@ section h2 {
   line-height: 1.8;
 }
 
+.license-notice {
+  background: rgba(196, 149, 106, 0.08);
+  border: 1px solid var(--accent-dim);
+  border-radius: 10px;
+  padding: 16px 24px;
+  max-width: 600px;
+  margin: 0 auto 24px;
+}
+
+.license-highlight {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 0;
+}
+
 .os-links {
   display: flex;
   gap: 12px;
