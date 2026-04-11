@@ -46,20 +46,20 @@ If you're not on Arch:
 
 | Format | Download |
 |--------|----------|
-| Debian/Ubuntu | [Pratibmb_0.0.1_amd64.deb](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_amd64.deb) |
-| AppImage (universal) | [Pratibmb_0.0.1_amd64.AppImage](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_amd64.AppImage) |
+| Debian/Ubuntu | [Pratibmb_0.2.0_amd64.deb](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.2.0_amd64.deb) |
+| AppImage (universal) | [Pratibmb_0.2.0_amd64.AppImage](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.2.0_amd64.AppImage) |
 
 ### Install .deb
 
 ```bash
-sudo dpkg -i Pratibmb_0.0.1_amd64.deb
+sudo dpkg -i Pratibmb_0.2.0_amd64.deb
 ```
 
 ### Run AppImage
 
 ```bash
-chmod +x Pratibmb_0.0.1_amd64.AppImage
-./Pratibmb_0.0.1_amd64.AppImage
+chmod +x Pratibmb_0.2.0_amd64.AppImage
+./Pratibmb_0.2.0_amd64.AppImage
 ```
 
 ## Uninstall

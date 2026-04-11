@@ -3,7 +3,7 @@
 # Or:   powershell -ExecutionPolicy Bypass -File install.ps1
 
 $ErrorActionPreference = "Stop"
-$VERSION = "0.2.1"
+$FILE_VERSION = "0.2.0"  # must match version in desktop/src-tauri/tauri.conf.json
 $REPO = "tapaskar/Pratibmb"
 $INSTALL_DIR = "$env:USERPROFILE\Pratibmb"
 
@@ -153,7 +153,7 @@ Pop-Location
 # ── Step 5: Install the desktop app ───────────────────────────────────
 Write-Info "Installing desktop app..."
 
-$exeUrl = "https://github.com/$REPO/releases/download/v$VERSION/Pratibmb_${VERSION}_x64-setup.exe"
+$exeUrl = "https://github.com/$REPO/releases/latest/download/Pratibmb_${FILE_VERSION}_x64-setup.exe"
 $exePath = "$env:TEMP\Pratibmb_setup.exe"
 
 Write-Info "Downloading Pratibmb installer..."

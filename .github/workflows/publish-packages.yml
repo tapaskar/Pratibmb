@@ -7,25 +7,46 @@ on:
 permissions:
   contents: read
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   update-homebrew:
     name: Update Homebrew Cask
     runs-on: ubuntu-latest
     steps:
-      - name: Get release version
-        id: version
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - name: Get release info
+        id: release
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          # List actual asset filenames from this release
+          gh release view "$TAG" --repo "${{ github.repository }}" --json assets --jq '.assets[].name' > assets.txt
+          cat assets.txt
 
       - name: Download macOS release assets
         run: |
-          curl -fSL -o arm64.dmg "https://github.com/tapaskar/Pratibmb/releases/download/v${{ steps.version.outputs.version }}/Pratibmb_${{ steps.version.outputs.version }}_aarch64.dmg"
-          curl -fSL -o x64.dmg "https://github.com/tapaskar/Pratibmb/releases/download/v${{ steps.version.outputs.version }}/Pratibmb_${{ steps.version.outputs.version }}_x64.dmg"
+          TAG="${{ steps.release.outputs.tag }}"
+          # Download by pattern — works regardless of version in filename
+          gh release download "$TAG" --repo "${{ github.repository }}" --pattern "*_aarch64.dmg" --output arm64.dmg
+          gh release download "$TAG" --repo "${{ github.repository }}" --pattern "*_x64.dmg" --output x64.dmg
 
       - name: Compute SHA256
         id: sha
         run: |
           echo "arm64=$(sha256sum arm64.dmg | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
           echo "x64=$(sha256sum x64.dmg | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Detect file version from assets
+        id: filever
+        run: |
+          TAG="${{ steps.release.outputs.tag }}"
+          # Extract the version number from the actual asset filename
+          # e.g. "Pratibmb_0.2.0_aarch64.dmg" → "0.2.0"
+          FILE_VER=$(gh release view "$TAG" --repo "${{ github.repository }}" --json assets \
+            --jq '.assets[].name' | grep '_aarch64.dmg' | sed 's/Pratibmb_\(.*\)_aarch64.dmg/\1/')
+          echo "version=$FILE_VER" >> "$GITHUB_OUTPUT"
+          echo "Detected file version: $FILE_VER"
 
       - name: Checkout Homebrew tap
         uses: actions/checkout@v4
@@ -36,22 +57,22 @@ jobs:
 
       - name: Update Cask formula
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
+          FILE_VER="${{ steps.filever.outputs.version }}"
           SHA_ARM="${{ steps.sha.outputs.arm64 }}"
           SHA_X64="${{ steps.sha.outputs.x64 }}"
 
-          cat > tap/Casks/pratibmb.rb << 'RUBY'
+          cat > tap/Casks/pratibmb.rb << RUBY
           cask "pratibmb" do
-            version "VERSION_PLACEHOLDER"
+            version "$FILE_VER"
 
             on_arm do
-              url "https://github.com/tapaskar/Pratibmb/releases/download/v#{version}/Pratibmb_#{version}_aarch64.dmg"
-              sha256 "SHA_ARM_PLACEHOLDER"
+              url "https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_#{version}_aarch64.dmg"
+              sha256 "$SHA_ARM"
             end
 
             on_intel do
-              url "https://github.com/tapaskar/Pratibmb/releases/download/v#{version}/Pratibmb_#{version}_x64.dmg"
-              sha256 "SHA_X64_PLACEHOLDER"
+              url "https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_#{version}_x64.dmg"
+              sha256 "$SHA_X64"
             end
 
             name "Pratibmb"
@@ -72,34 +93,40 @@ jobs:
           end
           RUBY
 
-          sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" tap/Casks/pratibmb.rb
-          sed -i "s/SHA_ARM_PLACEHOLDER/$SHA_ARM/g" tap/Casks/pratibmb.rb
-          sed -i "s/SHA_X64_PLACEHOLDER/$SHA_X64/g" tap/Casks/pratibmb.rb
-
       - name: Commit and push
         working-directory: tap
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --cached --quiet || git commit -m "Update to v${{ steps.version.outputs.version }}"
+          git diff --cached --quiet || git commit -m "Update to ${{ steps.release.outputs.tag }}"
           git push
 
   update-aur:
     name: Update AUR Package
     runs-on: ubuntu-latest
     steps:
-      - name: Get release version
-        id: version
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - name: Get release info
+        id: release
+        run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Download Linux release asset
         run: |
-          curl -fSL -o appimage "https://github.com/tapaskar/Pratibmb/releases/download/v${{ steps.version.outputs.version }}/Pratibmb_${{ steps.version.outputs.version }}_amd64.AppImage"
+          TAG="${{ steps.release.outputs.tag }}"
+          gh release download "$TAG" --repo "${{ github.repository }}" --pattern "*_amd64.AppImage" --output appimage
 
       - name: Compute SHA256
         id: sha
         run: echo "appimage=$(sha256sum appimage | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Detect file version from assets
+        id: filever
+        run: |
+          TAG="${{ steps.release.outputs.tag }}"
+          FILE_VER=$(gh release view "$TAG" --repo "${{ github.repository }}" --json assets \
+            --jq '.assets[].name' | grep '_amd64.AppImage' | sed 's/Pratibmb_\(.*\)_amd64.AppImage/\1/')
+          echo "version=$FILE_VER" >> "$GITHUB_OUTPUT"
+          echo "Detected file version: $FILE_VER"
 
       - name: Checkout AUR repo
         uses: actions/checkout@v4
@@ -110,18 +137,21 @@ jobs:
 
       - name: Update PKGBUILD
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
+          FILE_VER="${{ steps.filever.outputs.version }}"
           SHA="${{ steps.sha.outputs.appimage }}"
 
-          sed -i "s/^pkgver=.*/pkgver=$VERSION/" aur/PKGBUILD
+          sed -i "s/^pkgver=.*/pkgver=$FILE_VER/" aur/PKGBUILD
           sed -i "s/^pkgrel=.*/pkgrel=1/" aur/PKGBUILD
-          sed -i "s|sha256sums=('SKIP'|sha256sums=('$SHA'|" aur/PKGBUILD
+          sed -i "s/^sha256sums=.*/sha256sums=('$SHA'/" aur/PKGBUILD
+
+          # Update source URL to use /latest/download/
+          sed -i "s|source=(\".*AppImage|source=(\"pratibmb-bin-\${pkgver}.AppImage::https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_\${pkgver}_amd64.AppImage|" aur/PKGBUILD
 
           # Regenerate .SRCINFO
           cat > aur/.SRCINFO << EOF
           pkgbase = pratibmb-bin
           	pkgdesc = Chat with your 10-years-younger self. 100% local, no cloud, no telemetry
-          	pkgver = $VERSION
+          	pkgver = $FILE_VER
           	pkgrel = 1
           	url = https://pratibmb.com
           	arch = x86_64
@@ -131,7 +161,7 @@ jobs:
           	provides = pratibmb
           	conflicts = pratibmb
           	options = !strip
-          	source = pratibmb-bin-${VERSION}.AppImage::https://github.com/tapaskar/Pratibmb/releases/download/v${VERSION}/Pratibmb_${VERSION}_amd64.AppImage
+          	source = pratibmb-bin-${FILE_VER}.AppImage::https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_${FILE_VER}_amd64.AppImage
           	source = pratibmb.desktop
           	sha256sums = $SHA
           	sha256sums = SKIP
@@ -145,27 +175,37 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --cached --quiet || git commit -m "Update to v${{ steps.version.outputs.version }}"
+          git diff --cached --quiet || git commit -m "Update to ${{ steps.release.outputs.tag }}"
           git push
 
   update-winget:
     name: Update Winget Manifest
     runs-on: ubuntu-latest
     steps:
-      - name: Get release version
-        id: version
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - name: Get release info
+        id: release
+        run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Download Windows release assets
         run: |
-          curl -fSL -o setup.exe "https://github.com/tapaskar/Pratibmb/releases/download/v${{ steps.version.outputs.version }}/Pratibmb_${{ steps.version.outputs.version }}_x64-setup.exe"
-          curl -fSL -o setup.msi "https://github.com/tapaskar/Pratibmb/releases/download/v${{ steps.version.outputs.version }}/Pratibmb_${{ steps.version.outputs.version }}_x64_en-US.msi"
+          TAG="${{ steps.release.outputs.tag }}"
+          gh release download "$TAG" --repo "${{ github.repository }}" --pattern "*_x64-setup.exe" --output setup.exe
+          gh release download "$TAG" --repo "${{ github.repository }}" --pattern "*_x64_en-US.msi" --output setup.msi
 
       - name: Compute SHA256
         id: sha
         run: |
           echo "exe=$(sha256sum setup.exe | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
           echo "msi=$(sha256sum setup.msi | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Detect file version from assets
+        id: filever
+        run: |
+          TAG="${{ steps.release.outputs.tag }}"
+          FILE_VER=$(gh release view "$TAG" --repo "${{ github.repository }}" --json assets \
+            --jq '.assets[].name' | grep '_x64-setup.exe' | sed 's/Pratibmb_\(.*\)_x64-setup.exe/\1/')
+          echo "version=$FILE_VER" >> "$GITHUB_OUTPUT"
+          echo "Detected file version: $FILE_VER"
 
       - name: Checkout winget repo
         uses: actions/checkout@v4
@@ -176,16 +216,16 @@ jobs:
 
       - name: Update manifests
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
+          FILE_VER="${{ steps.filever.outputs.version }}"
           SHA_EXE="${{ steps.sha.outputs.exe }}"
           SHA_MSI="${{ steps.sha.outputs.msi }}"
-          MANIFEST_DIR="winget/manifests/t/tapaskar/Pratibmb/$VERSION"
+          MANIFEST_DIR="winget/manifests/t/tapaskar/Pratibmb/$FILE_VER"
 
           mkdir -p "$MANIFEST_DIR"
 
           cat > "$MANIFEST_DIR/tapaskar.Pratibmb.yaml" << EOF
           PackageIdentifier: tapaskar.Pratibmb
-          PackageVersion: $VERSION
+          PackageVersion: $FILE_VER
           DefaultLocale: en-US
           ManifestType: version
           ManifestVersion: 1.6.0
@@ -193,18 +233,18 @@ jobs:
 
           cat > "$MANIFEST_DIR/tapaskar.Pratibmb.installer.yaml" << EOF
           PackageIdentifier: tapaskar.Pratibmb
-          PackageVersion: $VERSION
+          PackageVersion: $FILE_VER
           Installers:
             - Architecture: x64
               InstallerType: nullsoft
-              InstallerUrl: https://github.com/tapaskar/Pratibmb/releases/download/v${VERSION}/Pratibmb_${VERSION}_x64-setup.exe
+              InstallerUrl: https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_${FILE_VER}_x64-setup.exe
               InstallerSha256: $SHA_EXE
               InstallerSwitches:
                 Silent: /S
                 SilentWithProgress: /S
             - Architecture: x64
               InstallerType: msi
-              InstallerUrl: https://github.com/tapaskar/Pratibmb/releases/download/v${VERSION}/Pratibmb_${VERSION}_x64_en-US.msi
+              InstallerUrl: https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_${FILE_VER}_x64_en-US.msi
               InstallerSha256: $SHA_MSI
           ManifestType: installer
           ManifestVersion: 1.6.0
@@ -212,7 +252,7 @@ jobs:
 
           cat > "$MANIFEST_DIR/tapaskar.Pratibmb.locale.en-US.yaml" << EOF
           PackageIdentifier: tapaskar.Pratibmb
-          PackageVersion: $VERSION
+          PackageVersion: $FILE_VER
           PackageLocale: en-US
           Publisher: tapaskar
           PublisherUrl: https://pratibmb.com
@@ -240,5 +280,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --cached --quiet || git commit -m "Update to v${{ steps.version.outputs.version }}"
+          git diff --cached --quiet || git commit -m "Update to ${{ steps.release.outputs.tag }}"
           git push

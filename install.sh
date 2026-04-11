@@ -3,7 +3,7 @@
 # Usage: curl -fsSL https://pratibmb.com/install.sh | bash
 set -euo pipefail
 
-VERSION="0.2.1"
+FILE_VERSION="0.2.0"  # must match version in desktop/src-tauri/tauri.conf.json
 REPO="tapaskar/Pratibmb"
 INSTALL_DIR="$HOME/Pratibmb"
 
@@ -57,16 +57,16 @@ case "$OS" in
     Darwin)
         if [ "$ARCH" = "arm64" ]; then
             PLATFORM="macOS (Apple Silicon)"
-            DMG_FILE="Pratibmb_${VERSION}_aarch64.dmg"
+            DMG_FILE="Pratibmb_${FILE_VERSION}_aarch64.dmg"
         else
             PLATFORM="macOS (Intel)"
-            DMG_FILE="Pratibmb_${VERSION}_x64.dmg"
+            DMG_FILE="Pratibmb_${FILE_VERSION}_x64.dmg"
         fi
         ;;
     Linux)
         PLATFORM="Linux"
-        DEB_FILE="Pratibmb_${VERSION}_amd64.deb"
-        APPIMAGE_FILE="Pratibmb_${VERSION}_amd64.AppImage"
+        DEB_FILE="Pratibmb_${FILE_VERSION}_amd64.deb"
+        APPIMAGE_FILE="Pratibmb_${FILE_VERSION}_amd64.AppImage"
         ;;
     *)
         fail "Unsupported OS: $OS. Use the Windows installer from https://pratibmb.com/#downloads"
@@ -116,7 +116,7 @@ fi
 # ── Step 5: Install the desktop app ───────────────────────────────────
 info "Installing desktop app..."
 
-DOWNLOAD_URL="https://github.com/$REPO/releases/download/v$VERSION"
+DOWNLOAD_URL="https://github.com/$REPO/releases/latest/download"
 
 case "$OS" in
     Darwin)

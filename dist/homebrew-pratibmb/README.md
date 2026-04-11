@@ -43,8 +43,8 @@ If you prefer not to use Homebrew:
 
 | Chip | Download |
 |------|----------|
-| Apple Silicon (M1+) | [Pratibmb_0.0.1_aarch64.dmg](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_aarch64.dmg) |
-| Intel | [Pratibmb_0.0.1_x64.dmg](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_x64.dmg) |
+| Apple Silicon (M1+) | [Pratibmb_0.2.0_aarch64.dmg](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.2.0_aarch64.dmg) |
+| Intel | [Pratibmb_0.2.0_x64.dmg](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.2.0_x64.dmg) |
 
 ## Uninstall
 
