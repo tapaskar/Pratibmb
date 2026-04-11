@@ -2,6 +2,8 @@
 Pratibmb CLI.
 
 Commands:
+  pratibmb setup                       — guided first-run wizard
+  pratibmb doctor                      — check system readiness
   pratibmb init                        — create data dir, set user name
   pratibmb import <path>               — ingest an export file or directory
   pratibmb embed                       — embed any messages lacking vectors
@@ -72,6 +74,227 @@ def init(name: str) -> None:
     save_config(cfg)
     Store(db_path()).close()
     console.print(f"[green]ready.[/green] data lives at {data_dir()}")
+
+
+@main.command()
+def doctor() -> None:
+    """Check system readiness: Python, deps, models, data."""
+    from .models import status as models_status
+
+    console.rule("[bold]Pratibmb Doctor[/bold]")
+    all_ok = True
+
+    # Python version
+    v = sys.version_info
+    py_ok = v.major == 3 and v.minor >= 10
+    icon = "[green]\u2713[/green]" if py_ok else "[red]\u2717[/red]"
+    console.print(f"  {icon} Python {v.major}.{v.minor}.{v.micro}", end="")
+    if not py_ok:
+        console.print("  [red](need 3.10+)[/red]")
+        all_ok = False
+    else:
+        console.print()
+
+    # Core dependencies
+    deps = {
+        "llama_cpp": "llama-cpp-python",
+        "numpy": "numpy",
+        "click": "click",
+        "rich": "rich",
+        "huggingface_hub": "huggingface_hub",
+    }
+    for mod, name in deps.items():
+        try:
+            m = __import__(mod)
+            ver = getattr(m, "__version__", "?")
+            console.print(f"  [green]\u2713[/green] {name} {ver}")
+        except ImportError:
+            console.print(f"  [red]\u2717[/red] {name} [red]not installed[/red]")
+            all_ok = False
+
+    # Optional: MLX (macOS Apple Silicon)
+    import platform
+    if sys.platform == "darwin" and platform.machine() == "arm64":
+        try:
+            import mlx_lm
+            console.print(f"  [green]\u2713[/green] mlx-lm {mlx_lm.__version__} (fine-tuning)")
+        except ImportError:
+            console.print(f"  [yellow]~[/yellow] mlx-lm [dim]not installed (optional, for fine-tuning)[/dim]")
+
+    # Data directory
+    console.print()
+    if data_dir().exists():
+        console.print(f"  [green]\u2713[/green] data dir: {data_dir()}")
+    else:
+        console.print(f"  [yellow]~[/yellow] data dir not created yet [dim](run `pratibmb init`)[/dim]")
+
+    # Config
+    cfg = load_config()
+    if cfg.get("self_name"):
+        console.print(f"  [green]\u2713[/green] user name: {cfg['self_name']}")
+    else:
+        console.print(f"  [yellow]~[/yellow] user name not set [dim](run `pratibmb init`)[/dim]")
+
+    # Corpus
+    if db_path().exists():
+        store = Store(db_path())
+        total = store.count()
+        self_total = store.count(author="self")
+        store.close()
+        if total > 0:
+            console.print(f"  [green]\u2713[/green] corpus: {total} messages ({self_total} yours)")
+        else:
+            console.print(f"  [yellow]~[/yellow] corpus empty [dim](run `pratibmb import`)[/dim]")
+    else:
+        console.print(f"  [yellow]~[/yellow] no corpus database")
+
+    # Models
+    console.print()
+    ms = models_status()
+    for kind, info in ms.items():
+        if info["available"]:
+            label = info["name"]
+            if info.get("finetuned"):
+                label += " [green](fine-tuned)[/green]"
+            console.print(f"  [green]\u2713[/green] {label}")
+        else:
+            partial = info.get("partial_mb")
+            if partial:
+                console.print(
+                    f"  [yellow]~[/yellow] {info['name']} "
+                    f"[dim](partial download: {partial} MB)[/dim]"
+                )
+            else:
+                console.print(
+                    f"  [yellow]~[/yellow] {info['name']} "
+                    f"[dim]({info['size_gb']:.2f} GB, auto-downloads on first use)[/dim]"
+                )
+
+    # Voice fingerprint
+    if voice_path().exists():
+        console.print(f"  [green]\u2713[/green] voice fingerprint cached")
+    else:
+        console.print(f"  [yellow]~[/yellow] voice fingerprint [dim](run `pratibmb voice`)[/dim]")
+
+    console.print()
+    if all_ok:
+        console.print("[green]all checks passed[/green]")
+    else:
+        console.print("[red]some checks failed — see above[/red]")
+
+
+@main.command()
+@click.argument("export_path", type=click.Path(exists=True, path_type=Path),
+                required=False, default=None)
+def setup(export_path: Path | None) -> None:
+    """Guided first-run wizard: init, import, embed, voice — all in one."""
+    from .models import resolve_embed as _resolve_embed
+
+    console.rule("[bold]Pratibmb Setup Wizard[/bold]")
+    console.print()
+
+    # Step 1: Init
+    cfg = load_config()
+    if cfg.get("self_name"):
+        console.print(f"[dim]user name already set: {cfg['self_name']}[/dim]")
+        name = cfg["self_name"]
+    else:
+        name = Prompt.ask(
+            "[bold]Step 1:[/bold] Your name as it appears in chat exports"
+        )
+        data_dir().mkdir(parents=True, exist_ok=True)
+        cfg["self_name"] = name
+        save_config(cfg)
+        Store(db_path()).close()
+        console.print(f"  [green]\u2713 saved[/green]\n")
+
+    # Step 2: Import
+    if export_path is None:
+        console.print(
+            "[bold]Step 2:[/bold] Drag & drop your export file/folder path below."
+        )
+        console.print(
+            "[dim]  (WhatsApp .txt, Facebook/Instagram DYI folder, "
+            "Gmail .mbox, Telegram JSON, etc.)[/dim]"
+        )
+        path_str = Prompt.ask("  Export path").strip().strip("'\"")
+        export_path = Path(path_str)
+
+    if not export_path.exists():
+        console.print(f"[red]path not found: {export_path}[/red]")
+        sys.exit(1)
+
+    importer = pick_importer(export_path, ALL_IMPORTERS)
+    if importer is None:
+        console.print(f"[red]no importer could handle: {export_path}[/red]")
+        console.print("[dim]supported: WhatsApp .txt, Facebook/Instagram JSON, "
+                      "Gmail .mbox, iMessage chat.db, Telegram JSON, "
+                      "Twitter .js, Discord JSON[/dim]")
+        sys.exit(2)
+
+    console.print(f"  [cyan]detected:[/cyan] {importer.name}")
+    store = Store(db_path())
+    count = 0
+    buf = []
+    for msg in importer.load(export_path, name):
+        buf.append(msg)
+        if len(buf) >= 500:
+            store.add_messages(buf)
+            count += len(buf)
+            buf = []
+            console.print(f"  [dim]imported {count}...[/dim]")
+    if buf:
+        store.add_messages(buf)
+        count += len(buf)
+    console.print(f"  [green]\u2713 {count} messages imported[/green]\n")
+
+    # Step 3: Embed
+    console.print("[bold]Step 3:[/bold] Embedding messages...")
+    console.print("[dim]  (downloads 84 MB embedding model on first run)[/dim]")
+    embed_model = _resolve_embed()
+    if not embed_model:
+        console.print("[red]embedding model not available[/red]")
+        store.close()
+        sys.exit(1)
+
+    from .rag import Embedder
+    embedder = Embedder(Path(embed_model))
+    total = 0
+    for chunk in store.iter_missing_embeddings(batch=128):
+        texts = [r["text"] for r in chunk]
+        vecs = embedder.embed(texts)
+        store.put_embeddings(list(zip([r["id"] for r in chunk], vecs)))
+        total += len(chunk)
+        if total % 512 == 0:
+            console.print(f"  [dim]embedded {total}...[/dim]")
+    console.print(f"  [green]\u2713 {total} new embeddings[/green]\n")
+
+    # Step 4: Voice
+    console.print("[bold]Step 4:[/bold] Analyzing your writing voice...")
+    fp = fingerprint(store)
+    save_voice(fp, voice_path())
+    directive = render_voice_directive(fp)
+    console.print(f"  [green]\u2713 voice fingerprint saved[/green]")
+    if directive:
+        console.print(f"  [dim]{directive[:120]}...[/dim]\n")
+
+    store.close()
+
+    # Summary
+    console.rule("[bold green]Setup Complete[/bold green]")
+    console.print()
+    console.print(
+        f"  [bold]{count}[/bold] messages imported from [bold]{importer.name}[/bold]"
+    )
+    console.print(f"  [bold]{total}[/bold] embeddings created")
+    console.print()
+    console.print("  [cyan]Next steps:[/cyan]")
+    console.print("    pratibmb chat --year 2015    [dim]# talk to past-you[/dim]")
+    console.print("    pratibmb import <more-files> [dim]# add more exports[/dim]")
+    console.print(
+        "    pratibmb finetune extract-pairs [dim]# prepare fine-tuning data[/dim]"
+    )
+    console.print()
 
 
 @main.command("import")

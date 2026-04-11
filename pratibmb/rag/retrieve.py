@@ -27,11 +27,18 @@ class Retriever:
         if qn == 0:
             return []
         q = q / qn
-        # Normalize corpus vectors
+
+        # Clean corpus: replace NaN/inf with zero, then normalize.
+        # Some stored embeddings may contain NaN or extreme values from
+        # corrupted batches. We clamp and normalize to ensure valid cosine sim.
+        corpus = np.nan_to_num(corpus, nan=0.0, posinf=0.0, neginf=0.0)
         norms = np.linalg.norm(corpus, axis=1, keepdims=True)
         norms = np.where(norms == 0, 1.0, norms)
         corpus = corpus / norms
-        sims = corpus @ q
+        with np.errstate(all="ignore"):
+            sims = corpus @ q
+        # Clamp any remaining NaN/inf scores to 0
+        sims = np.nan_to_num(sims, nan=0.0, posinf=0.0, neginf=0.0)
 
         order = np.argsort(-sims)[:top_k]
         chosen_ids = [ids[i] for i in order]

@@ -154,36 +154,92 @@ async fn health() -> Result<serde_json::Value, String> {
     get_json("/health").await
 }
 
-fn spawn_python_server() -> Option<Child> {
-    // Try to find python in common locations
-    let pythons = [
-        // User's llm-eval venv (known to have all deps)
-        format!("{}/llm-eval/.venv/bin/python", std::env::var("HOME").unwrap_or_default()),
-        "python3".to_string(),
-        "python".to_string(),
-    ];
+/// Find a working Python 3 interpreter.
+///
+/// Tries python3 first (most systems), then python (Windows). Validates
+/// that the found interpreter is actually Python 3.10+ before returning.
+fn find_python() -> Option<String> {
+    let candidates = ["python3", "python"];
 
-    let pythonpath = get_pythonpath();
-    eprintln!("[tauri] PYTHONPATH = {}", pythonpath);
-
-    for py in &pythons {
-        eprintln!("[tauri] trying: {} -m pratibmb.server 11435", py);
+    for py in &candidates {
         match Command::new(py)
-            .args(["-m", "pratibmb.server", "11435"])
-            .env("PYTHONPATH", &pythonpath)
-            .spawn()
+            .args(["--version"])
+            .output()
         {
-            Ok(child) => {
-                eprintln!("[tauri] spawned python server (pid {})", child.id());
-                return Some(child);
+            Ok(output) => {
+                let version_str = String::from_utf8_lossy(&output.stdout);
+                let version_str = version_str.trim();
+                // Parse "Python 3.X.Y" — require 3.10+
+                if let Some(ver) = version_str.strip_prefix("Python ") {
+                    let parts: Vec<&str> = ver.split('.').collect();
+                    if parts.len() >= 2 {
+                        let major: u32 = parts[0].parse().unwrap_or(0);
+                        let minor: u32 = parts[1].parse().unwrap_or(0);
+                        if major == 3 && minor >= 10 {
+                            eprintln!("[tauri] found {} ({})", py, version_str);
+                            return Some(py.to_string());
+                        } else {
+                            eprintln!(
+                                "[tauri] {} is {} (need 3.10+), skipping",
+                                py, version_str
+                            );
+                        }
+                    }
+                }
             }
-            Err(e) => {
-                eprintln!("[tauri] failed to spawn with {}: {}", py, e);
+            Err(_) => {
+                // Not found in PATH, try next
             }
         }
     }
-    eprintln!("[tauri] WARNING: could not spawn python server");
+
+    eprintln!("[tauri] ERROR: Python 3.10+ not found. Install from https://python.org");
     None
+}
+
+fn spawn_python_server() -> Option<Child> {
+    let python = find_python()?;
+    let pythonpath = get_pythonpath();
+    eprintln!("[tauri] PYTHONPATH = {}", pythonpath);
+
+    // Verify pratibmb package is importable
+    let check = Command::new(&python)
+        .args(["-c", "import pratibmb; print('ok')"])
+        .env("PYTHONPATH", &pythonpath)
+        .output();
+
+    match check {
+        Ok(output) if output.status.success() => {
+            eprintln!("[tauri] pratibmb package verified");
+        }
+        Ok(output) => {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            eprintln!(
+                "[tauri] WARNING: pratibmb package not importable: {}",
+                stderr.trim()
+            );
+            eprintln!("[tauri] attempting to start server anyway...");
+        }
+        Err(e) => {
+            eprintln!("[tauri] WARNING: could not verify pratibmb: {}", e);
+        }
+    }
+
+    eprintln!("[tauri] starting: {} -m pratibmb.server 11435", python);
+    match Command::new(&python)
+        .args(["-m", "pratibmb.server", "11435"])
+        .env("PYTHONPATH", &pythonpath)
+        .spawn()
+    {
+        Ok(child) => {
+            eprintln!("[tauri] spawned python server (pid {})", child.id());
+            Some(child)
+        }
+        Err(e) => {
+            eprintln!("[tauri] ERROR: failed to spawn server: {}", e);
+            None
+        }
+    }
 }
 
 fn get_pythonpath() -> String {
@@ -218,11 +274,10 @@ fn get_pythonpath() -> String {
         }
     }
 
-    // Common dev locations
+    // Common install location
     let home = std::env::var("HOME").unwrap_or_default();
     let candidates = [
         format!("{}/Pratibmb", home),
-        "/Volumes/wininstall/Pratibmb".to_string(),
     ];
     for c in &candidates {
         let p = std::path::Path::new(c);
@@ -238,11 +293,48 @@ fn get_pythonpath() -> String {
         .unwrap_or_else(|_| ".".to_string())
 }
 
+/// Wait for the Python server to become ready by polling /health.
+fn wait_for_server(timeout_ms: u64) {
+    let start = std::time::Instant::now();
+    let poll_interval = std::time::Duration::from_millis(200);
+    let timeout = std::time::Duration::from_millis(timeout_ms);
+
+    loop {
+        // Try a synchronous TCP connect + HTTP request
+        if let Ok(stream) = std::net::TcpStream::connect_timeout(
+            &"127.0.0.1:11435".parse().unwrap(),
+            std::time::Duration::from_millis(500),
+        ) {
+            drop(stream);
+            eprintln!(
+                "[tauri] server ready after {}ms",
+                start.elapsed().as_millis()
+            );
+            return;
+        }
+
+        if start.elapsed() > timeout {
+            eprintln!(
+                "[tauri] WARNING: server not ready after {}ms, proceeding anyway",
+                timeout_ms
+            );
+            return;
+        }
+
+        std::thread::sleep(poll_interval);
+    }
+}
+
 fn main() {
     let child = spawn_python_server();
 
-    // Give the server a moment to start
-    std::thread::sleep(std::time::Duration::from_millis(3000));
+    if child.is_some() {
+        // Poll /health instead of blind sleep
+        wait_for_server(10000);
+    } else {
+        eprintln!("[tauri] WARNING: no Python server — app will show connection errors");
+        eprintln!("[tauri] Install Python 3.10+ and run: pip install -e /path/to/Pratibmb");
+    }
 
     tauri::Builder::default()
         .manage(ServerProcess(Mutex::new(child)))

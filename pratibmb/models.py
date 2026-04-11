@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 from pathlib import Path
 
 # ── Model registry ──────────────────────────────────────────────────────
@@ -32,8 +33,13 @@ MODELS = {
     },
 }
 
-# Fine-tuned model name (produced by finetune pipeline)
+# Fine-tuned model names (produced by finetune pipeline)
 FINETUNED_NAME = "pratibmb-gemma-3-4b-finetuned-q4_k_m.gguf"
+ADAPTER_NAME = "adapter.gguf"  # LoRA adapter (used alongside base model)
+
+# Download settings
+MAX_RETRIES = 3
+RETRY_DELAY_SECS = 5
 
 # ── Paths ───────────────────────────────────────────────────────────────
 def models_dir() -> Path:
@@ -93,9 +99,18 @@ def resolve(
         if p.exists():
             return str(p)
 
-    # 4. Auto-download from HuggingFace
+    # 4. Check for partial downloads (interrupted)
+    partial = models_dir() / (info["local_name"] + ".tmp")
+    if partial.exists():
+        size_mb = partial.stat().st_size / (1024 * 1024)
+        print(
+            f"[models] found partial download ({size_mb:.0f} MB), will resume",
+            flush=True,
+        )
+
+    # 5. Auto-download from HuggingFace
     if auto_download:
-        return _download(kind)
+        return _download_with_retry(kind)
 
     return ""
 
@@ -110,19 +125,19 @@ def resolve_embed(auto_download: bool = True) -> str:
     return resolve("embed", env_key="PRATIBMB_EMBED_MODEL", auto_download=auto_download)
 
 
-# ── Download ────────────────────────────────────────────────────────────
-def _download(kind: str) -> str:
-    """Download a model from HuggingFace Hub.
+# ── Download with retry ─────────────────────────────────────────────────
+def _download_with_retry(kind: str) -> str:
+    """Download a model with retry logic.
 
-    Uses huggingface_hub if available, falls back to a manual HTTPS download.
-    Returns the local path to the downloaded file.
+    Tries huggingface_hub first (supports resume natively), then falls back
+    to direct urllib download with manual resume support.
     """
     info = MODELS[kind]
     dest = models_dir() / info["local_name"]
 
     print(
         f"[models] downloading {info['description']} "
-        f"({info['size_gb']:.1f} GB) ...",
+        f"({info['size_gb']:.2f} GB) ...",
         flush=True,
     )
     print(
@@ -130,18 +145,52 @@ def _download(kind: str) -> str:
         flush=True,
     )
 
-    try:
-        return _download_via_hub(info, dest)
-    except ImportError:
-        print("[models] huggingface_hub not installed, using direct download", flush=True)
-        return _download_direct(info, dest)
+    last_error = None
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            try:
+                return _download_via_hub(info, dest)
+            except ImportError:
+                print(
+                    "[models] huggingface_hub not installed, using direct download",
+                    flush=True,
+                )
+                return _download_direct(info, dest)
+        except Exception as e:
+            last_error = e
+            if attempt < MAX_RETRIES:
+                print(
+                    f"[models] download failed (attempt {attempt}/{MAX_RETRIES}): {e}",
+                    flush=True,
+                )
+                print(
+                    f"[models] retrying in {RETRY_DELAY_SECS} seconds...",
+                    flush=True,
+                )
+                time.sleep(RETRY_DELAY_SECS)
+            else:
+                print(
+                    f"[models] download failed after {MAX_RETRIES} attempts: {e}",
+                    flush=True,
+                )
+
+    # All retries exhausted
+    raise RuntimeError(
+        f"Failed to download {info['description']} after {MAX_RETRIES} attempts. "
+        f"Last error: {last_error}\n"
+        f"You can manually download from:\n"
+        f"  https://huggingface.co/{info['repo_id']}\n"
+        f"and place {info['filename']} at:\n"
+        f"  {dest}"
+    )
 
 
 def _download_via_hub(info: dict, dest: Path) -> str:
-    """Download using the huggingface_hub library (preferred — shows progress)."""
+    """Download using the huggingface_hub library (preferred — supports resume)."""
     from huggingface_hub import hf_hub_download
 
-    # Download to HF cache, then symlink/copy to our models dir
+    # hf_hub_download handles resume and caching natively
     cached = hf_hub_download(
         repo_id=info["repo_id"],
         filename=info["filename"],
@@ -149,13 +198,12 @@ def _download_via_hub(info: dict, dest: Path) -> str:
         local_dir_use_symlinks=False,
     )
 
-    # hf_hub_download with local_dir puts the file right there
+    # hf_hub_download with local_dir puts the file in dest.parent
     # but the filename may differ from our local_name
     downloaded = dest.parent / info["filename"]
     if downloaded.exists() and not dest.exists():
         downloaded.rename(dest)
     elif not dest.exists():
-        # If it landed somewhere else, copy it
         import shutil
         shutil.copy2(cached, dest)
 
@@ -164,7 +212,7 @@ def _download_via_hub(info: dict, dest: Path) -> str:
 
 
 def _download_direct(info: dict, dest: Path) -> str:
-    """Fallback: download via urllib (no extra deps, basic progress)."""
+    """Fallback: download via urllib with resume support."""
     import urllib.request
 
     url = (
@@ -172,16 +220,38 @@ def _download_direct(info: dict, dest: Path) -> str:
         f"/resolve/main/{info['filename']}"
     )
 
-    # Download with progress
     tmp = dest.with_suffix(".tmp")
+    existing_size = tmp.stat().st_size if tmp.exists() else 0
+
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "pratibmb/0.1"})
+        headers = {"User-Agent": "pratibmb/0.1"}
+
+        # Resume from where we left off
+        if existing_size > 0:
+            headers["Range"] = f"bytes={existing_size}-"
+            print(
+                f"[models] resuming download from {existing_size / (1024*1024):.0f} MB",
+                flush=True,
+            )
+
+        req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req) as resp:
-            total = int(resp.headers.get("Content-Length", 0))
-            downloaded = 0
+            # Handle resume response (206 Partial Content)
+            if resp.status == 206:
+                content_range = resp.headers.get("Content-Range", "")
+                # Content-Range: bytes 1234-5678/9999
+                total = int(content_range.split("/")[-1]) if "/" in content_range else 0
+                downloaded = existing_size
+                mode = "ab"  # append
+            else:
+                total = int(resp.headers.get("Content-Length", 0))
+                downloaded = 0
+                existing_size = 0
+                mode = "wb"  # overwrite (server doesn't support resume)
+
             last_pct = -1
 
-            with open(tmp, "wb") as f:
+            with open(tmp, mode) as f:
                 while True:
                     chunk = resp.read(1024 * 1024)  # 1 MB chunks
                     if not chunk:
@@ -203,9 +273,15 @@ def _download_direct(info: dict, dest: Path) -> str:
         tmp.rename(dest)
         print(f"[models] saved to {dest}", flush=True)
         return str(dest)
+
     except Exception:
+        # DON'T delete tmp — allows resume on next attempt
         if tmp.exists():
-            tmp.unlink()
+            size_mb = tmp.stat().st_size / (1024 * 1024)
+            print(
+                f"[models] download interrupted at {size_mb:.0f} MB (will resume)",
+                flush=True,
+            )
         raise
 
 
@@ -215,19 +291,36 @@ def status() -> dict:
     result = {}
     for kind, info in MODELS.items():
         path = resolve(kind, auto_download=False)
-        result[kind] = {
+        entry: dict = {
             "name": info["description"],
             "size_gb": info["size_gb"],
             "available": bool(path),
             "path": path,
             "finetuned": False,
         }
+
+        # Check for partial download
+        partial = models_dir() / (info["local_name"] + ".tmp")
+        if partial.exists() and not entry["available"]:
+            entry["partial_mb"] = round(
+                partial.stat().st_size / (1024 * 1024), 1
+            )
+
         # Check for fine-tuned variant
         if kind == "chat":
             for d in _search_dirs():
                 ft = d / FINETUNED_NAME
                 if ft.exists():
-                    result[kind]["finetuned"] = True
-                    result[kind]["finetuned_path"] = str(ft)
+                    entry["finetuned"] = True
+                    entry["finetuned_path"] = str(ft)
                     break
+            # Check for LoRA adapter
+            for d in _search_dirs():
+                adp = d / ADAPTER_NAME
+                if adp.exists():
+                    entry["has_adapter"] = True
+                    entry["adapter_path"] = str(adp)
+                    break
+
+        result[kind] = entry
     return result
