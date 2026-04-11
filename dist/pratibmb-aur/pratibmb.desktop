@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Pratibmb
+Comment=Chat with your 10-years-younger self
+Exec=/usr/bin/pratibmb
+Terminal=false
+Type=Application
+Categories=Utility;Chat;
+Keywords=chat;ai;privacy;local;
+StartupNotify=true

@@ -93,11 +93,16 @@ Selected after a blind evaluation of 6 candidate models and a head-to-head vs Ge
 
 ## License
 
-AGPLv3. You are free to use, study, modify, and self-host Pratibmb. If you run it as a hosted service, you must share your modifications back.
+**Dual-licensed.**
+
+- **Open source** — [AGPLv3](./LICENSE). Free to use, study, modify, and self-host. If you run a modified version as a hosted service, you must share your changes under the same license.
+- **Commercial** — Companies that cannot comply with AGPL (e.g., proprietary SaaS, embedding in closed-source products, or distributing without source disclosure) can purchase a commercial license. Contact **tapas.eric@gmail.com** for terms.
+
+This dual-license model keeps Pratibmb free for individuals, researchers, and open-source projects, while ensuring that commercial use contributes back — either in code or in funding.
 
 ## Contributing
 
-A CLA is required so the project can be dual-licensed to companies later. See `CONTRIBUTING.md` (coming soon).
+A CLA (Contributor License Agreement) is required for all contributions. This allows the project to offer commercial licenses without needing permission from every contributor. See `CONTRIBUTING.md` for details.
 
 ## Safety
 

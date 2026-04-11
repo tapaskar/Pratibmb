@@ -25,7 +25,7 @@
       <span class="badge">100% local</span>
       <span class="badge">no cloud</span>
       <span class="badge">no telemetry</span>
-      <span class="badge">AGPLv3</span>
+      <span class="badge">AGPLv3 + Commercial</span>
     </div>
   </div>
 </header>
@@ -117,32 +117,48 @@
     <div class="download-grid">
       <div class="download-card">
         <div class="dl-icon">&#63743;</div>
-        <h3>macOS (Apple Silicon)</h3>
-        <p>M1/M2/M3/M4 Macs. Native Metal acceleration for fine-tuning via MLX.</p>
-        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_aarch64.dmg" class="btn btn-download">.dmg (arm64)</a>
-      </div>
-      <div class="download-card">
-        <div class="dl-icon">&#63743;</div>
-        <h3>macOS (Intel)</h3>
-        <p>2015-2020 Intel Macs. CPU-based inference.</p>
-        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_x64.dmg" class="btn btn-download">.dmg (x64)</a>
+        <h3>macOS</h3>
+        <p>M1/M2/M3/M4 and Intel Macs. Fine-tuning via MLX included out of the box on Apple Silicon.</p>
+        <div class="install-cmd">
+          <code>brew tap tapaskar/pratibmb<br>brew install --cask pratibmb</code>
+        </div>
+        <div class="dl-links">
+          <span class="dl-or">or download directly:</span>
+          <a href="https://github.com/tapaskar/Pratibmb/releases/download/v0.1.0/Pratibmb_0.0.1_aarch64.dmg" class="btn btn-download">.dmg (Apple Silicon)</a>
+          <a href="https://github.com/tapaskar/Pratibmb/releases/download/v0.1.0/Pratibmb_0.0.1_x64.dmg" class="btn btn-download">.dmg (Intel)</a>
+        </div>
+        <div class="dl-size">~450 MB install &middot; includes MLX fine-tuning</div>
       </div>
       <div class="download-card">
         <div class="dl-icon">&#128039;</div>
         <h3>Linux</h3>
         <p>Ubuntu/Debian (.deb) or universal (.AppImage). CUDA GPU or CPU.</p>
-        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_amd64.deb" class="btn btn-download">.deb (amd64)</a>
-        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_amd64.AppImage" class="btn btn-download">.AppImage</a>
+        <div class="install-cmd">
+          <code>yay -S pratibmb-bin</code>
+        </div>
+        <div class="dl-links">
+          <span class="dl-or">or download directly:</span>
+          <a href="https://github.com/tapaskar/Pratibmb/releases/download/v0.1.0/Pratibmb_0.0.1_amd64.deb" class="btn btn-download">.deb (amd64)</a>
+          <a href="https://github.com/tapaskar/Pratibmb/releases/download/v0.1.0/Pratibmb_0.0.1_amd64.AppImage" class="btn btn-download">.AppImage</a>
+        </div>
+        <div class="dl-size">~150 MB install &middot; fine-tuning is a <a href="#finetune">one-command add-on</a> (+3&ndash;5 GB)</div>
       </div>
       <div class="download-card">
         <div class="dl-icon">&#127987;</div>
         <h3>Windows</h3>
         <p>Windows 10/11 (64-bit). NVIDIA CUDA acceleration for fine-tuning.</p>
-        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_x64-setup.exe" class="btn btn-download">.exe installer</a>
-        <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.0.1_x64_en-US.msi" class="btn btn-download">.msi</a>
+        <div class="install-cmd">
+          <code>winget install tapaskar.Pratibmb</code>
+        </div>
+        <div class="dl-links">
+          <span class="dl-or">or download directly:</span>
+          <a href="https://github.com/tapaskar/Pratibmb/releases/download/v0.1.0/Pratibmb_0.0.1_x64-setup.exe" class="btn btn-download">.exe installer</a>
+          <a href="https://github.com/tapaskar/Pratibmb/releases/download/v0.1.0/Pratibmb_0.0.1_x64_en-US.msi" class="btn btn-download">.msi</a>
+        </div>
+        <div class="dl-size">~150 MB install &middot; fine-tuning is a <a href="#finetune">one-command add-on</a> (+3&ndash;5 GB)</div>
       </div>
     </div>
-    <p class="dl-note">Requires Python 3.10+ and ~4GB RAM. Models are downloaded on first launch. <a href="https://github.com/tapaskar/Pratibmb#installation">Setup guide</a></p>
+    <p class="dl-note">Requires Python 3.10+ and ~4GB RAM. AI models (~2.5GB) are downloaded on first launch. <a href="https://github.com/tapaskar/Pratibmb#installation">Setup guide</a></p>
   </div>
 </section>
 
@@ -150,7 +166,7 @@
 <section class="finetuning" id="finetune">
   <div class="container">
     <h2>Fine-Tune on Your Voice</h2>
-    <p class="section-sub">Optional LoRA training teaches the model your texting style. Here's what each platform uses:</p>
+    <p class="section-sub">Optional LoRA training teaches the model your texting style &mdash; abbreviations, language mix, emoji patterns. The base model works well without it; fine-tuning makes it sound more like you.</p>
     <table class="ft-table">
       <thead>
         <tr>
@@ -167,17 +183,17 @@
           <td>MLX-LM</td>
           <td>No (uses Metal)</td>
           <td>~20 min</td>
-          <td><code>pip install mlx-lm</code></td>
+          <td><span class="ft-included">Included</span></td>
         </tr>
         <tr>
-          <td>Windows (NVIDIA GPU)</td>
-          <td>PyTorch + PEFT + QLoRA</td>
-          <td>Yes (6GB+ VRAM)</td>
-          <td>~30 min</td>
-          <td><code>pip install "pratibmb[finetune-pytorch]"</code></td>
+          <td>macOS (Intel)</td>
+          <td>&mdash;</td>
+          <td>&mdash;</td>
+          <td>&mdash;</td>
+          <td><span class="ft-na">Not available</span></td>
         </tr>
         <tr>
-          <td>Linux (NVIDIA GPU)</td>
+          <td>Windows / Linux (NVIDIA)</td>
           <td>PyTorch + PEFT + QLoRA</td>
           <td>Yes (6GB+ VRAM)</td>
           <td>~30 min</td>
@@ -192,7 +208,7 @@
         </tr>
       </tbody>
     </table>
-    <p class="ft-note">Fine-tuning is optional. The base model works well out of the box with profile extraction and RAG. Fine-tuning adds your specific texting style (abbreviations, language mix, emoji patterns).</p>
+    <p class="ft-note">On macOS Apple Silicon, MLX fine-tuning is included in the standard install (~450 MB total). On Windows and Linux, the PyTorch fine-tuning add-on is a separate install (+3&ndash;5 GB) to keep the base package lightweight (~150 MB).</p>
   </div>
 </section>
 
@@ -220,7 +236,7 @@
       <div class="privacy-card">
         <div class="priv-icon">&#128736;</div>
         <h3>Open Source</h3>
-        <p>AGPLv3 licensed. Every line is auditable. Don't trust us &mdash; verify. Community contributions welcome.</p>
+        <p>Dual-licensed: AGPLv3 for open use, commercial license available for proprietary products. Every line is auditable. Don't trust us &mdash; verify.</p>
       </div>
     </div>
   </div>
@@ -230,7 +246,7 @@
 <section class="opensource" id="opensource">
   <div class="container">
     <h2>Built in the Open</h2>
-    <p>Pratibmb is free software under the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">AGPLv3 license</a>. The source code is on <a href="https://github.com/tapaskar/Pratibmb">GitHub</a>.</p>
+    <p>Pratibmb is dual-licensed: <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">AGPLv3</a> for individuals, researchers, and open-source projects. <a href="mailto:tapas.eric@gmail.com">Commercial licenses</a> are available for companies building proprietary products.</p>
     <p>Your most intimate data &mdash; a decade of private messages &mdash; is the one dataset you should never upload to somebody else's API. That's why Pratibmb exists.</p>
     <div class="os-links">
       <a href="https://github.com/tapaskar/Pratibmb" class="btn btn-secondary">View on GitHub</a>
@@ -242,7 +258,7 @@
 <!-- Footer -->
 <footer>
   <div class="container">
-    <p>Pratibmb &copy; 2025&ndash;2026. <a href="https://github.com/tapaskar/Pratibmb/blob/main/LICENSE">AGPLv3</a> &middot; <a href="https://github.com/tapaskar/Pratibmb">Source</a> &middot; <a href="https://github.com/tapaskar/Pratibmb/blob/main/docs/HELP.md">Documentation</a></p>
+    <p>Pratibmb &copy; 2025&ndash;2026. <a href="https://github.com/tapaskar/Pratibmb/blob/main/LICENSE">AGPLv3</a> + <a href="mailto:tapas.eric@gmail.com">Commercial</a> &middot; <a href="https://github.com/tapaskar/Pratibmb">Source</a> &middot; <a href="https://github.com/tapaskar/Pratibmb/blob/main/docs/HELP.md">Documentation</a></p>
     <p class="footer-note">Made with care. No cookies, no tracking pixels, no external requests on this page.</p>
   </div>
 </footer>

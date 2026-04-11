@@ -90,6 +90,9 @@
 
       <div class="help-section">
         <h3>WhatsApp</h3>
+        <div class="help-path">
+          <span>Open chat</span><span>Menu &#8942;</span><span>More</span><span>Export Chat</span><span>Without Media</span>
+        </div>
         <ol>
           <li>Open any chat in WhatsApp</li>
           <li>Tap <b>Menu (three dots)</b> or swipe down on the chat name</li>
@@ -103,6 +106,9 @@
 
       <div class="help-section">
         <h3>Facebook / Messenger</h3>
+        <div class="help-path">
+          <span>facebook.com/dyi</span><span>Request download</span><span>JSON</span><span>Messages</span><span>Create File</span>
+        </div>
         <ol>
           <li>Go to <a href="https://www.facebook.com/dyi" target="_blank">facebook.com/dyi</a> (Download Your Information)</li>
           <li>Click <b>Request a download</b></li>
@@ -117,6 +123,9 @@
 
       <div class="help-section">
         <h3>Instagram</h3>
+        <div class="help-path">
+          <span>Settings</span><span>Download Your Info</span><span>JSON</span><span>Messages</span><span>Request</span>
+        </div>
         <ol>
           <li>Go to <a href="https://www.instagram.com/download/request/" target="_blank">Instagram &rarr; Download Your Information</a></li>
           <li>Choose <b>JSON</b> format</li>
@@ -128,6 +137,9 @@
 
       <div class="help-section">
         <h3>Gmail (Google Takeout)</h3>
+        <div class="help-path">
+          <span>takeout.google.com</span><span>Deselect all</span><span>Mail</span><span>Next step</span><span>Create export</span>
+        </div>
         <ol>
           <li>Go to <a href="https://takeout.google.com" target="_blank">takeout.google.com</a></li>
           <li>Click <b>Deselect all</b>, then select only <b>Mail</b></li>
@@ -141,6 +153,9 @@
 
       <div class="help-section">
         <h3>iMessage (macOS only)</h3>
+        <div class="help-path">
+          <span>System Settings</span><span>Privacy &amp; Security</span><span>Full Disk Access</span><span>Add terminal</span>
+        </div>
         <ol>
           <li>Open <b>System Settings</b> &rarr; <b>Privacy &amp; Security</b> &rarr; <b>Full Disk Access</b></li>
           <li>Add your terminal app to the list</li>
@@ -151,6 +166,9 @@
 
       <div class="help-section">
         <h3>Telegram</h3>
+        <div class="help-path">
+          <span>Desktop app</span><span>Settings</span><span>Advanced</span><span>Export Telegram data</span><span>JSON</span>
+        </div>
         <ol>
           <li>Open <b>Telegram Desktop</b> (not mobile)</li>
           <li>Go to <b>Settings</b> &rarr; <b>Advanced</b> &rarr; <b>Export Telegram data</b></li>
@@ -162,6 +180,9 @@
 
       <div class="help-section">
         <h3>Twitter / X</h3>
+        <div class="help-path">
+          <span>Settings</span><span>Your Account</span><span>Download archive</span><span>Confirm</span>
+        </div>
         <ol>
           <li>Go to <b>Settings</b> &rarr; <b>Your Account</b> &rarr; <b>Download an archive</b></li>
           <li>Wait 24-48 hours for the archive to be prepared</li>
@@ -173,12 +194,74 @@
 
       <div class="help-section">
         <h3>Discord</h3>
+        <div class="help-path">
+          <span>DiscordChatExporter</span><span>Select channels</span><span>JSON</span><span>Export</span>
+        </div>
         <ol>
           <li>Download <a href="https://github.com/Tyrrrz/DiscordChatExporter" target="_blank">DiscordChatExporter</a> (open source)</li>
           <li>Export your channels/DMs as <b>JSON</b></li>
           <li>Point Pratibmb at the JSON file or export folder</li>
         </ol>
         <p class="help-note">No official Discord export exists. DiscordChatExporter is the community standard.</p>
+      </div>
+
+      <div class="help-troubleshoot">
+        <h3>Troubleshooting</h3>
+
+        <details class="help-faq">
+          <summary>No messages appeared after import</summary>
+          <p>Check that you selected the right file. WhatsApp needs the <code>.txt</code> file, not the zip. Facebook and Instagram need the unzipped folder, not the zip archive. Also make sure the file is from a supported platform &mdash; Pratibmb auto-detects format but won't import unknown formats silently.</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>Messages are attributed to the wrong person</summary>
+          <p>Your name in Pratibmb must match exactly how it appears in the export. Open the exported file and check what name your messages are tagged with. Update your name in Pratibmb to match (case-sensitive). In WhatsApp, this is your display name; in Facebook, your full name.</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>Characters look broken or garbled</summary>
+          <p>The export file might not be UTF-8 encoded. This happens occasionally with older WhatsApp exports or emails. Try re-exporting from the platform. If you have the file, open it in a text editor and re-save as UTF-8.</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>WhatsApp: "Export Chat" option not visible</summary>
+          <p>You must be inside an individual chat, not the chat list. Open the specific conversation first, then tap the three-dot menu. On iOS, swipe left on the chat name to see options. On some Android phones, it's under More &rarr; Export Chat.</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>Facebook: Export is HTML instead of JSON</summary>
+          <p>Go back to <a href="https://www.facebook.com/dyi" target="_blank">facebook.com/dyi</a> and make sure you select <b>JSON</b> format before clicking "Create File". HTML exports are not supported &mdash; they lose message structure that Pratibmb needs.</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>Facebook / Instagram export is taking forever</summary>
+          <p>Large accounts can take 24-48 hours. Facebook and Instagram will email you when the download is ready. If it's been more than 48 hours, try requesting again with a smaller date range or fewer data categories (just Messages).</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>Gmail: MBOX file is too large</summary>
+          <p>Go to <a href="https://takeout.google.com" target="_blank">takeout.google.com</a> and use label filters. Instead of exporting all mail, select specific labels (Inbox, Sent, or custom labels) to reduce size. You can also limit the date range.</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>iMessage: Permission denied or no messages found</summary>
+          <p>Three things to check: (1) Full Disk Access must be granted to your terminal app or to Pratibmb itself in System Settings &rarr; Privacy &amp; Security &rarr; Full Disk Access. (2) Quit Messages.app before importing &mdash; it locks the database. (3) The path is <code>~/Library/Messages/chat.db</code> (not iCloud).</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>Telegram: Export option is missing</summary>
+          <p>The export feature is only available in <b>Telegram Desktop</b> (the full desktop app), not in the mobile app or Telegram Web. Download Telegram Desktop, then go to Settings &rarr; Advanced &rarr; Export Telegram data.</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>Twitter / X: Archive is not ready</summary>
+          <p>Twitter archives can take 24-48 hours to prepare. You'll receive an email and a notification in the app when it's ready. If the link has expired, request a new archive from Settings &rarr; Your Account &rarr; Download an archive.</p>
+        </details>
+
+        <details class="help-faq">
+          <summary>Discord: Do I need a bot token?</summary>
+          <p>No. <a href="https://github.com/Tyrrrz/DiscordChatExporter" target="_blank">DiscordChatExporter</a> uses your personal user token (found in browser DevTools), not a bot token. Follow the tool's documentation to extract your token. Only your own messages and channels you have access to will be exported.</p>
+        </details>
       </div>
 
       <div class="help-section privacy-note">

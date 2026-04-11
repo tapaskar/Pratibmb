@@ -11,6 +11,9 @@ venv/
 # Build
 build/
 dist/
+!dist/homebrew-pratibmb/
+!dist/pratibmb-aur/
+!dist/pratibmb-winget/
 *.egg
 
 # Environment

@@ -264,6 +264,128 @@ footer {
   text-decoration: underline;
 }
 
+/* Navigation path breadcrumbs */
+.help-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.help-path span {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  background: var(--bubble-past);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.help-path span:first-child {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.help-path span:not(:last-child)::after {
+  content: "\2192";
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.help-path span:first-child::after {
+  color: rgba(255,255,255,0.6);
+}
+
+/* Troubleshooting section */
+.help-troubleshoot {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.help-troubleshoot h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 14px;
+  color: var(--fg);
+}
+
+.help-faq {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.help-faq summary {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--fg);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.help-faq summary::-webkit-details-marker { display: none; }
+
+.help-faq summary::before {
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bubble-past);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.help-faq[open] summary::before {
+  content: "\2212";
+  background: var(--accent);
+  color: #fff;
+}
+
+.help-faq summary:hover {
+  background: var(--bubble-past);
+}
+
+.help-faq p {
+  padding: 0 14px 12px 42px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.help-faq code {
+  background: var(--bubble-past);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.help-faq a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 .privacy-note {
   background: var(--bubble-past);
   border-radius: 12px;
