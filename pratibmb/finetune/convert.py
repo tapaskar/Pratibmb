@@ -87,9 +87,8 @@ def convert_adapter(
 
     # Default output path
     if output_path is None:
-        default_dir = Path(
-            os.environ.get("PRATIBMB_DATA_DIR", "")
-        ) or (Path.home() / ".pratibmb")
+        env_dir = os.environ.get("PRATIBMB_DATA_DIR", "")
+        default_dir = Path(env_dir) if env_dir else (Path.home() / ".pratibmb")
         output_path = default_dir / "models" / "adapter.gguf"
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)

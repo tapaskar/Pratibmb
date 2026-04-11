@@ -23,6 +23,7 @@ from rich.table import Table
 from .importers import ALL_IMPORTERS, pick_importer
 from .store import Store
 from .voice import fingerprint, render_voice_directive, save as save_voice
+from .models import resolve_chat, resolve_embed
 
 console = Console()
 
@@ -111,14 +112,18 @@ def import_cmd(path: Path) -> None:
 
 @main.command()
 @click.option("--model", type=click.Path(exists=True, path_type=Path),
-              required=True, help="Path to a GGUF embedding model.")
+              default=None, help="Path to a GGUF embedding model (auto-downloads if omitted).")
 @click.option("--batch", default=64, help="Embedding batch size.")
-def embed(model: Path, batch: int) -> None:
+def embed(model: Path | None, batch: int) -> None:
     """Embed any messages that don't yet have vectors."""
     from .rag import Embedder
+    model_path = str(model) if model else resolve_embed()
+    if not model_path:
+        console.print("[red]embedding model not found and download failed[/red]")
+        sys.exit(1)
     store = Store(db_path())
     try:
-        embedder = Embedder(model)
+        embedder = Embedder(Path(model_path))
         total = 0
         for chunk in store.iter_missing_embeddings(batch=batch):
             texts = [r["text"] for r in chunk]
@@ -150,15 +155,24 @@ def voice(year_max: int | None) -> None:
 
 @main.command()
 @click.option("--model", type=click.Path(exists=True, path_type=Path),
-              required=True, help="Path to a GGUF chat model (Gemma-3-4B recommended).")
+              default=None, help="Path to a GGUF chat model (auto-downloads Gemma-3-4B if omitted).")
 @click.option("--embed-model", type=click.Path(exists=True, path_type=Path),
-              required=True, help="Path to a GGUF embedding model.")
+              default=None, help="Path to a GGUF embedding model (auto-downloads if omitted).")
 @click.option("--year", type=int, required=True, help="Which version of past-you to talk to.")
 @click.option("--chat-format", default="gemma")
-def chat(model: Path, embed_model: Path, year: int, chat_format: str) -> None:
+def chat(model: Path | None, embed_model: Path | None, year: int, chat_format: str) -> None:
     """Interactive REPL with your past self."""
     from .rag import Embedder, Retriever, format_context
     from .llm import Chatter
+
+    chat_path = str(model) if model else resolve_chat()
+    embed_path = str(embed_model) if embed_model else resolve_embed()
+    if not chat_path:
+        console.print("[red]chat model not found and download failed[/red]")
+        sys.exit(1)
+    if not embed_path:
+        console.print("[red]embedding model not found and download failed[/red]")
+        sys.exit(1)
 
     store = Store(db_path())
     cfg = load_config()
@@ -173,11 +187,11 @@ def chat(model: Path, embed_model: Path, year: int, chat_format: str) -> None:
     directive = render_voice_directive(voice_fp)
 
     console.print(f"[cyan]loading embedder...[/cyan]")
-    embedder = Embedder(embed_model)
+    embedder = Embedder(Path(embed_path))
     retriever = Retriever(store, embedder)
 
     console.print(f"[cyan]loading chat model...[/cyan]")
-    chatter = Chatter(model, chat_format=chat_format)
+    chatter = Chatter(Path(chat_path), chat_format=chat_format)
 
     console.rule(f"[bold]chatting with {cfg.get('self_name','you')} in {year}[/bold]")
     console.print("[dim]type 'exit' to quit[/dim]\n")

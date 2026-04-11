@@ -227,7 +227,7 @@ ENTRIES = [
     },
     {
         "day": "",
-        "title": "Metrics & Summary",
+        "title": "Metrics & Summary (Day 1\u20134)",
         "body": (
             "Corpus: 11,676 messages, 4,009 self-authored, 2010\u20132026\n"
             "Profile: 89 relationships, 8 life events, 13 year summaries\n"
@@ -241,6 +241,197 @@ ENTRIES = [
             "  \u2022 nomic-embed-text-v1.5 Q4_K_M (84 MB) \u2014 embeddings\n\n"
             "Repo: github.com/tapaskar/Pratibmb (private)\n"
             "License: AGPL v3"
+        ),
+    },
+    {
+        "day": "Day 5",
+        "title": "Distribution Strategy \u2014 Package Manager Repos",
+        "body": (
+            "Evaluated two approaches for distributing the desktop app:\n\n"
+            "  Option A: Separate repos per platform (Pratibmb-mac, -windows, -linux)\n"
+            "  Option B: Monorepo + platform-specific distribution repos\n\n"
+            "Decision: Option B. The codebase is 99% shared (Python backend, HTML/JS "
+            "frontend, Rust shell). Splitting source code per platform would create "
+            "sync nightmares. Every major Tauri/Electron app (VS Code, Signal, Obsidian) "
+            "uses a monorepo.\n\n"
+            "Instead, created thin distribution repos for package managers:\n"
+            "  \u2022 homebrew-pratibmb \u2014 Homebrew Cask formula (brew install --cask pratibmb)\n"
+            "  \u2022 pratibmb-aur \u2014 AUR package (yay -S pratibmb-bin)\n"
+            "  \u2022 pratibmb-winget \u2014 winget manifest (winget install tapaskar.Pratibmb)\n\n"
+            "Each is ~1 file, auto-updated by CI when a release is published. "
+            "A new workflow (publish-packages.yml) downloads release assets, computes "
+            "SHA256 hashes, and pushes updated manifests to each distribution repo."
+        ),
+    },
+    {
+        "day": "Day 5",
+        "title": "Landing Page Overhaul",
+        "body": (
+            "Redesigned the downloads section on pratibmb.com:\n\n"
+            "  Before: 4 cards (macOS ARM, macOS Intel, Linux, Windows) with direct download links\n"
+            "  After: 3 cards (macOS, Linux, Windows) each showing:\n"
+            "    1. Package manager one-liner (brew/yay/winget) as primary install\n"
+            "    2. Direct download links as fallback\n"
+            "    3. Install size with fine-tuning add-on info\n\n"
+            "macOS card: '~450 MB install \u00b7 includes MLX fine-tuning'\n"
+            "Linux/Windows: '~150 MB install \u00b7 fine-tuning is a one-command add-on (+3\u20135 GB)'\n\n"
+            "Updated fine-tuning table: macOS Apple Silicon now shows 'Included' (green) "
+            "instead of a pip command. MLX-LM added as default dependency in pyproject.toml "
+            "with platform gate: sys_platform == 'darwin' and platform_machine == 'arm64'."
+        ),
+    },
+    {
+        "day": "Day 5",
+        "title": "License \u2014 Dual AGPL + Commercial",
+        "body": (
+            "Switched from pure AGPLv3 to dual licensing:\n\n"
+            "  \u2022 Open source: AGPLv3 (unchanged LICENSE file)\n"
+            "  \u2022 Commercial: separate license for companies that can't comply with AGPL\n\n"
+            "Rationale: AGPL alone lets cloud providers build hosted clones. "
+            "Dual licensing keeps Pratibmb free for individuals and researchers "
+            "while ensuring commercial use contributes back \u2014 either in code or funding.\n\n"
+            "Model: Qt, MySQL, GitLab all use this pattern successfully. "
+            "A CLA (Contributor License Agreement) is required for contributions "
+            "so the project can offer commercial licenses without per-contributor permission.\n\n"
+            "Updated: README, landing page hero badge, privacy section, footer, "
+            "and all 3 distribution repo READMEs."
+        ),
+    },
+    {
+        "day": "Day 5",
+        "title": "Desktop Help Modal \u2014 Navigation Paths + Troubleshooting",
+        "body": (
+            "Enhanced the in-app help (? button) with two additions:\n\n"
+            "1. Visual navigation breadcrumbs for all 8 platforms:\n"
+            "   Each section now shows a styled path indicator above the step list.\n"
+            "   Example: [Open chat] \u2192 [Menu \u22ee] \u2192 [More] \u2192 [Export Chat] \u2192 [Without Media]\n"
+            "   First step is accent-colored, rest are neutral pills with arrow separators.\n\n"
+            "2. Troubleshooting FAQ (11 collapsible items):\n"
+            "   3 general (no messages, wrong attribution, garbled text)\n"
+            "   8 platform-specific (one per platform, covering the #1 gotcha each)\n"
+            "   Uses native <details>/<summary> for zero-JS collapsible behavior.\n\n"
+            "Design choice: breadcrumb paths instead of screenshots. Screenshots of "
+            "third-party apps (WhatsApp, Facebook, etc.) are hard to maintain, "
+            "add binary bulk, and may have copyright issues. Breadcrumbs are "
+            "always accurate and match the app's design language."
+        ),
+    },
+    {
+        "day": "Day 5",
+        "title": "Build Fixes \u2014 Windows and macOS Intel",
+        "body": (
+            "Diagnosed and fixed two CI build failures:\n\n"
+            "1. Windows: icon.ico was 16x16 only (761 bytes). Tauri's Windows Resource "
+            "generator requires multi-resolution ICO for the .exe manifest. "
+            "Regenerated from icon.png (512x512) using ImageMagick to produce "
+            "a proper 6-resolution ICO (256/128/64/48/32/16). New file: 130 KB.\n\n"
+            "2. macOS Intel: macos-13 runner was deprecated by GitHub Actions. "
+            "Jobs were cancelled instantly (0 seconds, 0 steps). Fix: cross-compile "
+            "x86_64-apple-darwin target from macos-latest (ARM runner).\n\n"
+            "Result: all 4 platform builds now pass. 6 assets uploaded to v0.1.0:\n"
+            "  \u2022 Pratibmb_0.0.1_aarch64.dmg (4.7 MB)\n"
+            "  \u2022 Pratibmb_0.0.1_x64.dmg (5.2 MB)\n"
+            "  \u2022 Pratibmb_0.0.1_amd64.deb (5 MB)\n"
+            "  \u2022 Pratibmb_0.0.1_amd64.AppImage (80.5 MB)\n"
+            "  \u2022 Pratibmb_0.0.1_x64-setup.exe (3.1 MB)\n"
+            "  \u2022 Pratibmb_0.0.1_x64_en-US.msi (4.8 MB)"
+        ),
+    },
+    {
+        "day": "Day 5",
+        "title": "Security Audit \u2014 Going Public",
+        "body": (
+            "Full security audit before making the repo public:\n\n"
+            "  \u2022 No API keys, tokens, or secrets in any tracked files\n"
+            "  \u2022 No .env, .db, .sqlite, .jsonl, or .pem files in git history\n"
+            "  \u2022 CI uses ${{ secrets.* }} properly (no hardcoded tokens)\n"
+            "  \u2022 TAURI_SIGNING_PRIVATE_KEY set to empty string in CI\n"
+            "  \u2022 Git history clean \u2014 no sensitive files ever committed then deleted\n"
+            "  \u2022 Repo size: 1.9 MB (no large binaries in git)\n"
+            "  \u2022 Commit emails use placeholder addresses\n\n"
+            "One fix: added fused_model/ to .gitignore (was untracked but not ignored; "
+            "contains merged LoRA weights with potential personal data baked in).\n\n"
+            "Repo made PUBLIC. All 6 download links verified HTTP 200. "
+            "Landing page live at pratibmb.com."
+        ),
+    },
+    {
+        "day": "Day 5",
+        "title": "Model Distribution \u2014 The Missing Piece",
+        "body": (
+            "Discovered a critical gap: the README says 'models downloaded on first "
+            "launch' but NO download code exists. Users would hit 'model not found' "
+            "on first launch.\n\n"
+            "Investigation:\n"
+            "  \u2022 App uses GGUF format via llama-cpp-python (not PyTorch)\n"
+            "  \u2022 Models must be pre-placed at ~/.pratibmb/models/\n"
+            "  \u2022 server.py searches env var \u2192 ~/.pratibmb/models/ \u2192 ~/models/ \u2192 ./models/\n"
+            "  \u2022 Pre-quantized GGUF files DO exist on HuggingFace (no quantization needed)\n\n"
+            "Available on HuggingFace (public, no auth required):\n"
+            "  \u2022 bartowski/google_gemma-3-4b-it-GGUF \u2192 Q4_K_M (2.49 GB)\n"
+            "  \u2022 nomic-ai/nomic-embed-text-v1.5-GGUF \u2192 Q4_K_M (84 MB)\n\n"
+            "Plan: Add huggingface_hub as a dependency. Implement auto-download in "
+            "server.py's _env_model() \u2014 if model not found locally, download from "
+            "HuggingFace with progress reporting. Show progress in onboarding wizard. "
+            "Works offline after first download.\n\n"
+            "This is the standard pattern (Ollama, LM Studio, GPT4All all do this)."
+        ),
+    },
+    {
+        "day": "",
+        "title": "Deployment Architecture",
+        "body": (
+            "Full deployment architecture documented in docs/ARCHITECTURE.md:\n\n"
+            "  User's Machine:\n"
+            "    Tauri Desktop (.dmg/.exe/.deb/.AppImage)\n"
+            "      \u2502\n"
+            "      \u251c\u2500 WebView (HTML/JS/CSS) \u2190\u2192 Rust Backend (IPC)\n"
+            "      \u2502                                \u2502\n"
+            "      \u2502                    HTTP 127.0.0.1:11435\n"
+            "      \u2502                                \u2502\n"
+            "      \u251c\u2500 Python Server (pratibmb.server)\n"
+            "      \u2502   \u251c\u2500 Importers (8 platforms)\n"
+            "      \u2502   \u251c\u2500 RAG Engine (embed + cosine)\n"
+            "      \u2502   \u251c\u2500 LLM Chat (Gemma-3-4B via llama.cpp)\n"
+            "      \u2502   \u2514\u2500 Fine-tuning (MLX or PyTorch)\n"
+            "      \u2502\n"
+            "      \u251c\u2500 llama-cpp-python (Metal / CUDA / CPU)\n"
+            "      \u2502   \u251c\u2500 Chat: gemma-3-4b-it Q4_K_M (2.3 GB)\n"
+            "      \u2502   \u251c\u2500 Embed: nomic-embed-text-v1.5 Q4_K_M (84 MB)\n"
+            "      \u2502   \u2514\u2500 LoRA adapter (~10 MB, optional)\n"
+            "      \u2502\n"
+            "      \u2514\u2500 SQLite Store (messages, embeddings, profile)\n\n"
+            "  One-time download from HuggingFace Hub (first launch):\n"
+            "    \u2022 bartowski/google_gemma-3-4b-it-GGUF (2.49 GB)\n"
+            "    \u2022 nomic-ai/nomic-embed-text-v1.5-GGUF (84 MB)\n\n"
+            "  Distribution:\n"
+            "    \u2022 pratibmb.com (landing page, GitHub Pages)\n"
+            "    \u2022 Homebrew Cask (macOS)\n"
+            "    \u2022 AUR (Arch Linux)\n"
+            "    \u2022 winget (Windows)\n"
+            "    \u2022 Direct downloads (.dmg, .deb, .AppImage, .exe, .msi)"
+        ),
+    },
+    {
+        "day": "",
+        "title": "Metrics & Summary (Updated)",
+        "body": (
+            "Corpus: 11,676 messages, 4,009 self-authored, 2010\u20132026\n"
+            "Profile: 89 relationships, 8 life events, 13 year summaries\n"
+            "Training pairs: ~2,500 conversation pairs for LoRA\n"
+            "Tests: 22 unit tests passing\n"
+            "Extraction time: ~7 min (profile), ~90 sec (embeddings)\n"
+            "Chat latency: 2\u20134 sec per reply on Metal\n\n"
+            "App size: 3\u20135 MB (Tauri desktop, excl. models)\n"
+            "Model download: ~2.6 GB one-time (first launch)\n"
+            "Install size: ~450 MB (macOS w/ MLX), ~150 MB (Windows/Linux base)\n\n"
+            "Models:\n"
+            "  \u2022 Gemma-3-4B-Instruct Q4_K_M (2.3 GB) \u2014 chat\n"
+            "  \u2022 nomic-embed-text-v1.5 Q4_K_M (84 MB) \u2014 embeddings\n\n"
+            "Platforms: macOS (ARM+Intel), Linux (deb+AppImage), Windows (exe+msi)\n"
+            "Install methods: brew, yay, winget, direct download\n"
+            "Repo: github.com/tapaskar/Pratibmb (public)\n"
+            "License: AGPL v3 + Commercial dual license"
         ),
     },
 ]

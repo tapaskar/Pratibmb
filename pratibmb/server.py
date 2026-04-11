@@ -13,6 +13,7 @@ Endpoints:
   POST /chat          {"year": 2022, "prompt": "hey"}
   POST /finetune      {"step": "extract"|"train"|"convert"|"full"}
   GET  /stats         -> corpus summary
+  GET  /models        -> model availability + paths
   GET  /health        -> {"ok": true}
 
 All responses are JSON. Server binds to 127.0.0.1 only — never exposed.
@@ -30,34 +31,7 @@ from typing import Any
 from .store import Store
 from .importers import ALL_IMPORTERS, pick_importer
 from .voice import fingerprint, render_voice_directive
-
-
-def _env_model(env_key: str, default_name: str) -> str:
-    """Resolve a model path from env var, or look in common locations.
-
-    For the chat model, also checks for a fine-tuned model first.
-    """
-    v = os.environ.get(env_key, "")
-    if v and Path(v).exists():
-        return v
-    search_dirs = [
-        Path.home() / ".pratibmb" / "models",
-        Path.home() / "models",
-        Path.cwd() / "models",
-    ]
-    # Prefer fine-tuned model over base model for chat
-    if env_key == "PRATIBMB_CHAT_MODEL":
-        finetuned_name = "pratibmb-gemma-3-4b-finetuned-q4_k_m.gguf"
-        for d in search_dirs:
-            p = d / finetuned_name
-            if p.exists():
-                print(f"[server] using fine-tuned model: {p}", flush=True)
-                return str(p)
-    for d in search_dirs:
-        p = d / default_name
-        if p.exists():
-            return str(p)
-    return ""
+from .models import resolve_chat, resolve_embed, status as models_status
 
 # Lazy-loaded heavy objects
 _store: Store | None = None
@@ -178,6 +152,8 @@ class Handler(BaseHTTPRequestHandler):
             _json_response(self, 200, {"ok": True})
         elif self.path == "/stats":
             self._stats()
+        elif self.path == "/models":
+            _json_response(self, 200, models_status())
         else:
             _json_response(self, 404, {"error": "not found"})
 
@@ -246,8 +222,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def _embed(self, body: dict):
         global _embedder
-        model_path = body.get("model", "") or _env_model(
-            "PRATIBMB_EMBED_MODEL", "nomic-embed-text-v1.5-q4_k_m.gguf")
+        model_path = body.get("model", "") or resolve_embed()
         if not model_path:
             _json_response(self, 400, {"error": "embed model not found"})
             return
@@ -274,8 +249,7 @@ class Handler(BaseHTTPRequestHandler):
     def _extract_profile(self, body: dict):
         """Run the profile extraction pipeline."""
         global _profile, _profile_ctx_cache
-        model_path = body.get("model", "") or _env_model(
-            "PRATIBMB_CHAT_MODEL", "gemma-3-4b-it-q4_k_m.gguf")
+        model_path = body.get("model", "") or resolve_chat()
         if not model_path:
             _json_response(self, 400, {"error": "chat model not found"})
             return
@@ -314,10 +288,8 @@ class Handler(BaseHTTPRequestHandler):
             _json_response(self, 400, {"error": "year and prompt required"})
             return
 
-        model = body.get("model", "") or _env_model(
-            "PRATIBMB_CHAT_MODEL", "gemma-3-4b-it-q4_k_m.gguf")
-        embed_model = body.get("embed_model", "") or _env_model(
-            "PRATIBMB_EMBED_MODEL", "nomic-embed-text-v1.5-q4_k_m.gguf")
+        model = body.get("model", "") or resolve_chat()
+        embed_model = body.get("embed_model", "") or resolve_embed()
         chat_format = body.get("chat_format", "gemma")
 
         if _embedder is None:
