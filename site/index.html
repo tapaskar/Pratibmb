@@ -166,6 +166,10 @@
           <a href="https://github.com/tapaskar/Pratibmb/releases/download/v0.2.0/Pratibmb_0.2.0_x64.dmg" class="btn btn-download">.dmg (Intel)</a>
         </div>
         <div class="dl-size">~450 MB install &middot; includes MLX fine-tuning</div>
+        <div class="dl-note-inline">
+          <strong>First launch:</strong> If macOS says &ldquo;damaged and can&rsquo;t be opened&rdquo;, run:<br>
+          <code>xattr -cr /Applications/Pratibmb.app</code>
+        </div>
       </div>
       <div class="download-card">
         <div class="dl-icon">&#128039;</div>
@@ -324,6 +328,10 @@
       <details class="faq-item">
         <summary>Why not just use ChatGPT with my messages?</summary>
         <p>Because your private messages are the most intimate data you own. Uploading a decade of conversations to any cloud API &mdash; OpenAI, Google, anyone &mdash; means that data now lives on someone else's servers, subject to their terms of service, their data breaches, and their training pipelines. Pratibmb exists so you never have to make that trade-off.</p>
+      </details>
+      <details class="faq-item">
+        <summary>macOS says "damaged and can't be opened"</summary>
+        <p>This happens because the app isn't signed with an Apple Developer certificate (code signing costs $99/year). It's safe &mdash; you can <a href="https://github.com/tapaskar/Pratibmb">verify the source code yourself</a>. To fix it, open Terminal and run: <code>xattr -cr /Applications/Pratibmb.app</code> &mdash; then open the app normally.</p>
       </details>
       <details class="faq-item">
         <summary>Can I use this commercially?</summary>

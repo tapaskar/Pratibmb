@@ -51,6 +51,12 @@ Pre-built desktop apps for macOS, Linux, and Windows:
 
 Requires Python 3.10+ and ~4GB RAM. Models (~2.5GB) are downloaded on first launch.
 
+> **macOS users:** If you see "Pratibmb is damaged and can't be opened", run:
+> ```bash
+> xattr -cr /Applications/Pratibmb.app
+> ```
+> This removes the macOS quarantine flag on unsigned apps. The app is open source — [verify the code yourself](https://github.com/tapaskar/Pratibmb).
+
 ## Installation from source
 
 ```bash
