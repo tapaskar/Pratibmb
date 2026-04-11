@@ -15,6 +15,8 @@ Endpoints:
   GET  /stats         -> corpus summary
   GET  /models        -> model availability + paths
   GET  /health        -> {"ok": true}
+  GET  /progress      -> current operation progress (poll every 2s)
+  GET  /preflight     -> disk space, model status, embedding gaps, warnings
 
 All responses are JSON. Server binds to 127.0.0.1 only — never exposed.
 """
@@ -22,8 +24,10 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import sys
 import traceback
+from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from typing import Any
@@ -31,7 +35,10 @@ from typing import Any
 from .store import Store
 from .importers import ALL_IMPORTERS, pick_importer
 from .voice import fingerprint, render_voice_directive
-from .models import resolve_chat, resolve_embed, status as models_status
+from .models import (
+    resolve_chat, resolve_embed, status as models_status,
+    MODELS, models_dir, disk_free_gb,
+)
 
 # Lazy-loaded heavy objects
 _store: Store | None = None
@@ -41,6 +48,59 @@ _chatter = None
 _profile = None  # Profile object
 _profile_ctx_cache: dict[int, str] = {}  # year -> profile context string
 _config: dict = {}
+
+# ── Progress tracking ──────────────────────────────────────────────────
+# Polled by the UI every ~2 seconds via GET /progress.
+_progress: dict = {
+    "operation": None,       # "downloading_model", "embedding", "extracting_profile", "training", etc.
+    "detail": "",            # e.g. "Gemma-3-4B-Instruct (2.49 GB)"
+    "current": 0,            # items processed so far
+    "total": 0,              # total items to process
+    "percent": 0,            # 0-100
+    "started_at": None,      # ISO-8601 timestamp
+}
+
+
+def _progress_reset():
+    """Clear progress after an operation completes."""
+    _progress.update(
+        operation=None, detail="", current=0, total=0, percent=0,
+        started_at=None,
+    )
+
+
+def _progress_start(operation: str, detail: str = "", total: int = 0):
+    """Mark the beginning of a tracked operation."""
+    _progress.update(
+        operation=operation,
+        detail=detail,
+        current=0,
+        total=total,
+        percent=0,
+        started_at=datetime.now(timezone.utc).isoformat(),
+    )
+
+
+def _progress_update(current: int, total: int | None = None, detail: str | None = None):
+    """Update progress counters mid-operation."""
+    _progress["current"] = current
+    if total is not None:
+        _progress["total"] = total
+    if detail is not None:
+        _progress["detail"] = detail
+    t = _progress["total"]
+    _progress["percent"] = int(current * 100 / t) if t > 0 else 0
+
+
+def _download_progress_callback(downloaded_bytes: int, total_bytes: int, desc: str):
+    """Callback passed to models.resolve_* to relay download progress."""
+    _progress["operation"] = "downloading_model"
+    _progress["detail"] = desc
+    _progress["current"] = downloaded_bytes
+    _progress["total"] = total_bytes
+    _progress["percent"] = int(downloaded_bytes * 100 / total_bytes) if total_bytes > 0 else 0
+    if _progress["started_at"] is None:
+        _progress["started_at"] = datetime.now(timezone.utc).isoformat()
 
 
 def _data_dir() -> Path:
@@ -145,6 +205,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Expose-Headers", "X-Timeout-Hint")
         self.end_headers()
 
     def do_GET(self):
@@ -154,6 +215,10 @@ class Handler(BaseHTTPRequestHandler):
             self._stats()
         elif self.path == "/models":
             _json_response(self, 200, models_status())
+        elif self.path == "/progress":
+            _json_response(self, 200, dict(_progress))
+        elif self.path == "/preflight":
+            self._preflight()
         else:
             _json_response(self, 404, {"error": "not found"})
 
@@ -222,21 +287,37 @@ class Handler(BaseHTTPRequestHandler):
 
     def _embed(self, body: dict):
         global _embedder
-        model_path = body.get("model", "") or resolve_embed()
+        model_path = body.get("model", "") or resolve_embed(
+            progress_callback=_download_progress_callback,
+        )
         if not model_path:
             _json_response(self, 400, {"error": "embed model not found"})
             return
         if _embedder is None:
             from .rag import Embedder
             _embedder = Embedder(Path(model_path))
+
         store = _get_store()
-        total = 0
+
+        # Count total messages needing embedding for progress reporting
+        total_needed = store.conn.execute(
+            "SELECT COUNT(*) FROM messages m "
+            "LEFT JOIN embeddings e ON e.message_id = m.id "
+            "WHERE e.message_id IS NULL AND m.text <> ''"
+        ).fetchone()[0]
+
+        _progress_start("embedding", f"{total_needed} messages", total=total_needed)
+
+        embedded = 0
         for chunk in store.iter_missing_embeddings(batch=128):
             texts = [r["text"] for r in chunk]
             vecs = _embedder.embed(texts)
             store.put_embeddings(list(zip([r["id"] for r in chunk], vecs)))
-            total += len(chunk)
-        _json_response(self, 200, {"embedded": total})
+            embedded += len(chunk)
+            _progress_update(embedded)
+
+        _progress_reset()
+        _json_response(self, 200, {"embedded": embedded})
 
     def _voice(self, body: dict):
         store = _get_store()
@@ -249,7 +330,9 @@ class Handler(BaseHTTPRequestHandler):
     def _extract_profile(self, body: dict):
         """Run the profile extraction pipeline."""
         global _profile, _profile_ctx_cache
-        model_path = body.get("model", "") or resolve_chat()
+        model_path = body.get("model", "") or resolve_chat(
+            progress_callback=_download_progress_callback,
+        )
         if not model_path:
             _json_response(self, 400, {"error": "chat model not found"})
             return
@@ -261,9 +344,18 @@ class Handler(BaseHTTPRequestHandler):
         from .profile.extractor import ProfileExtractor
         import dataclasses
 
+        _progress_start("extracting_profile", "analyzing conversations")
+
+        def _profile_progress(step: str, detail: str = ""):
+            """Relay profile extractor progress into global _progress."""
+            _progress_update(
+                _progress["current"],
+                detail=f"{step}: {detail}" if detail else step,
+            )
+
         store = _get_store()
         extractor = ProfileExtractor(Path(model_path))
-        profile = extractor.extract(store, self_name)
+        profile = extractor.extract(store, self_name, on_progress=_profile_progress)
 
         # Serialize and save
         profile_data = dataclasses.asdict(profile)
@@ -273,6 +365,7 @@ class Handler(BaseHTTPRequestHandler):
         _profile = profile
         _profile_ctx_cache = {}
 
+        _progress_reset()
         _json_response(self, 200, {
             "ok": True,
             "relationships": len(profile.relationships),
@@ -288,8 +381,12 @@ class Handler(BaseHTTPRequestHandler):
             _json_response(self, 400, {"error": "year and prompt required"})
             return
 
-        model = body.get("model", "") or resolve_chat()
-        embed_model = body.get("embed_model", "") or resolve_embed()
+        model = body.get("model", "") or resolve_chat(
+            progress_callback=_download_progress_callback,
+        )
+        embed_model = body.get("embed_model", "") or resolve_embed(
+            progress_callback=_download_progress_callback,
+        )
         chat_format = body.get("chat_format", "gemma")
 
         if _embedder is None:
@@ -309,6 +406,8 @@ class Handler(BaseHTTPRequestHandler):
                 return
             from .llm import Chatter
             _chatter = Chatter(Path(model), chat_format=chat_format)
+
+        _progress_reset()  # clear any download progress from model resolution
 
         from .rag import format_context
 
@@ -331,7 +430,20 @@ class Handler(BaseHTTPRequestHandler):
         used = [{"text": h["text"][:100], "year": h["year"],
                  "thread": h["thread_name"], "score": round(h["score"], 3)}
                 for h in hits]
-        _json_response(self, 200, {"reply": reply, "used_messages": used})
+        # Include timeout hint so the Tauri client knows to wait longer
+        resp_body = {
+            "reply": reply,
+            "used_messages": used,
+            "timeout_hint_s": 300,
+        }
+        raw = json.dumps(resp_body).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(raw)))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("X-Timeout-Hint", "300")
+        self.end_headers()
+        self.wfile.write(raw)
 
     def _finetune(self, body: dict):
         """Run the fine-tuning pipeline (extract, optionally train+convert).
@@ -353,18 +465,21 @@ class Handler(BaseHTTPRequestHandler):
         store = _get_store()
 
         if step in ("extract", "full"):
+            _progress_start("training", "extracting training pairs")
             from .finetune import extract_pairs, format_for_gemma, save_jsonl
             from .finetune.format import split_dataset
 
             max_pairs = body.get("max_pairs", 3000)
             pairs = extract_pairs(store, self_name=self_name, max_pairs=max_pairs)
             if not pairs:
+                _progress_reset()
                 _json_response(self, 200, {
                     "status": "error",
                     "error": "no training pairs found",
                 })
                 return
 
+            _progress_update(len(pairs), detail=f"formatting {len(pairs)} pairs")
             records = format_for_gemma(pairs)
             train_recs, val_recs = split_dataset(records, train_ratio=0.9)
 
@@ -382,10 +497,12 @@ class Handler(BaseHTTPRequestHandler):
             }
 
             if step == "extract":
+                _progress_reset()
                 _json_response(self, 200, result)
                 return
 
         if step in ("train", "full"):
+            _progress_start("training", "LoRA fine-tuning in progress")
             from .finetune import train_lora, TrainConfig
             config = TrainConfig(
                 model_name=body.get("model_name", "google/gemma-3-4b-it"),
@@ -394,22 +511,77 @@ class Handler(BaseHTTPRequestHandler):
             )
             train_result = train_lora(config)
             if step == "train":
+                _progress_reset()
                 _json_response(self, 200, train_result)
                 return
             result["train_result"] = train_result
 
         if step in ("convert", "full"):
+            _progress_start("training", "converting adapter to GGUF")
             from .finetune import convert_adapter
             adapter_dir = body.get("adapter_dir", "") or str(
                 _data_dir() / "finetune" / "adapter"
             )
             convert_result = convert_adapter(adapter_dir)
             if step == "convert":
+                _progress_reset()
                 _json_response(self, 200, convert_result)
                 return
             result["convert_result"] = convert_result
 
+        _progress_reset()
         _json_response(self, 200, result)
+
+    def _preflight(self):
+        """Pre-flight check: disk space, model status, embedding gaps, warnings."""
+        warnings: list[str] = []
+        data_path = _data_dir()
+
+        # Disk space
+        free_gb = disk_free_gb(data_path)
+
+        # Model availability
+        model_info = models_status()
+        models_needed: list[str] = []
+        space_needed_gb = 0.0
+        for kind, entry in model_info.items():
+            if not entry["available"]:
+                models_needed.append(entry["name"])
+                space_needed_gb += entry["size_gb"]
+
+        if models_needed and free_gb < space_needed_gb:
+            warnings.append(
+                f"Only {free_gb:.1f} GB free, need ~{space_needed_gb:.1f} GB "
+                f"for model download ({', '.join(models_needed)})"
+            )
+
+        # Embedding gap
+        total_messages = 0
+        messages_needing_embedding = 0
+        try:
+            store = _get_store()
+            total_messages = store.count()
+            messages_needing_embedding = store.conn.execute(
+                "SELECT COUNT(*) FROM messages m "
+                "LEFT JOIN embeddings e ON e.message_id = m.id "
+                "WHERE e.message_id IS NULL AND m.text <> ''"
+            ).fetchone()[0]
+            if messages_needing_embedding > 10000:
+                warnings.append(
+                    f"{messages_needing_embedding:,} messages need embedding — "
+                    f"this may take several minutes"
+                )
+        except Exception:
+            pass  # DB may not exist yet on first launch
+
+        _json_response(self, 200, {
+            "disk_free_gb": free_gb,
+            "models": model_info,
+            "models_needed": models_needed,
+            "total_messages": total_messages,
+            "messages_needing_embedding": messages_needing_embedding,
+            "warnings": warnings,
+        })
 
     def _stats(self):
         store = _get_store()

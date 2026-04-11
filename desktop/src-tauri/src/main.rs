@@ -112,7 +112,8 @@ async fn import_file(args: ImportArgs) -> Result<serde_json::Value, String> {
 
 #[tauri::command]
 async fn embed(args: EmbedArgs) -> Result<serde_json::Value, String> {
-    post_json("/embed", &args).await
+    // Embedding large datasets can take 5-10 minutes; use 30-minute timeout
+    post_json_timeout("/embed", &args, 1800).await
 }
 
 #[tauri::command]
@@ -122,7 +123,8 @@ async fn voice() -> Result<serde_json::Value, String> {
 
 #[tauri::command]
 async fn chat_turn(args: ChatArgs) -> Result<serde_json::Value, String> {
-    post_json("/chat", &args).await
+    // First chat may trigger a 2.5GB model download; use 10-minute timeout
+    post_json_timeout("/chat", &args, 600).await
 }
 
 #[tauri::command]
@@ -152,6 +154,21 @@ async fn stats() -> Result<serde_json::Value, String> {
 #[tauri::command]
 async fn health() -> Result<serde_json::Value, String> {
     get_json("/health").await
+}
+
+#[tauri::command]
+async fn models() -> Result<serde_json::Value, String> {
+    get_json("/models").await
+}
+
+#[tauri::command]
+async fn progress() -> Result<serde_json::Value, String> {
+    get_json("/progress").await
+}
+
+#[tauri::command]
+async fn preflight() -> Result<serde_json::Value, String> {
+    get_json("/preflight").await
 }
 
 /// Find a working Python 3 interpreter.
@@ -343,7 +360,8 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             init_user, import_file, embed, voice, chat_turn,
-            extract_profile, finetune, stats, health
+            extract_profile, finetune, stats, health,
+            models, progress, preflight
         ])
         .on_window_event(|_window, event| {
             if let tauri::WindowEvent::Destroyed = event {

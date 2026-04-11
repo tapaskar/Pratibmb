@@ -1,0 +1,27 @@
+PackageIdentifier: tapaskar.Pratibmb
+PackageVersion: 0.2.0
+PackageLocale: en-US
+Publisher: tapaskar
+PublisherUrl: https://pratibmb.com
+PackageName: Pratibmb
+PackageUrl: https://pratibmb.com
+License: AGPL-3.0-or-later
+LicenseUrl: https://github.com/tapaskar/Pratibmb/blob/main/LICENSE
+ShortDescription: Chat with your 10-years-younger self. 100% local, no cloud, no telemetry.
+Description: >-
+  Pratibmb ingests your personal messaging history from 8 platforms
+  (WhatsApp, Facebook, Instagram, Gmail, iMessage, Telegram, Twitter/X, Discord),
+  builds a private corpus on your machine, and lets you have a conversation with
+  the person who sent those messages years ago. A local LLM learns your voice and
+  responds as past-you. Everything runs offline. Your data never leaves your computer.
+Tags:
+  - chat
+  - privacy
+  - local
+  - ai
+  - llm
+  - offline
+  - messaging
+  - personal
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

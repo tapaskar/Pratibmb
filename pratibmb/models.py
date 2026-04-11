@@ -14,6 +14,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import Callable
 
 # ── Model registry ──────────────────────────────────────────────────────
 MODELS = {
@@ -64,6 +65,7 @@ def resolve(
     *,
     env_key: str | None = None,
     auto_download: bool = True,
+    progress_callback: Callable[[int, int, str], None] | None = None,
 ) -> str:
     """Resolve a model path. Downloads from HuggingFace if not found locally.
 
@@ -71,6 +73,8 @@ def resolve(
         kind: "chat" or "embed"
         env_key: Optional env var override (e.g. PRATIBMB_CHAT_MODEL)
         auto_download: If True, download the model when not found locally.
+        progress_callback: Optional callback(downloaded_bytes, total_bytes, description)
+                           called periodically during download.
 
     Returns:
         Absolute path to the GGUF file, or "" if not found and download disabled.
@@ -110,23 +114,42 @@ def resolve(
 
     # 5. Auto-download from HuggingFace
     if auto_download:
-        return _download_with_retry(kind)
+        return _download_with_retry(kind, progress_callback=progress_callback)
 
     return ""
 
 
-def resolve_chat(auto_download: bool = True) -> str:
+def resolve_chat(
+    auto_download: bool = True,
+    progress_callback: Callable[[int, int, str], None] | None = None,
+) -> str:
     """Resolve the chat model path."""
-    return resolve("chat", env_key="PRATIBMB_CHAT_MODEL", auto_download=auto_download)
+    return resolve(
+        "chat",
+        env_key="PRATIBMB_CHAT_MODEL",
+        auto_download=auto_download,
+        progress_callback=progress_callback,
+    )
 
 
-def resolve_embed(auto_download: bool = True) -> str:
+def resolve_embed(
+    auto_download: bool = True,
+    progress_callback: Callable[[int, int, str], None] | None = None,
+) -> str:
     """Resolve the embedding model path."""
-    return resolve("embed", env_key="PRATIBMB_EMBED_MODEL", auto_download=auto_download)
+    return resolve(
+        "embed",
+        env_key="PRATIBMB_EMBED_MODEL",
+        auto_download=auto_download,
+        progress_callback=progress_callback,
+    )
 
 
 # ── Download with retry ─────────────────────────────────────────────────
-def _download_with_retry(kind: str) -> str:
+def _download_with_retry(
+    kind: str,
+    progress_callback: Callable[[int, int, str], None] | None = None,
+) -> str:
     """Download a model with retry logic.
 
     Tries huggingface_hub first (supports resume natively), then falls back
@@ -150,13 +173,13 @@ def _download_with_retry(kind: str) -> str:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             try:
-                return _download_via_hub(info, dest)
+                return _download_via_hub(info, dest, progress_callback=progress_callback)
             except ImportError:
                 print(
                     "[models] huggingface_hub not installed, using direct download",
                     flush=True,
                 )
-                return _download_direct(info, dest)
+                return _download_direct(info, dest, progress_callback=progress_callback)
         except Exception as e:
             last_error = e
             if attempt < MAX_RETRIES:
@@ -186,9 +209,19 @@ def _download_with_retry(kind: str) -> str:
     )
 
 
-def _download_via_hub(info: dict, dest: Path) -> str:
+def _download_via_hub(
+    info: dict,
+    dest: Path,
+    progress_callback: Callable[[int, int, str], None] | None = None,
+) -> str:
     """Download using the huggingface_hub library (preferred — supports resume)."""
     from huggingface_hub import hf_hub_download
+
+    desc = f"{info['description']} ({info['size_gb']:.2f} GB)"
+
+    # Notify caller that download is starting
+    if progress_callback:
+        progress_callback(0, int(info["size_gb"] * 1024 * 1024 * 1024), desc)
 
     # hf_hub_download handles resume and caching natively
     cached = hf_hub_download(
@@ -207,11 +240,20 @@ def _download_via_hub(info: dict, dest: Path) -> str:
         import shutil
         shutil.copy2(cached, dest)
 
+    # Notify caller that download is complete
+    total = int(info["size_gb"] * 1024 * 1024 * 1024)
+    if progress_callback:
+        progress_callback(total, total, desc)
+
     print(f"[models] saved to {dest}", flush=True)
     return str(dest)
 
 
-def _download_direct(info: dict, dest: Path) -> str:
+def _download_direct(
+    info: dict,
+    dest: Path,
+    progress_callback: Callable[[int, int, str], None] | None = None,
+) -> str:
     """Fallback: download via urllib with resume support."""
     import urllib.request
 
@@ -220,6 +262,7 @@ def _download_direct(info: dict, dest: Path) -> str:
         f"/resolve/main/{info['filename']}"
     )
 
+    desc = f"{info['description']} ({info['size_gb']:.2f} GB)"
     tmp = dest.with_suffix(".tmp")
     existing_size = tmp.stat().st_size if tmp.exists() else 0
 
@@ -250,6 +293,7 @@ def _download_direct(info: dict, dest: Path) -> str:
                 mode = "wb"  # overwrite (server doesn't support resume)
 
             last_pct = -1
+            last_cb_pct = -1
 
             with open(tmp, mode) as f:
                 while True:
@@ -270,7 +314,17 @@ def _download_direct(info: dict, dest: Path) -> str:
                             )
                             last_pct = pct
 
+                        # Fire progress callback every 1%
+                        if progress_callback and pct != last_cb_pct:
+                            progress_callback(downloaded, total, desc)
+                            last_cb_pct = pct
+
         tmp.rename(dest)
+
+        # Final progress callback
+        if progress_callback and total > 0:
+            progress_callback(total, total, desc)
+
         print(f"[models] saved to {dest}", flush=True)
         return str(dest)
 
@@ -283,6 +337,16 @@ def _download_direct(info: dict, dest: Path) -> str:
                 flush=True,
             )
         raise
+
+
+# ── Disk space ─────────────────────────────────────────────────────────
+def disk_free_gb(path: Path | None = None) -> float:
+    """Return free disk space in GB at the given path (default: ~/.pratibmb)."""
+    import shutil
+    target = path or (Path.home() / ".pratibmb")
+    target.mkdir(parents=True, exist_ok=True)
+    usage = shutil.disk_usage(str(target))
+    return round(usage.free / (1024 ** 3), 2)
 
 
 # ── Status ──────────────────────────────────────────────────────────────

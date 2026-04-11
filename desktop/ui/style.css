@@ -750,3 +750,72 @@ footer {
 }
 .ob-dot.active { background: var(--accent); }
 .ob-dot.done { background: #3b7a3b; }
+
+/* Progress bar */
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+/* Status banner (between chat and composer) */
+.status-banner {
+  padding: 8px 16px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-direction: column;
+}
+.status-banner.hidden { display: none; }
+.status-banner .progress-bar {
+  width: 60%;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+/* Pulse animation for active operations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.pulsing {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Preflight warning */
+.preflight-warning {
+  text-align: left;
+  background: #fff8e6;
+  border: 1px solid #e6d590;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #7a6520;
+}
+.preflight-warning b {
+  color: #5c4a10;
+}
+
+/* Startup error block */
+.startup-error {
+  text-align: left;
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.7;
+}

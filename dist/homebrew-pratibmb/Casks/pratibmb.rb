@@ -1,5 +1,5 @@
 cask "pratibmb" do
-  version "0.0.1"
+  version "0.2.0"
 
   on_arm do
     url "https://github.com/tapaskar/Pratibmb/releases/download/v#{version}/Pratibmb_#{version}_aarch64.dmg"

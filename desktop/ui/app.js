@@ -33,6 +33,8 @@ pipelineOverlay.addEventListener("click", (e) => {
 
 const SERVER = "http://127.0.0.1:11435";
 
+const statusBanner = document.getElementById("status-banner");
+
 // Default model paths — auto-discovered by the server.
 // Override by setting PRATIBMB_CHAT_MODEL / PRATIBMB_EMBED_MODEL env vars.
 const DEFAULTS = {
@@ -42,6 +44,143 @@ const DEFAULTS = {
 };
 
 let modelsLoaded = false;
+
+// --------------- Progress polling ---------------
+
+let progressInterval = null;
+
+function startProgressPolling(logId) {
+  stopProgressPolling();
+  progressInterval = setInterval(async () => {
+    try {
+      const resp = await fetch(SERVER + "/progress");
+      const p = await resp.json();
+      if (p.operation) {
+        let msg = p.detail || p.operation;
+        let pct = -1;
+        if (p.total > 0) {
+          pct = Math.round((p.current / p.total) * 100);
+          msg += ` (${p.current.toLocaleString()}/${p.total.toLocaleString()} — ${pct}%)`;
+        }
+        updateProgressDisplay(logId, msg, pct);
+      }
+    } catch {
+      // Server may be busy — silently retry next interval
+    }
+  }, 2000);
+}
+
+function stopProgressPolling() {
+  if (progressInterval) {
+    clearInterval(progressInterval);
+    progressInterval = null;
+  }
+}
+
+function updateProgressDisplay(logId, msg, pct) {
+  if (logId === "status-banner") {
+    // Chat-mode progress: show in the status banner between chat and composer
+    showStatusBanner(msg, pct >= 0 ? pct : undefined);
+  } else {
+    // Onboarding/pipeline mode: update or append to the log area
+    const el = document.getElementById(logId);
+    if (!el) return;
+    // Look for an existing progress line to update in-place
+    const lines = el.textContent.split("\n");
+    const lastIdx = lines.length - 1;
+    if (lastIdx >= 0 && lines[lastIdx].startsWith("[progress]")) {
+      lines[lastIdx] = "[progress] " + msg;
+      el.textContent = lines.join("\n");
+    } else {
+      el.textContent += (el.textContent ? "\n" : "") + "[progress] " + msg;
+    }
+    el.scrollTop = el.scrollHeight;
+  }
+}
+
+function showStatusBanner(msg, percent) {
+  statusBanner.classList.remove("hidden");
+  let html = '<span class="pulsing">' + escapeHtml(msg) + "</span>";
+  if (typeof percent === "number" && percent >= 0) {
+    html += '<div class="progress-bar"><div class="progress-bar-fill" style="width:' + Math.min(percent, 100) + '%"></div></div>';
+  }
+  statusBanner.innerHTML = html;
+}
+
+function hideStatusBanner() {
+  statusBanner.classList.add("hidden");
+  statusBanner.innerHTML = "";
+}
+
+function escapeHtml(str) {
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// --------------- Friendly error messages ---------------
+
+function friendlyChatError(errStr) {
+  const lower = errStr.toLowerCase();
+
+  if (lower.includes("chat model not found") || (lower.includes("chat_model") && lower.includes("not found"))) {
+    return "The AI model hasn't been downloaded yet. This happens automatically on first use — please wait a moment and try again.";
+  }
+  if (lower.includes("embed model not found") || (lower.includes("embed_model") && lower.includes("not found"))) {
+    return "The embedding model is missing. Click the gear icon to set it up.";
+  }
+  if (lower.includes("connection refused") || lower.includes("econnrefused") || lower.includes("failed to fetch") || lower.includes("networkerror")) {
+    return "Lost connection to the local engine. Please restart the app.";
+  }
+  if (lower.includes("downloading") || lower.includes("download")) {
+    return "A model is being downloaded. This may take a few minutes on first use. Please wait...";
+  }
+
+  // Try to extract message from JSON error strings
+  try {
+    const parsed = JSON.parse(errStr);
+    if (parsed.error) return parsed.error;
+    if (parsed.detail) return parsed.detail;
+    if (parsed.message) return parsed.message;
+  } catch {
+    // Not JSON — try to clean up "Error: {...}" wrapper
+    const jsonMatch = errStr.match(/\{.*\}/s);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (parsed.error) return parsed.error;
+        if (parsed.detail) return parsed.detail;
+      } catch {}
+    }
+  }
+
+  return errStr;
+}
+
+// --------------- Preflight check ---------------
+
+async function checkPreflight(logId) {
+  try {
+    const resp = await fetch(SERVER + "/preflight");
+    if (!resp.ok) return; // endpoint may not exist yet — skip silently
+    const data = await resp.json();
+    if (data.warnings && data.warnings.length > 0) {
+      for (const w of data.warnings) {
+        if (logId) {
+          const el = document.getElementById(logId);
+          if (el) {
+            el.textContent += (el.textContent ? "\n" : "") + "[warning] " + w;
+            el.scrollTop = el.scrollHeight;
+          }
+        }
+      }
+      return data.warnings;
+    }
+  } catch {
+    // /preflight not available — no problem
+  }
+  return [];
+}
 
 yearInput.addEventListener("input", () => {
   yearValue.textContent = yearInput.value;
@@ -134,13 +273,20 @@ composer.addEventListener("submit", async (e) => {
   input.value = "";
   appendBubble("you", text);
   setLoading(true);
+
+  // Start polling for progress (model downloads, etc.) — show in status banner
+  startProgressPolling("status-banner");
+
   try {
     const result = await chatTurn(yearInput.value, text);
     appendBubble("past", result.reply);
     showContext(result.used_messages);
   } catch (err) {
-    appendBubble("past", "[error] " + String(err));
+    const friendly = friendlyChatError(String(err));
+    appendBubble("past", friendly);
   } finally {
+    stopProgressPolling();
+    hideStatusBanner();
     setLoading(false);
     input.focus();
   }
@@ -268,20 +414,31 @@ document.getElementById("ob-embed-start").addEventListener("click", async () => 
   btn.disabled = true;
   btn.textContent = "Building...";
 
+  // Pre-operation preflight check
+  const warnings = await checkPreflight("ob-embed-log");
+  if (warnings && warnings.length > 0) {
+    obLog("ob-embed-log", "");  // blank line before starting
+  }
+
   obLog("ob-embed-log", "[air-gapped] Loading embedding model (nomic-embed-text, 84MB)...");
   obLog("ob-embed-log", "[privacy] The model runs on your CPU/GPU. No text is sent anywhere.");
   obLog("ob-embed-log", "[local] Computing vector representations of your messages...");
   obLog("ob-embed-log", "This may take a minute for large corpora.\n");
 
+  // Start polling for real-time progress updates
+  startProgressPolling("ob-embed-log");
+
   try {
     const result = await invoke("embed", { model: "" });
+    stopProgressPolling();
     obLog("ob-embed-log", `[done] Embedded ${result.embedded} messages.`);
     obLog("ob-embed-log", "[local] Vectors stored in ~/.pratibmb/corpus.db");
     obLog("ob-embed-log", "[privacy] Zero network requests made during embedding.");
     btn.textContent = "Done!";
     setTimeout(() => obShow(4), 800);
   } catch (err) {
-    obLog("ob-embed-log", "[error] " + String(err));
+    stopProgressPolling();
+    obLog("ob-embed-log", "[error] " + friendlyChatError(String(err)));
     btn.disabled = false;
     btn.textContent = "Retry";
   }
@@ -303,8 +460,12 @@ document.getElementById("ob-profile-start").addEventListener("click", async () =
   obLog("ob-profile-log", "  - Communication style (formal/casual, emoji use, language mix)");
   obLog("ob-profile-log", "\nThis takes 5-10 minutes. Please be patient...");
 
+  // Start polling for real-time progress updates
+  startProgressPolling("ob-profile-log");
+
   try {
     const result = await invoke("extract_profile", { model: "" });
+    stopProgressPolling();
     obLog("ob-profile-log", `\n[done] Profile extracted!`);
     obLog("ob-profile-log", `  ${result.relationships || 0} relationships found`);
     obLog("ob-profile-log", `  ${result.life_events || 0} life events detected`);
@@ -314,7 +475,8 @@ document.getElementById("ob-profile-start").addEventListener("click", async () =
     btn.textContent = "Done!";
     setTimeout(() => obFinish(), 800);
   } catch (err) {
-    obLog("ob-profile-log", "[error] " + String(err));
+    stopProgressPolling();
+    obLog("ob-profile-log", "[error] " + friendlyChatError(String(err)));
     btn.disabled = false;
     btn.textContent = "Retry";
   }
@@ -374,8 +536,11 @@ document.getElementById("btn-profile").addEventListener("click", async () => {
   appendLog("profile-status", "Extracting relationships, life events, interests...");
   appendLog("profile-status", "This takes 5-10 minutes. The LLM reads batches of your messages to build a structured identity profile.\n");
 
+  startProgressPolling("profile-status");
+
   try {
     const result = await invoke("extract_profile", { model: "" });
+    stopProgressPolling();
     appendLog("profile-status", `\nDone! Found:`);
     appendLog("profile-status", `  ${result.relationships || 0} relationships`);
     appendLog("profile-status", `  ${result.life_events || 0} life events`);
@@ -383,7 +548,8 @@ document.getElementById("btn-profile").addEventListener("click", async () => {
     appendLog("profile-status", `\n[local] Profile saved to ~/.pratibmb/corpus.db — never uploaded anywhere.`);
     setStepStatus("profile-status", statusEl("profile-status").textContent, "done");
   } catch (err) {
-    appendLog("profile-status", "\nError: " + String(err));
+    stopProgressPolling();
+    appendLog("profile-status", "\nError: " + friendlyChatError(String(err)));
     setStepStatus("profile-status", statusEl("profile-status").textContent, "error");
   }
   disableBtn("btn-profile", false);
@@ -413,7 +579,7 @@ document.getElementById("btn-extract").addEventListener("click", async () => {
       setStepStatus("extract-status", statusEl("extract-status").textContent, "done");
     }
   } catch (err) {
-    appendLog("extract-status", "\nError: " + String(err));
+    appendLog("extract-status", "\nError: " + friendlyChatError(String(err)));
     setStepStatus("extract-status", statusEl("extract-status").textContent, "error");
   }
   disableBtn("btn-extract", false);
@@ -430,10 +596,13 @@ document.getElementById("btn-train").addEventListener("click", async () => {
   appendLog("train-status", "[privacy] The adapter learns YOUR voice — it stays on your machine.\n");
   appendLog("train-status", "Config: rank 8, lr 2e-5, 16 layers, ~500 iterations");
   appendLog("train-status", "Estimated time: 20-30 minutes on M-series Mac.\n");
-  appendLog("train-status", "Training in progress... (this window will update when done)");
+  appendLog("train-status", "Training in progress...");
+
+  startProgressPolling("train-status");
 
   try {
     const result = await invoke("finetune", { step: "train" });
+    stopProgressPolling();
     if (result.status === "ok") {
       appendLog("train-status", `\nTraining complete!`);
       appendLog("train-status", `Adapter saved to: ${result.adapter_path}`);
@@ -447,7 +616,8 @@ document.getElementById("btn-train").addEventListener("click", async () => {
       setStepStatus("train-status", statusEl("train-status").textContent, "error");
     }
   } catch (err) {
-    appendLog("train-status", "\nError: " + String(err));
+    stopProgressPolling();
+    appendLog("train-status", "\nError: " + friendlyChatError(String(err)));
     setStepStatus("train-status", statusEl("train-status").textContent, "error");
   }
   disableBtn("btn-train", false);
@@ -477,7 +647,7 @@ document.getElementById("btn-convert").addEventListener("click", async () => {
       setStepStatus("convert-status", statusEl("convert-status").textContent, "error");
     }
   } catch (err) {
-    appendLog("convert-status", "\nError: " + String(err));
+    appendLog("convert-status", "\nError: " + friendlyChatError(String(err)));
     setStepStatus("convert-status", statusEl("convert-status").textContent, "error");
   }
   disableBtn("btn-convert", false);
@@ -489,7 +659,16 @@ document.getElementById("btn-convert").addEventListener("click", async () => {
     const ok = await checkHealth();
     if (!ok) {
       chat.innerHTML = "";
-      appendBubble("past", "waiting for the local server to start... please restart the app.");
+      const errorDiv = document.createElement("div");
+      errorDiv.className = "bubble bubble-past startup-error";
+      errorDiv.textContent =
+        "Could not connect to the Pratibmb engine.\n\n" +
+        "This usually means Python 3.10+ is not installed or the pratibmb package is missing.\n\n" +
+        "To fix:\n" +
+        "1. Install Python 3.10+ from python.org\n" +
+        "2. Run: pip install -e /path/to/Pratibmb\n\n" +
+        "Then restart the app.";
+      chat.appendChild(errorDiv);
       return;
     }
 
@@ -511,6 +690,7 @@ document.getElementById("btn-convert").addEventListener("click", async () => {
     }
   } catch (err) {
     chat.innerHTML = "";
-    appendBubble("past", "[startup error] " + String(err));
+    const friendly = friendlyChatError(String(err));
+    appendBubble("past", friendly);
   }
 })();
