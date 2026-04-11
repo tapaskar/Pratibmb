@@ -35,6 +35,7 @@ models/
 # Fine-tuning data (contains private messages)
 finetune/data/
 finetune/adapter/
+fused_model/
 
 # OS
 .DS_Store
