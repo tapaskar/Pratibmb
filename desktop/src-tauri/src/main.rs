@@ -225,20 +225,13 @@ fn spawn_python_server() -> Option<Child> {
         .env("PYTHONPATH", &pythonpath)
         .output();
 
-    match check {
+    match &check {
         Ok(output) if output.status.success() => {
             eprintln!("[tauri] pratibmb package verified");
         }
-        Ok(output) => {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            eprintln!(
-                "[tauri] WARNING: pratibmb package not importable: {}",
-                stderr.trim()
-            );
-            eprintln!("[tauri] attempting to start server anyway...");
-        }
-        Err(e) => {
-            eprintln!("[tauri] WARNING: could not verify pratibmb: {}", e);
+        _ => {
+            eprintln!("[tauri] pratibmb not found, attempting auto-install...");
+            auto_install_package(&python, &pythonpath);
         }
     }
 
@@ -255,6 +248,89 @@ fn spawn_python_server() -> Option<Child> {
         Err(e) => {
             eprintln!("[tauri] ERROR: failed to spawn server: {}", e);
             None
+        }
+    }
+}
+
+/// Auto-install the pratibmb Python package if not found.
+///
+/// Tries two strategies:
+/// 1. pip install from GitHub (works on any platform with internet)
+/// 2. Clone repo to ~/Pratibmb and pip install -e . (fallback)
+fn auto_install_package(python: &str, pythonpath: &str) {
+    eprintln!("[tauri] === Auto-installing pratibmb package ===");
+
+    // Strategy 1: pip install directly from GitHub
+    eprintln!("[tauri] trying: pip install from GitHub...");
+    let pip_result = Command::new(python)
+        .args([
+            "-m", "pip", "install", "--prefer-binary",
+            "pratibmb @ git+https://github.com/tapaskar/Pratibmb.git",
+        ])
+        .output();
+
+    match pip_result {
+        Ok(output) if output.status.success() => {
+            eprintln!("[tauri] pip install from GitHub succeeded");
+            return;
+        }
+        Ok(output) => {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            eprintln!("[tauri] pip install failed: {}", stderr.trim());
+        }
+        Err(e) => {
+            eprintln!("[tauri] pip command failed: {}", e);
+        }
+    }
+
+    // Strategy 2: Clone to ~/Pratibmb and install from there
+    let home = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .unwrap_or_default();
+    let repo_dir = std::path::Path::new(&home).join("Pratibmb");
+
+    if !repo_dir.join("pratibmb").is_dir() {
+        eprintln!("[tauri] cloning repo to {}...", repo_dir.display());
+        let clone = Command::new("git")
+            .args([
+                "clone", "--depth", "1",
+                "https://github.com/tapaskar/Pratibmb.git",
+                &repo_dir.to_string_lossy(),
+            ])
+            .output();
+
+        match clone {
+            Ok(output) if output.status.success() => {
+                eprintln!("[tauri] cloned successfully");
+            }
+            _ => {
+                eprintln!("[tauri] git clone failed — user will need to install manually");
+                eprintln!("[tauri] run: pip install 'pratibmb @ git+https://github.com/tapaskar/Pratibmb.git'");
+                return;
+            }
+        }
+    }
+
+    // Install from the cloned repo
+    eprintln!("[tauri] installing from {}...", repo_dir.display());
+    let install = Command::new(python)
+        .args(["-m", "pip", "install", "--prefer-binary", "-e", "."])
+        .current_dir(&repo_dir)
+        .output();
+
+    match install {
+        Ok(output) if output.status.success() => {
+            eprintln!("[tauri] package installed from local clone");
+            // Set env var so get_pythonpath finds it
+            std::env::set_var("PRATIBMB_ROOT", &repo_dir);
+        }
+        Ok(output) => {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            eprintln!("[tauri] install from clone failed: {}", stderr.trim());
+            eprintln!("[tauri] user may need: pip install llama-cpp-python --prefer-binary");
+        }
+        Err(e) => {
+            eprintln!("[tauri] install failed: {}", e);
         }
     }
 }
@@ -291,16 +367,34 @@ fn get_pythonpath() -> String {
         }
     }
 
-    // Common install location
-    let home = std::env::var("HOME").unwrap_or_default();
+    // Common install locations
+    let home = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .unwrap_or_default();
     let candidates = [
         format!("{}/Pratibmb", home),
+        format!("{}\\Pratibmb", home),  // Windows
     ];
     for c in &candidates {
         let p = std::path::Path::new(c);
         if p.join("pratibmb").is_dir() {
             eprintln!("[tauri] PYTHONPATH from known path: {}", c);
             return c.clone();
+        }
+    }
+
+    // If pip-installed, pratibmb is in site-packages — no PYTHONPATH needed
+    // Return empty string; Python will find it via its own sys.path
+    let pip_check = Command::new(
+        if cfg!(windows) { "python" } else { "python3" }
+    )
+        .args(["-c", "import pratibmb; print(pratibmb.__file__)"])
+        .output();
+
+    if let Ok(output) = pip_check {
+        if output.status.success() {
+            eprintln!("[tauri] pratibmb found in pip site-packages");
+            return String::new();  // No extra PYTHONPATH needed
         }
     }
 

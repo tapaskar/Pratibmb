@@ -38,10 +38,14 @@ Optional **LoRA fine-tuning** teaches the model your specific texting style — 
 
 Auto-detection: drop any supported file or folder into the app and Pratibmb figures out the format.
 
-## Quick Install (macOS / Linux)
+## Quick Install
 
 ```bash
+# macOS / Linux
 curl -fsSL https://pratibmb.com/install.sh | bash
+
+# Windows (PowerShell)
+irm https://pratibmb.com/install.ps1 | iex
 ```
 
 This installs the desktop app, Python package, and all dependencies in one command.
