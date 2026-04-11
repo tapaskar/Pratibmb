@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pratibmb - Chat with your 10-years-younger self</title>
 <meta name="description" content="Pratibmb lets you chat with your past self using your own messaging history. 100% local, no cloud, no telemetry. Open source.">
+
+<!-- Open Graph / Social sharing -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pratibmb.com">
+<meta property="og:title" content="Pratibmb — Chat with your 10-years-younger self">
+<meta property="og:description" content="Import your WhatsApp, Facebook, Instagram, Gmail, iMessage, Telegram, Twitter, or Discord history. A local AI learns your voice and lets you text past-you. No cloud. No API. Everything runs on your machine.">
+<meta property="og:image" content="https://pratibmb.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pratibmb — Chat with your 10-years-younger self">
+<meta name="twitter:description" content="Import your messaging history. Text past-you. 100% local, no cloud, no telemetry. Open source.">
+<meta name="twitter:image" content="https://pratibmb.com/og-image.png">
+
 <link rel="stylesheet" href="style.css">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
@@ -29,6 +45,28 @@
     </div>
   </div>
 </header>
+
+<!-- Emotional Hook -->
+<section class="hook" id="why">
+  <div class="container">
+    <h2>What would you say to who you were 10 years ago?</h2>
+    <p class="hook-text">Your old messages &mdash; thousands of conversations across WhatsApp, Facebook, Instagram, Gmail, iMessage, Telegram, Twitter, and Discord &mdash; contain a version of you that no longer exists. The way you talked, the things you cared about, the jokes you made, the people you loved. Pratibmb brings that person back.</p>
+    <div class="hook-cards">
+      <div class="hook-card">
+        <div class="hook-icon">&#128172;</div>
+        <p>"I found messages from 2014 where I was excited about a job I'd completely forgotten about"</p>
+      </div>
+      <div class="hook-card">
+        <div class="hook-icon">&#128557;</div>
+        <p>"My 2016 self texted completely differently. More emojis, more slang, more exclamation marks"</p>
+      </div>
+      <div class="hook-card">
+        <div class="hook-icon">&#129303;</div>
+        <p>"Chatting with past-me about my old friendships was unexpectedly moving"</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- How It Works -->
 <section class="how-it-works" id="how">
@@ -251,6 +289,97 @@
     <div class="os-links">
       <a href="https://github.com/tapaskar/Pratibmb" class="btn btn-secondary">View on GitHub</a>
       <a href="https://github.com/tapaskar/Pratibmb/issues" class="btn btn-secondary">Report Issue</a>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <h2>Pricing</h2>
+    <p class="section-sub">Free for individuals. Commercial licenses for companies.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">Personal</div>
+        <div class="pricing-price">Free</div>
+        <div class="pricing-desc">Forever</div>
+        <ul class="pricing-features">
+          <li>Full app &mdash; all features</li>
+          <li>All 8 platforms</li>
+          <li>Fine-tuning included</li>
+          <li>Community support (GitHub)</li>
+          <li>AGPLv3 license</li>
+        </ul>
+        <a href="#downloads" class="btn btn-primary">Download Free</a>
+      </div>
+      <div class="pricing-card pricing-featured">
+        <div class="pricing-tier">Team</div>
+        <div class="pricing-price">$29<span>/user/month</span></div>
+        <div class="pricing-desc">For companies &lt; 100 people</div>
+        <ul class="pricing-features">
+          <li>Everything in Personal</li>
+          <li>Commercial license (no AGPL)</li>
+          <li>Embed in proprietary products</li>
+          <li>Email support</li>
+          <li>Priority bug fixes</li>
+        </ul>
+        <a href="mailto:tapas.eric@gmail.com?subject=Pratibmb Team License" class="btn btn-primary">Contact Sales</a>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Enterprise</div>
+        <div class="pricing-price">Custom</div>
+        <div class="pricing-desc">For companies &gt; 100 people</div>
+        <ul class="pricing-features">
+          <li>Everything in Team</li>
+          <li>Custom integrations</li>
+          <li>Dedicated support + SLA</li>
+          <li>On-premise deployment help</li>
+          <li>Custom model training</li>
+        </ul>
+        <a href="mailto:tapas.eric@gmail.com?subject=Pratibmb Enterprise License" class="btn btn-secondary">Talk to Us</a>
+      </div>
+    </div>
+    <p class="pricing-note">Individuals, researchers, and open-source projects are always free. Commercial licenses fund continued development.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>Is this therapy?</summary>
+        <p>No. Pratibmb is a conversation tool, not a mental health product. If you use it to process grief or difficult emotions, please set time limits and speak to a professional. Built-in session limits and gentle reframes are part of the v1.0 roadmap.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can anyone else see my data?</summary>
+        <p>No. Everything runs on your hardware. There are no servers, no accounts, no cloud storage, no analytics. Your messages, embeddings, models, and profiles stay on your machine. Uninstall the app and the data is gone.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Does it work offline?</summary>
+        <p>Yes. After the one-time model download (~2.5GB on first launch), Pratibmb works with no internet connection. It uses a local LLM (Gemma-3-4B) and a local embedding model (Nomic Embed). No API calls, no cloud inference.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How accurate is it?</summary>
+        <p>The base model captures your general communication style, topics, and relationships well. Optional LoRA fine-tuning (20 min on Apple Silicon) teaches it your specific texting patterns &mdash; abbreviations, language mix, emoji habits. It's not perfect, but it's often surprisingly close.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What hardware do I need?</summary>
+        <p>Any modern computer with 4GB+ RAM. Apple Silicon Macs get the best experience (Metal GPU acceleration for fine-tuning). NVIDIA GPUs accelerate fine-tuning on Windows/Linux. CPU-only works too, just slower for the fine-tuning step.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Why not just use ChatGPT with my messages?</summary>
+        <p>Because your private messages are the most intimate data you own. Uploading a decade of conversations to any cloud API &mdash; OpenAI, Google, anyone &mdash; means that data now lives on someone else's servers, subject to their terms of service, their data breaches, and their training pipelines. Pratibmb exists so you never have to make that trade-off.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is the AGPL license restrictive?</summary>
+        <p>For personal use, no. AGPL means you can use, study, modify, and self-host Pratibmb freely. The only restriction: if you run a modified version as a hosted service, you must share your changes under the same license. Companies that can't comply can purchase a commercial license.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can I use it for a deceased family member's messages?</summary>
+        <p>Technically yes &mdash; you can import their exported messages and chat with the model. This is emotionally powerful and should be approached with care. We recommend setting session time limits and being mindful that it's a model, not the person. Dedicated "legacy mode" with additional safeguards is planned for v1.0.</p>
+      </details>
     </div>
   </div>
 </section>

@@ -433,6 +433,194 @@ footer p {
   font-style: italic;
 }
 
+/* Emotional Hook */
+.hook {
+  text-align: center;
+}
+
+.hook h2 {
+  font-size: 28px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+
+.hook-text {
+  max-width: 640px;
+  margin: 0 auto 40px;
+  font-size: 15px;
+  color: var(--fg-muted);
+  line-height: 1.9;
+}
+
+.hook-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.hook-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 20px;
+}
+
+.hook-icon {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.hook-card p {
+  font-size: 14px;
+  color: var(--fg-muted);
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* Pricing */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.pricing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.pricing-featured {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px rgba(196, 149, 106, 0.15);
+  position: relative;
+}
+
+.pricing-featured::before {
+  content: "Most Popular";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 16px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pricing-tier {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.pricing-price {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+
+.pricing-price span {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+
+.pricing-desc {
+  font-size: 13px;
+  color: var(--fg-muted);
+  margin-bottom: 24px;
+}
+
+.pricing-features {
+  list-style: none;
+  text-align: left;
+  margin-bottom: 28px;
+}
+
+.pricing-features li {
+  font-size: 14px;
+  color: var(--fg);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  padding-left: 24px;
+}
+
+.pricing-features li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: var(--green);
+  font-weight: 700;
+}
+
+.pricing-note {
+  text-align: center;
+  font-size: 13px;
+  color: var(--fg-muted);
+  margin-top: 24px;
+  font-style: italic;
+}
+
+/* FAQ */
+.faq-list {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-item summary {
+  padding: 20px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-item summary::after {
+  content: "+";
+  font-size: 20px;
+  color: var(--accent);
+  font-weight: 300;
+  transition: transform 0.2s;
+}
+
+.faq-item[open] summary::after {
+  content: "\2212";
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item p {
+  padding: 0 0 20px;
+  font-size: 14px;
+  color: var(--fg-muted);
+  line-height: 1.8;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .hero h1 { font-size: 36px; }
@@ -441,6 +629,8 @@ footer p {
   .platform-grid { grid-template-columns: repeat(2, 1fr); }
   .download-grid { grid-template-columns: 1fr 1fr; }
   .privacy-grid { grid-template-columns: repeat(2, 1fr); }
+  .hook-cards { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
   .ft-table { font-size: 12px; }
   .ft-table th, .ft-table td { padding: 8px 6px; }
 }
@@ -449,9 +639,11 @@ footer p {
   .hero { padding: 60px 16px 50px; }
   section { padding: 50px 16px; }
   .hero h1 { font-size: 28px; }
+  .hook h2 { font-size: 22px; }
   .steps-grid { grid-template-columns: 1fr; }
   .platform-grid { grid-template-columns: repeat(2, 1fr); }
   .privacy-grid { grid-template-columns: 1fr; }
   .hero-cta { flex-direction: column; align-items: center; }
   .ft-table { display: block; overflow-x: auto; }
+  .pricing-price { font-size: 32px; }
 }
