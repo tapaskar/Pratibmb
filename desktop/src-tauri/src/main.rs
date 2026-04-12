@@ -10,6 +10,7 @@ use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
+use tauri::Manager;
 use tauri_plugin_log::{Target, TargetKind};
 
 const SERVER_URL: &str = "http://127.0.0.1:11435";
