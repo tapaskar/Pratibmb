@@ -184,6 +184,74 @@ def doctor() -> None:
 
 
 @main.command()
+@click.option("--lines", "-n", default=50, help="Number of recent lines to show")
+@click.option("--path", "show_path", is_flag=True, help="Print log file path only")
+@click.option("--open", "open_dir", is_flag=True, help="Open log directory in file manager")
+@click.option("--export", "export_zip", is_flag=True, help="Export logs as a zip file")
+def logs(lines: int, show_path: bool, open_dir: bool, export_zip: bool) -> None:
+    """View, export, or share diagnostic logs."""
+    from .log import log_dir as _log_dir, log_file as _log_file
+    import platform
+
+    logfile = _log_file()
+    logdir = _log_dir()
+
+    if show_path:
+        console.print(str(logfile))
+        return
+
+    if open_dir:
+        import subprocess
+        d = str(logdir)
+        if platform.system() == "Darwin":
+            subprocess.run(["open", d])
+        elif platform.system() == "Windows":
+            subprocess.run(["explorer", d])
+        else:
+            subprocess.run(["xdg-open", d])
+        console.print(f"[dim]Opened {d}[/dim]")
+        return
+
+    if export_zip:
+        import zipfile
+        zip_path = Path.home() / "pratibmb-logs.zip"
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            for f in logdir.glob("*.log*"):
+                zf.write(f, f.name)
+        console.print(f"[green]Logs exported to:[/green] {zip_path}")
+        console.print(f"[dim]Attach this file when reporting issues to admin@sparkupcloud.com[/dim]")
+        return
+
+    # Default: show recent log lines
+    console.rule("[bold]Pratibmb Logs[/bold]")
+    console.print(f"[dim]Log file: {logfile}[/dim]")
+    console.print(f"[dim]Log dir:  {logdir}[/dim]")
+    console.print()
+
+    if not logfile.exists():
+        console.print("[yellow]No logs found yet.[/yellow]")
+        console.print("[dim]Logs are created when the server or desktop app runs.[/dim]")
+        return
+
+    all_lines = logfile.read_text(encoding="utf-8", errors="replace").splitlines()
+    show = all_lines[-lines:]
+
+    for line in show:
+        if "[ERROR]" in line:
+            console.print(f"[red]{line}[/red]")
+        elif "[WARNING]" in line:
+            console.print(f"[yellow]{line}[/yellow]")
+        elif "[DEBUG]" in line:
+            console.print(f"[dim]{line}[/dim]")
+        else:
+            console.print(line)
+
+    console.print()
+    console.print(f"[dim]Showing last {len(show)} of {len(all_lines)} lines. Use -n to show more.[/dim]")
+    console.print(f"[dim]To export: pratibmb logs --export[/dim]")
+
+
+@main.command()
 @click.argument("export_path", type=click.Path(exists=True, path_type=Path),
                 required=False, default=None)
 def setup(export_path: Path | None) -> None:

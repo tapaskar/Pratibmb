@@ -6,8 +6,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde::{Deserialize, Serialize};
-use std::process::{Child, Command};
+use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
+use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
+use tauri_plugin_log::{Target, TargetKind};
+
 const SERVER_URL: &str = "http://127.0.0.1:11435";
 
 struct ServerProcess(Mutex<Option<Child>>);
@@ -63,6 +67,16 @@ fn default_finetune_step() -> String {
     "extract".to_string()
 }
 
+/// Return the log directory (~/.pratibmb/logs/).
+fn log_dir() -> PathBuf {
+    let home = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .unwrap_or_default();
+    let dir = PathBuf::from(&home).join(".pratibmb").join("logs");
+    let _ = std::fs::create_dir_all(&dir);
+    dir
+}
+
 // Generic proxy: POST JSON to the Python server
 async fn post_json(path: &str, body: &impl Serialize) -> Result<serde_json::Value, String> {
     post_json_timeout(path, body, 120).await
@@ -82,10 +96,14 @@ async fn post_json_timeout(
         .timeout(std::time::Duration::from_secs(timeout_secs))
         .send()
         .await
-        .map_err(|e| format!("server request failed: {}", e))?;
+        .map_err(|e| {
+            log::error!("POST {} failed: {}", path, e);
+            format!("server request failed: {}", e)
+        })?;
     let status = resp.status();
     let body_text = resp.text().await.map_err(|e| format!("read error: {}", e))?;
     if !status.is_success() {
+        log::warn!("POST {} returned {}: {}", path, status, &body_text[..body_text.len().min(200)]);
         return Err(format!("server returned {}: {}", status, body_text));
     }
     serde_json::from_str(&body_text).map_err(|e| format!("json parse error: {}", e))
@@ -95,7 +113,10 @@ async fn get_json(path: &str) -> Result<serde_json::Value, String> {
     let url = format!("{}{}", SERVER_URL, path);
     let resp = reqwest::get(&url)
         .await
-        .map_err(|e| format!("server request failed: {}", e))?;
+        .map_err(|e| {
+            log::error!("GET {} failed: {}", path, e);
+            format!("server request failed: {}", e)
+        })?;
     let body = resp.text().await.map_err(|e| format!("read error: {}", e))?;
     serde_json::from_str(&body).map_err(|e| format!("json parse error: {}", e))
 }
@@ -171,6 +192,12 @@ async fn preflight() -> Result<serde_json::Value, String> {
     get_json("/preflight").await
 }
 
+/// Return the log directory path so the UI can show it / open it.
+#[tauri::command]
+fn get_log_dir() -> String {
+    log_dir().to_string_lossy().to_string()
+}
+
 /// Find a working Python 3 interpreter.
 ///
 /// Tries python3 first (most systems), then python (Windows). Validates
@@ -193,11 +220,11 @@ fn find_python() -> Option<String> {
                         let major: u32 = parts[0].parse().unwrap_or(0);
                         let minor: u32 = parts[1].parse().unwrap_or(0);
                         if major == 3 && minor >= 10 {
-                            eprintln!("[tauri] found {} ({})", py, version_str);
+                            log::info!("Found {} ({})", py, version_str);
                             return Some(py.to_string());
                         } else {
-                            eprintln!(
-                                "[tauri] {} is {} (need 3.10+), skipping",
+                            log::warn!(
+                                "{} is {} (need 3.10+), skipping",
                                 py, version_str
                             );
                         }
@@ -210,14 +237,14 @@ fn find_python() -> Option<String> {
         }
     }
 
-    eprintln!("[tauri] ERROR: Python 3.10+ not found. Install from https://python.org");
+    log::error!("Python 3.10+ not found. Install from https://python.org");
     None
 }
 
 fn spawn_python_server() -> Option<Child> {
     let python = find_python()?;
     let pythonpath = get_pythonpath();
-    eprintln!("[tauri] PYTHONPATH = {}", pythonpath);
+    log::info!("PYTHONPATH = {}", pythonpath);
 
     // Verify pratibmb package is importable
     let check = Command::new(&python)
@@ -227,26 +254,50 @@ fn spawn_python_server() -> Option<Child> {
 
     match &check {
         Ok(output) if output.status.success() => {
-            eprintln!("[tauri] pratibmb package verified");
+            log::info!("pratibmb package verified");
         }
         _ => {
-            eprintln!("[tauri] pratibmb not found, attempting auto-install...");
+            log::warn!("pratibmb not found, attempting auto-install...");
             auto_install_package(&python, &pythonpath);
         }
     }
 
-    eprintln!("[tauri] starting: {} -m pratibmb.server 11435", python);
+    log::info!("Starting: {} -m pratibmb.server 11435", python);
     match Command::new(&python)
         .args(["-m", "pratibmb.server", "11435"])
         .env("PYTHONPATH", &pythonpath)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
         .spawn()
     {
-        Ok(child) => {
-            eprintln!("[tauri] spawned python server (pid {})", child.id());
+        Ok(mut child) => {
+            log::info!("Spawned python server (pid {})", child.id());
+
+            // Capture Python stdout → forward to Rust log as INFO
+            if let Some(stdout) = child.stdout.take() {
+                std::thread::spawn(move || {
+                    let reader = BufReader::new(stdout);
+                    for line in reader.lines().map_while(Result::ok) {
+                        log::info!(target: "python", "{}", line);
+                    }
+                });
+            }
+
+            // Capture Python stderr → forward to Rust log as WARN
+            if let Some(stderr) = child.stderr.take() {
+                std::thread::spawn(move || {
+                    let reader = BufReader::new(stderr);
+                    for line in reader.lines().map_while(Result::ok) {
+                        // Python tracebacks and errors go here
+                        log::warn!(target: "python", "{}", line);
+                    }
+                });
+            }
+
             Some(child)
         }
         Err(e) => {
-            eprintln!("[tauri] ERROR: failed to spawn server: {}", e);
+            log::error!("Failed to spawn server: {}", e);
             None
         }
     }
@@ -257,11 +308,11 @@ fn spawn_python_server() -> Option<Child> {
 /// Tries two strategies:
 /// 1. pip install from GitHub (works on any platform with internet)
 /// 2. Clone repo to ~/Pratibmb and pip install -e . (fallback)
-fn auto_install_package(python: &str, pythonpath: &str) {
-    eprintln!("[tauri] === Auto-installing pratibmb package ===");
+fn auto_install_package(python: &str, _pythonpath: &str) {
+    log::info!("=== Auto-installing pratibmb package ===");
 
     // Strategy 1: pip install directly from GitHub
-    eprintln!("[tauri] trying: pip install from GitHub...");
+    log::info!("Trying: pip install from GitHub...");
     let pip_result = Command::new(python)
         .args([
             "-m", "pip", "install", "--prefer-binary",
@@ -271,15 +322,15 @@ fn auto_install_package(python: &str, pythonpath: &str) {
 
     match pip_result {
         Ok(output) if output.status.success() => {
-            eprintln!("[tauri] pip install from GitHub succeeded");
+            log::info!("pip install from GitHub succeeded");
             return;
         }
         Ok(output) => {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            eprintln!("[tauri] pip install failed: {}", stderr.trim());
+            log::warn!("pip install failed: {}", stderr.trim());
         }
         Err(e) => {
-            eprintln!("[tauri] pip command failed: {}", e);
+            log::error!("pip command failed: {}", e);
         }
     }
 
@@ -290,7 +341,7 @@ fn auto_install_package(python: &str, pythonpath: &str) {
     let repo_dir = std::path::Path::new(&home).join("Pratibmb");
 
     if !repo_dir.join("pratibmb").is_dir() {
-        eprintln!("[tauri] cloning repo to {}...", repo_dir.display());
+        log::info!("Cloning repo to {}...", repo_dir.display());
         let clone = Command::new("git")
             .args([
                 "clone", "--depth", "1",
@@ -301,18 +352,18 @@ fn auto_install_package(python: &str, pythonpath: &str) {
 
         match clone {
             Ok(output) if output.status.success() => {
-                eprintln!("[tauri] cloned successfully");
+                log::info!("Cloned successfully");
             }
             _ => {
-                eprintln!("[tauri] git clone failed — user will need to install manually");
-                eprintln!("[tauri] run: pip install 'pratibmb @ git+https://github.com/tapaskar/Pratibmb.git'");
+                log::error!("git clone failed — user will need to install manually");
+                log::error!("Run: pip install 'pratibmb @ git+https://github.com/tapaskar/Pratibmb.git'");
                 return;
             }
         }
     }
 
     // Install from the cloned repo
-    eprintln!("[tauri] installing from {}...", repo_dir.display());
+    log::info!("Installing from {}...", repo_dir.display());
     let install = Command::new(python)
         .args(["-m", "pip", "install", "--prefer-binary", "-e", "."])
         .current_dir(&repo_dir)
@@ -320,17 +371,17 @@ fn auto_install_package(python: &str, pythonpath: &str) {
 
     match install {
         Ok(output) if output.status.success() => {
-            eprintln!("[tauri] package installed from local clone");
+            log::info!("Package installed from local clone");
             // Set env var so get_pythonpath finds it
             std::env::set_var("PRATIBMB_ROOT", &repo_dir);
         }
         Ok(output) => {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            eprintln!("[tauri] install from clone failed: {}", stderr.trim());
-            eprintln!("[tauri] user may need: pip install llama-cpp-python --prefer-binary");
+            log::error!("Install from clone failed: {}", stderr.trim());
+            log::error!("User may need: pip install llama-cpp-python --prefer-binary");
         }
         Err(e) => {
-            eprintln!("[tauri] install failed: {}", e);
+            log::error!("Install failed: {}", e);
         }
     }
 }
@@ -339,7 +390,7 @@ fn get_pythonpath() -> String {
     // Check env var first (user override)
     if let Ok(v) = std::env::var("PRATIBMB_ROOT") {
         if std::path::Path::new(&v).join("pratibmb").is_dir() {
-            eprintln!("[tauri] PYTHONPATH from PRATIBMB_ROOT: {}", v);
+            log::info!("PYTHONPATH from PRATIBMB_ROOT: {}", v);
             return v;
         }
     }
@@ -349,7 +400,7 @@ fn get_pythonpath() -> String {
     let mut dir = exe.parent().unwrap_or(std::path::Path::new(".")).to_path_buf();
     for _ in 0..10 {
         if dir.join("pratibmb").is_dir() {
-            eprintln!("[tauri] PYTHONPATH from exe walk: {}", dir.display());
+            log::info!("PYTHONPATH from exe walk: {}", dir.display());
             return dir.to_string_lossy().to_string();
         }
         if let Some(parent) = dir.parent() {
@@ -362,7 +413,7 @@ fn get_pythonpath() -> String {
     // Check current working directory
     if let Ok(cwd) = std::env::current_dir() {
         if cwd.join("pratibmb").is_dir() {
-            eprintln!("[tauri] PYTHONPATH from cwd: {}", cwd.display());
+            log::info!("PYTHONPATH from cwd: {}", cwd.display());
             return cwd.to_string_lossy().to_string();
         }
     }
@@ -378,7 +429,7 @@ fn get_pythonpath() -> String {
     for c in &candidates {
         let p = std::path::Path::new(c);
         if p.join("pratibmb").is_dir() {
-            eprintln!("[tauri] PYTHONPATH from known path: {}", c);
+            log::info!("PYTHONPATH from known path: {}", c);
             return c.clone();
         }
     }
@@ -393,12 +444,12 @@ fn get_pythonpath() -> String {
 
     if let Ok(output) = pip_check {
         if output.status.success() {
-            eprintln!("[tauri] pratibmb found in pip site-packages");
+            log::info!("pratibmb found in pip site-packages");
             return String::new();  // No extra PYTHONPATH needed
         }
     }
 
-    eprintln!("[tauri] WARNING: could not find pratibmb package, using cwd");
+    log::warn!("Could not find pratibmb package, using cwd");
     std::env::current_dir()
         .map(|p| p.to_string_lossy().to_string())
         .unwrap_or_else(|_| ".".to_string())
@@ -417,16 +468,16 @@ fn wait_for_server(timeout_ms: u64) {
             std::time::Duration::from_millis(500),
         ) {
             drop(stream);
-            eprintln!(
-                "[tauri] server ready after {}ms",
+            log::info!(
+                "Server ready after {}ms",
                 start.elapsed().as_millis()
             );
             return;
         }
 
         if start.elapsed() > timeout {
-            eprintln!(
-                "[tauri] WARNING: server not ready after {}ms, proceeding anyway",
+            log::warn!(
+                "Server not ready after {}ms, proceeding anyway",
                 timeout_ms
             );
             return;
@@ -437,25 +488,41 @@ fn wait_for_server(timeout_ms: u64) {
 }
 
 fn main() {
+    // Initialize logging — writes to ~/.pratibmb/logs/tauri.log
+    let log_plugin = tauri_plugin_log::Builder::new()
+        .targets([
+            Target::new(TargetKind::Stdout),
+            Target::new(TargetKind::Folder {
+                path: log_dir(),
+                file_name: Some("tauri.log".into()),
+            }),
+        ])
+        .max_file_size(5_000_000) // 5 MB
+        .build();
+
+    log::info!("=== Pratibmb desktop starting ===");
+    log::info!("Log directory: {}", log_dir().display());
+
     let child = spawn_python_server();
 
     if child.is_some() {
         // Poll /health instead of blind sleep
         wait_for_server(10000);
     } else {
-        eprintln!("[tauri] WARNING: no Python server — app will show connection errors");
-        eprintln!("[tauri] Install Python 3.10+ and run: pip install -e /path/to/Pratibmb");
+        log::warn!("No Python server — app will show connection errors");
+        log::warn!("Install Python 3.10+ and run: pip install -e /path/to/Pratibmb");
     }
 
     tauri::Builder::default()
         .manage(ServerProcess(Mutex::new(child)))
+        .plugin(log_plugin)
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             init_user, import_file, embed, voice, chat_turn,
             extract_profile, finetune, stats, health,
-            models, progress, preflight
+            models, progress, preflight, get_log_dir
         ])
         .on_window_event(|_window, event| {
             if let tauri::WindowEvent::Destroyed = event {
@@ -470,7 +537,7 @@ impl Drop for ServerProcess {
     fn drop(&mut self) {
         if let Ok(mut guard) = self.0.lock() {
             if let Some(ref mut child) = *guard {
-                eprintln!("[tauri] killing python server (pid {})", child.id());
+                log::info!("Killing python server (pid {})", child.id());
                 let _ = child.kill();
                 let _ = child.wait();
             }

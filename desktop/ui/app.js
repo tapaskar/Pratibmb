@@ -653,6 +653,125 @@ document.getElementById("btn-convert").addEventListener("click", async () => {
   disableBtn("btn-convert", false);
 });
 
+// --------------- Diagnostics / Log export ---------------
+
+async function fetchLogs() {
+  try {
+    const resp = await fetch(SERVER + "/logs");
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch {
+    return null;
+  }
+}
+
+function formatLogReport(data) {
+  const sys = data.system || {};
+  let report = "=== Pratibmb Bug Report ===\n\n";
+  report += "--- System Info ---\n";
+  report += "OS: " + (sys.os || "unknown") + "\n";
+  report += "Arch: " + (sys.arch || "unknown") + "\n";
+  report += "Python: " + (sys.python || "unknown") + "\n";
+  report += "Disk Free: " + (sys.disk_free_gb || "?") + " GB\n";
+  report += "Data Dir: " + (sys.pratibmb_data || "unknown") + "\n";
+  report += "Log Dir: " + (data.log_dir || "unknown") + "\n\n";
+
+  if (data.lines && data.lines.length > 0) {
+    report += "--- Recent Python Logs (last " + data.lines.length + " lines) ---\n";
+    report += data.lines.join("\n") + "\n\n";
+  }
+
+  if (data.tauri_lines && data.tauri_lines.length > 0) {
+    report += "--- Recent Tauri Logs (last " + data.tauri_lines.length + " lines) ---\n";
+    report += data.tauri_lines.join("\n") + "\n";
+  }
+
+  return report;
+}
+
+function showDiagStatus(msg, isError) {
+  const el = document.getElementById("diag-status");
+  el.textContent = msg;
+  el.className = "diag-status" + (isError ? " diag-error" : "");
+  el.classList.remove("hidden");
+  setTimeout(() => el.classList.add("hidden"), 4000);
+}
+
+// Report Issue — collects logs + system info, opens mailto
+document.getElementById("btn-report-issue").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-report-issue");
+  btn.disabled = true;
+  btn.textContent = "Collecting logs...";
+
+  const data = await fetchLogs();
+  btn.disabled = false;
+  btn.textContent = "Report Issue";
+
+  if (!data) {
+    showDiagStatus("Could not collect logs. Is the server running?", true);
+    return;
+  }
+
+  const report = formatLogReport(data);
+
+  // Copy to clipboard first (email body has length limits)
+  try {
+    await navigator.clipboard.writeText(report);
+  } catch {}
+
+  // Open mailto with pre-filled subject and a note to paste
+  const subject = encodeURIComponent("Pratibmb Bug Report");
+  const body = encodeURIComponent(
+    "Please describe what went wrong:\n\n\n" +
+    "---\n" +
+    "(Diagnostic logs have been copied to your clipboard. Press Ctrl+V / Cmd+V to paste them below.)\n\n" +
+    report.slice(0, 1500) + "\n\n[Full logs copied to clipboard]"
+  );
+  window.open("mailto:admin@sparkupcloud.com?subject=" + subject + "&body=" + body);
+  showDiagStatus("Logs copied to clipboard. Paste them in the email.", false);
+});
+
+// Copy Logs — copies full log content to clipboard
+document.getElementById("btn-copy-logs").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-copy-logs");
+  btn.disabled = true;
+  btn.textContent = "Copying...";
+
+  const data = await fetchLogs();
+  btn.disabled = false;
+  btn.textContent = "Copy Logs";
+
+  if (!data) {
+    showDiagStatus("Could not collect logs.", true);
+    return;
+  }
+
+  const report = formatLogReport(data);
+  try {
+    await navigator.clipboard.writeText(report);
+    showDiagStatus("Logs copied to clipboard!", false);
+  } catch {
+    showDiagStatus("Could not copy to clipboard.", true);
+  }
+});
+
+// Open Log Folder — opens the log directory in the file manager
+document.getElementById("btn-open-logs").addEventListener("click", async () => {
+  const data = await fetchLogs();
+  if (data && data.log_dir) {
+    // Try using Tauri shell plugin to open the folder
+    const tauri = window.__TAURI__;
+    if (tauri?.shell?.open) {
+      await tauri.shell.open(data.log_dir);
+    } else {
+      // Fallback: show the path
+      showDiagStatus("Log folder: " + data.log_dir, false);
+    }
+  } else {
+    showDiagStatus("Log dir: ~/.pratibmb/logs/", false);
+  }
+});
+
 // On load: check server health, show onboarding or chat
 (async () => {
   try {

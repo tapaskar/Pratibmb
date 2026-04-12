@@ -386,6 +386,53 @@ footer {
   text-decoration: underline;
 }
 
+/* Diagnostics section */
+.diagnostics-section {
+  background: var(--bubble-past);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+.diagnostics-section h3 { color: var(--fg) !important; margin-bottom: 6px; }
+.diagnostics-section p { margin: 0 0 10px; font-size: 13px; color: var(--muted); }
+.diag-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn-diag {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-diag:disabled { opacity: 0.5; cursor: wait; }
+.btn-diag:not(.btn-diag-secondary) {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-diag:not(.btn-diag-secondary):hover { opacity: 0.85; }
+.btn-diag-secondary {
+  background: rgba(255,255,255,0.08);
+  color: var(--fg);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.btn-diag-secondary:hover { background: rgba(255,255,255,0.14); }
+.diag-status {
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+}
+.diag-status.diag-error {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+}
+.diag-status.hidden { display: none; }
+
 .privacy-note {
   background: var(--bubble-past);
   border-radius: 12px;

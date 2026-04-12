@@ -219,6 +219,8 @@ class Handler(BaseHTTPRequestHandler):
             _json_response(self, 200, dict(_progress))
         elif self.path == "/preflight":
             self._preflight()
+        elif self.path == "/logs":
+            self._logs()
         else:
             _json_response(self, 404, {"error": "not found"})
 
@@ -583,6 +585,53 @@ class Handler(BaseHTTPRequestHandler):
             "warnings": warnings,
         })
 
+    def _logs(self):
+        """Return log directory path, system info, and recent log lines."""
+        from .log import log_file, log_dir
+        import platform
+
+        logfile = log_file()
+        lines = []
+        if logfile.exists():
+            try:
+                all_lines = logfile.read_text(encoding="utf-8", errors="replace").splitlines()
+                lines = all_lines[-200:]  # Last 200 lines
+            except OSError:
+                lines = ["(could not read log file)"]
+
+        # Also check for Tauri logs in the same directory
+        tauri_log = log_dir() / "tauri.log"
+        tauri_lines = []
+        if tauri_log.exists():
+            try:
+                all_lines = tauri_log.read_text(encoding="utf-8", errors="replace").splitlines()
+                tauri_lines = all_lines[-100:]
+            except OSError:
+                tauri_lines = ["(could not read tauri log file)"]
+
+        # System info for bug reports
+        sysinfo = {
+            "os": f"{platform.system()} {platform.release()}",
+            "arch": platform.machine(),
+            "python": sys.version.split()[0],
+            "pratibmb_data": str(_data_dir()),
+        }
+
+        # Disk space
+        try:
+            from .models import disk_free_gb
+            sysinfo["disk_free_gb"] = round(disk_free_gb(), 1)
+        except Exception:
+            pass
+
+        _json_response(self, 200, {
+            "log_dir": str(log_dir()),
+            "log_file": str(logfile),
+            "lines": lines,
+            "tauri_lines": tauri_lines,
+            "system": sysinfo,
+        })
+
     def _stats(self):
         store = _get_store()
         total = store.count()
@@ -596,6 +645,14 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
+    # ── Initialize logging before anything else ────────────────────────
+    from .log import setup_logging, redirect_print_to_log, log_dir as _log_dir
+    logger = setup_logging("pratibmb.server")
+    redirect_print_to_log(logger)
+    logger.info("=== Pratibmb server starting ===")
+    logger.info("Log directory: %s", _log_dir())
+    logger.info("Python %s", sys.version.split()[0])
+
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 11435
     global _config
     cfg_path = _data_dir() / "config.json"
@@ -603,11 +660,16 @@ def main():
         _config = json.loads(cfg_path.read_text())
 
     server = HTTPServer(("127.0.0.1", port), Handler)
+    logger.info("Listening on 127.0.0.1:%d", port)
     print(f"[pratibmb-server] listening on 127.0.0.1:{port}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
+        logger.info("Server shutting down (KeyboardInterrupt)")
         print("\n[pratibmb-server] shutting down")
+    except Exception:
+        logger.exception("Server crashed with unhandled exception")
+        raise
     finally:
         if _store:
             _store.close()
