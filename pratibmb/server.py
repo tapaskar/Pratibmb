@@ -30,6 +30,7 @@ import traceback
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
+from socketserver import ThreadingMixIn
 from typing import Any
 
 from .store import Store
@@ -194,6 +195,11 @@ def _read_body(handler: BaseHTTPRequestHandler) -> dict:
     if length == 0:
         return {}
     return json.loads(handler.rfile.read(length))
+
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle each request in a new thread so /progress polling isn't blocked."""
+    daemon_threads = True
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -739,7 +745,7 @@ def main():
     if cfg_path.exists():
         _config = json.loads(cfg_path.read_text())
 
-    server = HTTPServer(("127.0.0.1", port), Handler)
+    server = ThreadedHTTPServer(("127.0.0.1", port), Handler)
     logger.info("Listening on 127.0.0.1:%d", port)
     print(f"[pratibmb-server] listening on 127.0.0.1:{port}", flush=True)
     try:

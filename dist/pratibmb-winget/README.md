@@ -20,9 +20,24 @@ Pratibmb ingests your personal messaging history (WhatsApp, Facebook, Instagram,
 
 - Windows 10 or Windows 11 (64-bit)
 - Python 3.9+
-- ~4 GB RAM
+- **8 GB RAM minimum** (required for the local AI pipeline)
 - ~2.5 GB disk for AI models (downloaded on first launch)
 - NVIDIA GPU with 6 GB+ VRAM (optional, for fine-tuning)
+
+## Post-install Python setup
+
+After installing Pratibmb, install the Python backend (required on first run):
+
+```powershell
+pip install pratibmb --prefer-binary \
+  --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+```
+
+The `--extra-index-url` provides pre-built wheels for `llama-cpp-python`, which
+avoids the need for a C++ compiler on your machine.
+
+On first launch, Pratibmb downloads ~2.5 GB of AI models. After that, it works
+fully offline with no internet required.
 
 ## Fine-tuning (optional)
 

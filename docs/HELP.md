@@ -17,7 +17,7 @@ Chat with your 10-years-younger self. 100% local.
 
 | | Minimum | Recommended |
 |--|---------|-------------|
-| RAM | 4 GB | 8 GB |
+| RAM | 8 GB | 16 GB |
 | Disk | 3 GB (for models) | 10 GB |
 | Python | 3.9+ | 3.11+ |
 | GPU | Not required | Apple Silicon or NVIDIA (6GB+ VRAM) for fine-tuning |

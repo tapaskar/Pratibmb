@@ -9,6 +9,7 @@ cosine over ~100k embeddings is still sub-100ms on M-series Macs.
 from __future__ import annotations
 import sqlite3
 import struct
+import threading
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
@@ -58,7 +59,8 @@ class Store:
     def __init__(self, db_path: Path):
         self.db_path = db_path
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(str(db_path))
+        self._lock = threading.Lock()
+        self.conn = sqlite3.connect(str(db_path), check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self.conn.executescript(SCHEMA)
         self.conn.commit()
@@ -68,6 +70,7 @@ class Store:
 
     @contextmanager
     def tx(self) -> Iterator[sqlite3.Cursor]:
+        self._lock.acquire()
         cur = self.conn.cursor()
         try:
             yield cur
@@ -75,6 +78,8 @@ class Store:
         except Exception:
             self.conn.rollback()
             raise
+        finally:
+            self._lock.release()
 
     # -- messages ---------------------------------------------------------
 

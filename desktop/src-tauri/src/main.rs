@@ -203,12 +203,24 @@ fn get_log_dir() -> String {
 ///
 /// Tries python3 first (most systems), then python (Windows). Validates
 /// that the found interpreter is actually Python 3.9+ before returning.
+/// Helper: configure a Command to hide console on Windows.
+#[cfg(target_os = "windows")]
+fn hide_console(cmd: &mut Command) -> &mut Command {
+    use std::os::windows::process::CommandExt;
+    cmd.creation_flags(0x08000000) // CREATE_NO_WINDOW
+}
+
+#[cfg(not(target_os = "windows"))]
+fn hide_console(cmd: &mut Command) -> &mut Command {
+    cmd // no-op on non-Windows
+}
+
 fn find_python() -> Option<String> {
     let candidates = ["python3", "python"];
 
     for py in &candidates {
-        match Command::new(py)
-            .args(["--version"])
+        match hide_console(Command::new(py)
+            .args(["--version"]))
             .output()
         {
             Ok(output) => {
@@ -248,10 +260,11 @@ fn spawn_python_server() -> Option<Child> {
     log::info!("PYTHONPATH = {}", pythonpath);
 
     // Verify pratibmb package is importable
-    let check = Command::new(&python)
-        .args(["-c", "import pratibmb; print('ok')"])
-        .env("PYTHONPATH", &pythonpath)
-        .output();
+    let check = hide_console(
+        Command::new(&python)
+            .args(["-c", "import pratibmb; print('ok')"])
+            .env("PYTHONPATH", &pythonpath)
+    ).output();
 
     match &check {
         Ok(output) if output.status.success() => {
@@ -264,12 +277,15 @@ fn spawn_python_server() -> Option<Child> {
     }
 
     log::info!("Starting: {} -m pratibmb.server 11435", python);
-    match Command::new(&python)
-        .args(["-m", "pratibmb.server", "11435"])
-        .env("PYTHONPATH", &pythonpath)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
+
+    // hide_console() prevents a visible console window on Windows.
+    match hide_console(
+        Command::new(&python)
+            .args(["-m", "pratibmb.server", "11435"])
+            .env("PYTHONPATH", &pythonpath)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+    ).spawn()
     {
         Ok(mut child) => {
             log::info!("Spawned python server (pid {})", child.id());
@@ -313,13 +329,19 @@ fn auto_install_package(python: &str, _pythonpath: &str) {
     log::info!("=== Auto-installing pratibmb package ===");
 
     // Strategy 1: pip install directly from GitHub
-    log::info!("Trying: pip install from GitHub...");
-    let pip_result = Command::new(python)
-        .args([
-            "-m", "pip", "install", "--prefer-binary",
-            "pratibmb @ git+https://github.com/tapaskar/Pratibmb.git",
-        ])
-        .output();
+    // Use --extra-index-url to fetch prebuilt wheels for llama-cpp-python.
+    // Windows typically lacks a C++ compiler (MSVC/CMake), so building from
+    // source would fail. The prebuilt wheel index provides CPU-only binaries
+    // that install without any build tools.
+    log::info!("Trying: pip install from GitHub (using prebuilt wheels for native deps)...");
+    let pip_result = hide_console(
+        Command::new(python)
+            .args([
+                "-m", "pip", "install", "--prefer-binary",
+                "--extra-index-url", "https://abetlen.github.io/llama-cpp-python/whl/cpu",
+                "pratibmb @ git+https://github.com/tapaskar/Pratibmb.git",
+            ])
+    ).output();
 
     match pip_result {
         Ok(output) if output.status.success() => {
@@ -343,13 +365,14 @@ fn auto_install_package(python: &str, _pythonpath: &str) {
 
     if !repo_dir.join("pratibmb").is_dir() {
         log::info!("Cloning repo to {}...", repo_dir.display());
-        let clone = Command::new("git")
-            .args([
-                "clone", "--depth", "1",
-                "https://github.com/tapaskar/Pratibmb.git",
-                &repo_dir.to_string_lossy(),
-            ])
-            .output();
+        let clone = hide_console(
+            Command::new("git")
+                .args([
+                    "clone", "--depth", "1",
+                    "https://github.com/tapaskar/Pratibmb.git",
+                    &repo_dir.to_string_lossy(),
+                ])
+        ).output();
 
         match clone {
             Ok(output) if output.status.success() => {
@@ -365,10 +388,11 @@ fn auto_install_package(python: &str, _pythonpath: &str) {
 
     // Install from the cloned repo
     log::info!("Installing from {}...", repo_dir.display());
-    let install = Command::new(python)
-        .args(["-m", "pip", "install", "--prefer-binary", "-e", "."])
-        .current_dir(&repo_dir)
-        .output();
+    let install = hide_console(
+        Command::new(python)
+            .args(["-m", "pip", "install", "--prefer-binary", "--extra-index-url", "https://abetlen.github.io/llama-cpp-python/whl/cpu", "-e", "."])
+            .current_dir(&repo_dir)
+    ).output();
 
     match install {
         Ok(output) if output.status.success() => {
@@ -437,11 +461,12 @@ fn get_pythonpath() -> String {
 
     // If pip-installed, pratibmb is in site-packages — no PYTHONPATH needed
     // Return empty string; Python will find it via its own sys.path
-    let pip_check = Command::new(
-        if cfg!(windows) { "python" } else { "python3" }
-    )
-        .args(["-c", "import pratibmb; print(pratibmb.__file__)"])
-        .output();
+    let pip_check = hide_console(
+        Command::new(
+            if cfg!(windows) { "python" } else { "python3" }
+        )
+            .args(["-c", "import pratibmb; print(pratibmb.__file__)"])
+    ).output();
 
     if let Ok(output) = pip_check {
         if output.status.success() {

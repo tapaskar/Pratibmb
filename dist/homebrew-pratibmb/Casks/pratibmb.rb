@@ -15,10 +15,16 @@ cask "pratibmb" do
   desc "Chat with your 10-years-younger self. 100% local, no cloud, no telemetry"
   homepage "https://pratibmb.com"
 
+  depends_on formula: "python@3.11"
+
   app "Pratibmb.app"
 
   caveats <<~EOS
-    Pratibmb requires Python 3.9+ to be installed on your system.
+    Pratibmb requires Python 3.9+ and ~8GB RAM for the full pipeline.
+
+    Install the Python backend (required on first run):
+      pip install pratibmb --prefer-binary \
+        --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 
     On first launch, Pratibmb downloads ~2.5GB of AI models.
     After that, it works fully offline — no internet required.

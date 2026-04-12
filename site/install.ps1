@@ -3,7 +3,7 @@
 # Or:   powershell -ExecutionPolicy Bypass -File install.ps1
 
 $ErrorActionPreference = "Stop"
-$FILE_VERSION = "0.4.0"  # must match version in desktop/src-tauri/tauri.conf.json
+$FILE_VERSION = "0.5.0"  # must match version in desktop/src-tauri/tauri.conf.json
 $REPO = "tapaskar/Pratibmb"
 $INSTALL_DIR = "$env:USERPROFILE\Pratibmb"
 
@@ -52,6 +52,15 @@ if (-not $PYTHON) {
         }
     } catch {}
 }
+
+# ── Step 1b: Check RAM ──
+Write-Info "Checking system resources..."
+$ramMB = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
+if ($ramMB -lt 7500) {
+    Write-Warn "Only ${ramMB}MB RAM detected. Pratibmb needs ~8GB for the full pipeline."
+    Write-Warn "Embedding and chat may fail on this machine."
+}
+Write-Ok "RAM: ${ramMB}MB"
 
 if (-not $PYTHON) {
     Write-Host ""
@@ -120,24 +129,38 @@ Push-Location $INSTALL_DIR
 # Install the package
 # Use --prefer-binary to avoid compiling llama-cpp-python from source
 Write-Info "Installing pratibmb package (using pre-built wheels where possible)..."
-& $PYTHON -m pip install --prefer-binary -e . 2>&1 | Select-Object -Last 5
+& $PYTHON -m pip install --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu -e . 2>&1 | Select-Object -Last 5
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host ""
-    Write-Warn "pip install failed. This usually means llama-cpp-python couldn't find a pre-built wheel."
-    Write-Host ""
-    Write-Host "  Option 1: Install pre-built llama-cpp-python wheel:" -ForegroundColor White
-    Write-Host "    pip install llama-cpp-python --prefer-binary" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  Option 2: If you have an NVIDIA GPU, install with CUDA:" -ForegroundColor White
-    Write-Host "    set CMAKE_ARGS=-DGGML_CUDA=on" -ForegroundColor Cyan
-    Write-Host "    pip install llama-cpp-python --no-cache-dir" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  Option 3: Install Visual Studio Build Tools first:" -ForegroundColor White
-    Write-Host "    https://visualstudio.microsoft.com/visual-cpp-build-tools/" -ForegroundColor Cyan
-    Write-Host "    (select 'Desktop development with C++')" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Fail "Fix the above, then run this script again."
+    Write-Warn "pip install failed. Retrying with llama-cpp-python installed separately first..."
+
+    # Retry: install llama-cpp-python from the prebuilt wheel index first
+    & $PYTHON -m pip install --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu llama-cpp-python 2>&1 | Select-Object -Last 3
+
+    if ($LASTEXITCODE -eq 0) {
+        Write-Ok "llama-cpp-python installed from prebuilt wheel"
+        Write-Info "Retrying full install..."
+        & $PYTHON -m pip install --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu -e . 2>&1 | Select-Object -Last 5
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ""
+        Write-Warn "pip install still failed. This usually means llama-cpp-python couldn't find a pre-built wheel."
+        Write-Host ""
+        Write-Host "  Option 1: Install pre-built llama-cpp-python wheel:" -ForegroundColor White
+        Write-Host "    pip install llama-cpp-python --prefer-binary" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "  Option 2: If you have an NVIDIA GPU, install with CUDA:" -ForegroundColor White
+        Write-Host "    set CMAKE_ARGS=-DGGML_CUDA=on" -ForegroundColor Cyan
+        Write-Host "    pip install llama-cpp-python --no-cache-dir" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "  Option 3: Install Visual Studio Build Tools first:" -ForegroundColor White
+        Write-Host "    https://visualstudio.microsoft.com/visual-cpp-build-tools/" -ForegroundColor Cyan
+        Write-Host "    (select 'Desktop development with C++')" -ForegroundColor DarkGray
+        Write-Host ""
+        Write-Fail "Fix the above, then run this script again."
+    }
 }
 
 # Verify import
@@ -197,6 +220,7 @@ Write-Host ""
 Write-Host "  To launch: search 'Pratibmb' in the Start menu" -ForegroundColor White
 Write-Host "  Or CLI:    pratibmb --help" -ForegroundColor White
 Write-Host ""
+Write-Host "  Requirements: 8GB+ RAM recommended for embedding & chat." -ForegroundColor DarkGray
 Write-Host "  First launch downloads AI models (~2.5GB)." -ForegroundColor DarkGray
 Write-Host "  After that, it works fully offline." -ForegroundColor DarkGray
 Write-Host ""

@@ -3,7 +3,7 @@
 # Usage: curl -fsSL https://pratibmb.com/install.sh | bash
 set -euo pipefail
 
-FILE_VERSION="0.4.0"  # must match version in desktop/src-tauri/tauri.conf.json
+FILE_VERSION="0.5.0"  # must match version in desktop/src-tauri/tauri.conf.json
 REPO="tapaskar/Pratibmb"
 INSTALL_DIR="$HOME/Pratibmb"
 
@@ -47,6 +47,18 @@ done
 
 if [ -z "$PYTHON" ]; then
     fail "Python 3.9+ not found. Install from https://python.org/downloads/"
+fi
+
+# ── Step 1b: Check RAM ──
+info "Checking system resources..."
+if [ "$OS" = "Darwin" ]; then
+    RAM_MB=$(sysctl -n hw.memsize 2>/dev/null | awk '{print int($1/1048576)}')
+elif [ "$OS" = "Linux" ]; then
+    RAM_MB=$(grep MemTotal /proc/meminfo 2>/dev/null | awk '{print int($2/1024)}')
+fi
+if [ -n "$RAM_MB" ] && [ "$RAM_MB" -lt 7500 ]; then
+    warn "Only ${RAM_MB}MB RAM detected. Pratibmb needs ~8GB for the full pipeline."
+    warn "Embedding and chat may fail on this machine."
 fi
 
 # ── Step 2: Detect platform ───────────────────────────────────────────
@@ -97,12 +109,22 @@ cd "$INSTALL_DIR"
 # ── Step 4: Install Python dependencies ───────────────────────────────
 info "Installing Python dependencies..."
 
+# Linux: install build deps if needed (for native extensions like llama-cpp-python)
+if [ "$OS" = "Linux" ] && ! command -v cmake &>/dev/null; then
+    info "Installing build tools for native extensions..."
+    if command -v apt-get &>/dev/null; then
+        sudo apt-get install -y -qq python3-dev cmake build-essential 2>/dev/null || warn "Could not install build tools"
+    elif command -v dnf &>/dev/null; then
+        sudo dnf install -y python3-devel cmake gcc-c++ 2>/dev/null || warn "Could not install build tools"
+    fi
+fi
+
 $PYTHON -m pip install --quiet --upgrade pip 2>/dev/null || true
 
 # Install the package in editable mode (so the Tauri app can find it)
-$PYTHON -m pip install --quiet -e . 2>&1 | tail -3 || {
+$PYTHON -m pip install --quiet --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu -e . 2>&1 | tail -3 || {
     warn "pip install failed, trying with --user flag..."
-    $PYTHON -m pip install --quiet --user -e . 2>&1 | tail -3 \
+    $PYTHON -m pip install --quiet --user --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu -e . 2>&1 | tail -3 \
         || fail "Could not install Python dependencies. Try: cd $INSTALL_DIR && pip install -e ."
 }
 
@@ -208,6 +230,7 @@ case "$OS" in
 esac
 
 echo ""
+echo "  Requirements: 8GB+ RAM recommended for embedding & chat."
 echo "  First launch downloads AI models (~2.5GB)."
 echo "  After that, it works fully offline."
 echo ""

@@ -13,6 +13,13 @@ brew tap tapaskar/pratibmb
 brew install --cask pratibmb
 ```
 
+Then install the Python backend (required on first run):
+
+```bash
+pip install pratibmb --prefer-binary \
+  --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+```
+
 That's it. Pratibmb appears in your Applications folder.
 
 ## What is Pratibmb?
@@ -24,7 +31,7 @@ Pratibmb ingests your personal messaging history (WhatsApp, Facebook, Instagram,
 - macOS 12 (Monterey) or later
 - Apple Silicon (M1/M2/M3/M4) or Intel Mac
 - Python 3.9+
-- ~4 GB RAM
+- ~8 GB RAM
 - ~2.5 GB disk for AI models (downloaded on first launch)
 
 ## Fine-tuning (optional)

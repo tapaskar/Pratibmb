@@ -18,6 +18,16 @@ or
 paru -S pratibmb-bin
 ```
 
+## Post-install
+
+After installing the AUR package, install the Python backend:
+
+```bash
+pip install pratibmb --prefer-binary --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+```
+
+Then launch Pratibmb from your application menu or run `pratibmb` from the terminal.
+
 ## What is Pratibmb?
 
 Pratibmb ingests your personal messaging history (WhatsApp, Facebook, Instagram, Gmail, iMessage, Telegram, Twitter/X, Discord), builds a private corpus on your machine, and lets you have a conversation with the person who sent those messages years ago. A local LLM learns your voice and responds as past-you. Everything runs offline.
@@ -26,7 +36,7 @@ Pratibmb ingests your personal messaging history (WhatsApp, Facebook, Instagram,
 
 - Linux x86_64 (tested on Ubuntu 22.04, Arch, Fedora)
 - Python 3.9+
-- ~4 GB RAM
+- ~8 GB RAM
 - ~2.5 GB disk for AI models (downloaded on first launch)
 - FUSE 2 (for AppImage)
 

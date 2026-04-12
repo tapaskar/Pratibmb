@@ -1,17 +1,23 @@
 pkgbase = pratibmb-bin
 	pkgdesc = Chat with your 10-years-younger self. 100% local, no cloud, no telemetry
-	pkgver = 0.2.0
+	pkgver = 0.5.0
 	pkgrel = 1
 	url = https://pratibmb.com
+	install = pratibmb.install
 	arch = x86_64
 	license = AGPL-3.0-or-later
 	depends = python>=3.9
+	depends = python-pip
 	depends = fuse2
+	optdepends = python-numpy: required for embeddings
+	optdepends = cuda: NVIDIA GPU acceleration
 	provides = pratibmb
 	conflicts = pratibmb
 	options = !strip
-	source = pratibmb-bin-0.2.0.AppImage::https://github.com/tapaskar/Pratibmb/releases/download/v0.2.0/Pratibmb_0.2.0_amd64.AppImage
+	source = pratibmb-bin-0.4.0.AppImage::https://github.com/tapaskar/Pratibmb/releases/download/v0.4.0/Pratibmb_0.4.0_amd64.AppImage
 	source = pratibmb.desktop
+	source = pratibmb.install
+	sha256sums = SKIP
 	sha256sums = SKIP
 	sha256sums = SKIP
 

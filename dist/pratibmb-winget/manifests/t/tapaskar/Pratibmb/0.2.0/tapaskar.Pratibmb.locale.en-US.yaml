@@ -23,5 +23,9 @@ Tags:
   - offline
   - messaging
   - personal
+ReleaseNotes: >-
+  Pratibmb v0.2.0 requires a minimum of 8GB RAM for the full local AI pipeline.
+  On first launch, approximately 2.5GB of AI models are downloaded automatically.
+  After that, all processing runs fully offline with no internet required.
 ManifestType: defaultLocale
 ManifestVersion: 1.6.0
