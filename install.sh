@@ -3,7 +3,7 @@
 # Usage: curl -fsSL https://pratibmb.com/install.sh | bash
 set -euo pipefail
 
-FILE_VERSION="0.2.0"  # must match version in desktop/src-tauri/tauri.conf.json
+FILE_VERSION="0.3.0"  # must match version in desktop/src-tauri/tauri.conf.json
 REPO="tapaskar/Pratibmb"
 INSTALL_DIR="$HOME/Pratibmb"
 

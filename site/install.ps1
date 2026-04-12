@@ -3,7 +3,7 @@
 # Or:   powershell -ExecutionPolicy Bypass -File install.ps1
 
 $ErrorActionPreference = "Stop"
-$FILE_VERSION = "0.2.0"  # must match version in desktop/src-tauri/tauri.conf.json
+$FILE_VERSION = "0.3.0"  # must match version in desktop/src-tauri/tauri.conf.json
 $REPO = "tapaskar/Pratibmb"
 $INSTALL_DIR = "$env:USERPROFILE\Pratibmb"
 

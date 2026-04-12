@@ -1,6 +1,6 @@
 [package]
 name = "pratibmb-desktop"
-version = "0.2.0"
+version = "0.3.0"
 description = "Chat with your 10-years-younger self. 100% local."
 authors = ["Tapas"]
 license = "AGPL-3.0-or-later"

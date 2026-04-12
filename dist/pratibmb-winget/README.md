@@ -40,8 +40,8 @@ If you prefer not to use winget:
 
 | Format | Download |
 |--------|----------|
-| Installer (.exe) | [Pratibmb_0.2.0_x64-setup.exe](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.2.0_x64-setup.exe) |
-| MSI | [Pratibmb_0.2.0_x64_en-US.msi](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.2.0_x64_en-US.msi) |
+| Installer (.exe) | [Pratibmb_0.3.0_x64-setup.exe](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.3.0_x64-setup.exe) |
+| MSI | [Pratibmb_0.3.0_x64_en-US.msi](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.3.0_x64_en-US.msi) |
 
 ## Uninstall
 

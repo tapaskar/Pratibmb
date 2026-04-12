@@ -1,6 +1,6 @@
 # Maintainer: Tapas <tapas@pratibmb.com>
 pkgname=pratibmb-bin
-pkgver=0.2.0
+pkgver=0.3.0
 pkgrel=1
 pkgdesc="Chat with your 10-years-younger self. 100% local, no cloud, no telemetry"
 arch=('x86_64')
