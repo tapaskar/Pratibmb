@@ -241,6 +241,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._chat(body)
             elif self.path == "/finetune":
                 self._finetune(body)
+            elif self.path == "/reset":
+                self._reset(body)
             else:
                 _json_response(self, 404, {"error": "not found"})
         except Exception as e:
@@ -584,6 +586,84 @@ class Handler(BaseHTTPRequestHandler):
             "messages_needing_embedding": messages_needing_embedding,
             "warnings": warnings,
         })
+
+    def _reset(self, body: dict):
+        """Reset user data. Scope: finetune, profile, embeddings, messages, all."""
+        import shutil
+        scope = body.get("scope", "finetune")
+        keep_models = body.get("keep_models", True)
+        result = {"scope": scope, "deleted": []}
+
+        if scope in ("finetune", "all"):
+            # Delete fine-tune directory
+            ft_dir = _data_dir() / "finetune"
+            if ft_dir.exists():
+                shutil.rmtree(ft_dir)
+                result["deleted"].append("finetune/")
+            # Delete fine-tuned model files
+            models = _data_dir() / "models"
+            if models.exists():
+                for f in models.iterdir():
+                    if "finetuned" in f.name or f.name == "adapter.gguf":
+                        f.unlink()
+                        result["deleted"].append(f"models/{f.name}")
+
+        if scope in ("profile", "all"):
+            store = _get_store()
+            count = store.clear_profile()
+            result["deleted"].append(f"profile ({count} entries)")
+            # Delete voice fingerprint
+            vp = _data_dir() / "voice.json"
+            if vp.exists():
+                vp.unlink()
+                result["deleted"].append("voice.json")
+            # Clear cached profile in memory
+            global _profile, _profile_ctx_cache
+            _profile = None
+            _profile_ctx_cache = {}
+
+        if scope in ("embeddings", "all"):
+            store = _get_store()
+            count = store.clear_embeddings()
+            result["deleted"].append(f"embeddings ({count} vectors)")
+            # Clear cached retriever
+            global _retriever, _embedder
+            _retriever = None
+            _embedder = None
+
+        if scope in ("messages", "all"):
+            store = _get_store()
+            counts = store.clear_all()
+            result["deleted"].append(
+                f"messages ({counts['messages']}), "
+                f"embeddings ({counts['embeddings']}), "
+                f"profile ({counts['profile']})"
+            )
+            global _chatter
+            _retriever = None
+            _embedder = None
+            _chatter = None
+            _profile = None
+            _profile_ctx_cache = {}
+
+        if scope == "all" and not keep_models:
+            models = _data_dir() / "models"
+            if models.exists():
+                shutil.rmtree(models)
+                result["deleted"].append("models/ (all)")
+
+        if scope == "all":
+            # Delete config and voice
+            for fname in ("config.json", "voice.json"):
+                fp = _data_dir() / fname
+                if fp.exists():
+                    fp.unlink()
+                    result["deleted"].append(fname)
+            global _config
+            _config = {}
+
+        result["status"] = "ok"
+        _json_response(self, 200, result)
 
     def _logs(self):
         """Return log directory path, system info, and recent log lines."""

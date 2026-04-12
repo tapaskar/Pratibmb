@@ -251,6 +251,206 @@ def logs(lines: int, show_path: bool, open_dir: bool, export_zip: bool) -> None:
     console.print(f"[dim]To export: pratibmb logs --export[/dim]")
 
 
+@main.group()
+def reset() -> None:
+    """Reset or delete personal data. Use subcommands for granular control."""
+
+
+@reset.command("finetune")
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation")
+def reset_finetune(yes: bool) -> None:
+    """Delete fine-tuning data, adapters, and fine-tuned models."""
+    import shutil
+
+    items = []
+    finetune_dir = data_dir() / "finetune"
+    if finetune_dir.exists():
+        items.append(("Fine-tune data + adapters", str(finetune_dir)))
+
+    models = data_dir() / "models"
+    finetuned_files = []
+    if models.exists():
+        for f in models.iterdir():
+            if "finetuned" in f.name or f.name == "adapter.gguf":
+                finetuned_files.append(f)
+                items.append(("Fine-tuned model", f.name))
+
+    if not items:
+        console.print("[green]Nothing to reset — no fine-tuning data found.[/green]")
+        return
+
+    console.rule("[bold red]Reset Fine-Tuning[/bold red]")
+    console.print("[yellow]This will permanently delete:[/yellow]")
+    for label, path in items:
+        console.print(f"  - {label}: [dim]{path}[/dim]")
+    console.print()
+    console.print("[dim]Your imported messages, embeddings, and profile are NOT affected.[/dim]")
+    console.print("[dim]Base AI models (Gemma, Nomic) are NOT affected.[/dim]")
+
+    if not yes:
+        if not click.confirm("\nProceed?"):
+            console.print("[dim]Cancelled.[/dim]")
+            return
+
+    if finetune_dir.exists():
+        shutil.rmtree(finetune_dir)
+    for f in finetuned_files:
+        f.unlink(missing_ok=True)
+
+    console.print("[green]Fine-tuning data reset. You can re-run fine-tuning from scratch.[/green]")
+
+
+@reset.command("profile")
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation")
+def reset_profile(yes: bool) -> None:
+    """Delete extracted profile and voice fingerprint."""
+    console.rule("[bold red]Reset Profile[/bold red]")
+    console.print("[yellow]This will permanently delete:[/yellow]")
+    console.print("  - Extracted profile (relationships, life events, interests)")
+    console.print("  - Voice fingerprint (communication style analysis)")
+    console.print()
+    console.print("[dim]Your imported messages and embeddings are NOT affected.[/dim]")
+    console.print("[dim]You can re-extract the profile from the gear icon.[/dim]")
+
+    if not yes:
+        if not click.confirm("\nProceed?"):
+            console.print("[dim]Cancelled.[/dim]")
+            return
+
+    if db_path().exists():
+        store = Store(db_path())
+        count = store.clear_profile()
+        store.close()
+        console.print(f"  [red]Deleted {count} profile entries from database[/red]")
+
+    vp = voice_path()
+    if vp.exists():
+        vp.unlink()
+        console.print("  [red]Deleted voice fingerprint[/red]")
+
+    console.print("[green]Profile reset. Re-extract from the app or CLI.[/green]")
+
+
+@reset.command("embeddings")
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation")
+def reset_embeddings(yes: bool) -> None:
+    """Delete all embedding vectors. Messages are kept."""
+    console.rule("[bold red]Reset Embeddings[/bold red]")
+    console.print("[yellow]This will delete all embedding vectors.[/yellow]")
+    console.print("[dim]Your messages are NOT deleted — only the vector index.[/dim]")
+    console.print("[dim]You'll need to re-embed before chatting.[/dim]")
+
+    if not yes:
+        if not click.confirm("\nProceed?"):
+            console.print("[dim]Cancelled.[/dim]")
+            return
+
+    if db_path().exists():
+        store = Store(db_path())
+        count = store.clear_embeddings()
+        store.close()
+        console.print(f"[green]Deleted {count} embedding vectors.[/green]")
+    else:
+        console.print("[yellow]No database found.[/yellow]")
+
+
+@reset.command("all")
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation")
+@click.option("--include-models", is_flag=True,
+              help="Also delete downloaded AI models (~2.5 GB)")
+@click.option("--include-logs", is_flag=True,
+              help="Also delete diagnostic logs")
+def reset_all(yes: bool, include_models: bool, include_logs: bool) -> None:
+    """Delete ALL personal data. Nuclear option."""
+    import shutil
+
+    console.rule("[bold red]Delete All Personal Data[/bold red]")
+    console.print()
+    console.print("[bold red]WARNING: This will permanently delete:[/bold red]")
+    console.print("  - All imported messages")
+    console.print("  - All embedding vectors")
+    console.print("  - Extracted profile and voice fingerprint")
+    console.print("  - Fine-tuning data, adapters, and fine-tuned models")
+    console.print("  - User configuration (your name)")
+    if include_models:
+        console.print("  - Downloaded AI models (~2.5 GB)")
+    else:
+        console.print("  [dim]- Downloaded AI models: KEPT (use --include-models to delete)[/dim]")
+    if include_logs:
+        console.print("  - Diagnostic logs")
+    else:
+        console.print("  [dim]- Diagnostic logs: KEPT (use --include-logs to delete)[/dim]")
+    console.print()
+    console.print(f"[dim]Data directory: {data_dir()}[/dim]")
+
+    if not yes:
+        console.print()
+        confirm_text = click.prompt(
+            'Type "DELETE" to confirm (or anything else to cancel)'
+        )
+        if confirm_text != "DELETE":
+            console.print("[dim]Cancelled.[/dim]")
+            return
+
+    deleted = []
+
+    # Database
+    if db_path().exists():
+        db_path().unlink()
+        deleted.append("corpus.db")
+
+    # Config
+    cp = config_path()
+    if cp.exists():
+        cp.unlink()
+        deleted.append("config.json")
+
+    # Voice
+    vp = voice_path()
+    if vp.exists():
+        vp.unlink()
+        deleted.append("voice.json")
+
+    # Fine-tuning
+    ft = data_dir() / "finetune"
+    if ft.exists():
+        shutil.rmtree(ft)
+        deleted.append("finetune/")
+
+    # Tools
+    tools = data_dir() / "tools"
+    if tools.exists():
+        shutil.rmtree(tools)
+        deleted.append("tools/")
+
+    # Models
+    models = data_dir() / "models"
+    if models.exists():
+        if include_models:
+            shutil.rmtree(models)
+            deleted.append("models/ (all)")
+        else:
+            # Only delete fine-tuned models, keep base models
+            for f in models.iterdir():
+                if "finetuned" in f.name or f.name == "adapter.gguf":
+                    f.unlink()
+                    deleted.append(f"models/{f.name}")
+
+    # Logs
+    if include_logs:
+        logs = data_dir() / "logs"
+        if logs.exists():
+            shutil.rmtree(logs)
+            deleted.append("logs/")
+
+    console.print()
+    for d in deleted:
+        console.print(f"  [red]Deleted: {d}[/red]")
+    console.print()
+    console.print("[green]All personal data has been deleted.[/green]")
+    console.print("[dim]The app will start fresh on next launch (onboarding wizard).[/dim]")
+
+
 @main.command()
 @click.argument("export_path", type=click.Path(exists=True, path_type=Path),
                 required=False, default=None)

@@ -772,6 +772,94 @@ document.getElementById("btn-open-logs").addEventListener("click", async () => {
   }
 });
 
+// --------------- Reset / Delete Data ---------------
+
+function showResetStatus(msg, isError) {
+  const el = document.getElementById("reset-status");
+  el.textContent = msg;
+  el.className = "reset-status" + (isError ? " reset-error" : "");
+  el.classList.remove("hidden");
+}
+
+async function doReset(scope, confirmMsg) {
+  if (!confirm(confirmMsg)) return false;
+
+  try {
+    const resp = await fetch(SERVER + "/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scope, keep_models: true }),
+    });
+    if (!resp.ok) {
+      const err = await resp.text();
+      showResetStatus("Reset failed: " + err, true);
+      return false;
+    }
+    const result = await resp.json();
+    const items = result.deleted || [];
+    showResetStatus("Deleted: " + (items.length > 0 ? items.join(", ") : "nothing to delete"), false);
+    return true;
+  } catch (err) {
+    showResetStatus("Reset failed: " + String(err), true);
+    return false;
+  }
+}
+
+document.getElementById("btn-reset-finetune").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-reset-finetune");
+  btn.disabled = true;
+  await doReset("finetune",
+    "This will delete all fine-tuning data, LoRA adapters, and fine-tuned models.\n\n" +
+    "Your imported messages, embeddings, and profile are NOT affected.\n\n" +
+    "Continue?"
+  );
+  btn.disabled = false;
+});
+
+document.getElementById("btn-reset-profile").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-reset-profile");
+  btn.disabled = true;
+  await doReset("profile",
+    "This will delete your extracted profile (relationships, life events, interests) " +
+    "and voice fingerprint.\n\n" +
+    "Your messages and embeddings are NOT affected. You can re-extract the profile.\n\n" +
+    "Continue?"
+  );
+  btn.disabled = false;
+});
+
+document.getElementById("btn-reset-all").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-reset-all");
+  const confirmed = confirm(
+    "⚠️ DELETE ALL PERSONAL DATA ⚠️\n\n" +
+    "This will permanently delete:\n" +
+    "• All imported messages\n" +
+    "• All embeddings\n" +
+    "• Your profile and voice fingerprint\n" +
+    "• All fine-tuning data\n" +
+    "• Your configuration\n\n" +
+    "Base AI models (~2.5 GB) will be kept.\n\n" +
+    "This cannot be undone. Continue?"
+  );
+  if (!confirmed) return;
+
+  // Double confirmation for nuclear option
+  const doubleConfirm = confirm(
+    "Are you absolutely sure? All your imported conversations will be lost."
+  );
+  if (!doubleConfirm) return;
+
+  btn.disabled = true;
+  btn.textContent = "Deleting...";
+  const ok = await doReset("all", "Final confirmation: delete everything?");
+  btn.disabled = false;
+  btn.textContent = "Delete All My Data";
+
+  if (ok) {
+    showResetStatus("All personal data deleted. Restart the app for a fresh start.", false);
+  }
+});
+
 // On load: check server health, show onboarding or chat
 (async () => {
   try {

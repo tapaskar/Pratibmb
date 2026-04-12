@@ -259,3 +259,45 @@ class Store:
                 merged["context_after"] = ctx["context_after"]
                 results.append(merged)
         return results
+
+    # -- reset / delete ------------------------------------------------------
+
+    def clear_embeddings(self) -> int:
+        """Delete all embedding vectors. Returns count deleted."""
+        count = self.conn.execute("SELECT COUNT(*) FROM embeddings").fetchone()[0]
+        with self.tx() as cur:
+            cur.execute("DELETE FROM embeddings")
+        return count
+
+    def clear_profile(self) -> int:
+        """Delete all extracted profile data. Returns count deleted."""
+        count = self.conn.execute("SELECT COUNT(*) FROM profile").fetchone()[0]
+        with self.tx() as cur:
+            cur.execute("DELETE FROM profile")
+        return count
+
+    def clear_messages(self) -> int:
+        """Delete all imported messages + their embeddings. Returns count deleted."""
+        count = self.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
+        with self.tx() as cur:
+            cur.execute("DELETE FROM embeddings")
+            cur.execute("DELETE FROM messages")
+            cur.execute("DELETE FROM meta")
+        return count
+
+    def clear_all(self) -> dict:
+        """Delete everything from the database. Returns counts per table."""
+        counts = {
+            "messages": self.conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0],
+            "embeddings": self.conn.execute("SELECT COUNT(*) FROM embeddings").fetchone()[0],
+            "profile": self.conn.execute("SELECT COUNT(*) FROM profile").fetchone()[0],
+            "meta": self.conn.execute("SELECT COUNT(*) FROM meta").fetchone()[0],
+        }
+        with self.tx() as cur:
+            cur.execute("DELETE FROM embeddings")
+            cur.execute("DELETE FROM messages")
+            cur.execute("DELETE FROM profile")
+            cur.execute("DELETE FROM meta")
+        # Reclaim disk space
+        self.conn.execute("VACUUM")
+        return counts

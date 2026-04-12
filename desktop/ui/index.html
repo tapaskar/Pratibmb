@@ -79,6 +79,19 @@
       <div class="pipeline-footer">
         <p>All processing happens on your machine. Models are never uploaded.</p>
       </div>
+
+      <hr class="pipeline-divider">
+
+      <div class="pipeline-section">
+        <h3>Reset Data</h3>
+        <p class="pipeline-subtitle">Remove personal data from the app. Base AI models are always kept.</p>
+        <div class="reset-buttons">
+          <button class="btn-reset" id="btn-reset-finetune">Reset Fine-Tuning</button>
+          <button class="btn-reset" id="btn-reset-profile">Reset Profile</button>
+          <button class="btn-reset btn-reset-danger" id="btn-reset-all">Delete All My Data</button>
+        </div>
+        <div id="reset-status" class="reset-status hidden"></div>
+      </div>
     </div>
   </div>
 
