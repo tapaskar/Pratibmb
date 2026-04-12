@@ -24,6 +24,117 @@
 <link rel="stylesheet" href="style.css">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
+
+<!-- Structured Data: SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Pratibmb",
+  "description": "Chat with your 10-years-younger self. Import your messaging history from 8 platforms. 100% local AI — no cloud, no telemetry.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "macOS, Windows, Linux",
+  "url": "https://pratibmb.com",
+  "downloadUrl": "https://pratibmb.com/#downloads",
+  "softwareVersion": "0.2.0",
+  "license": "https://www.gnu.org/licenses/agpl-3.0.html",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "Free for personal use"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Tapas",
+    "url": "https://github.com/tapaskar"
+  },
+  "image": "https://pratibmb.com/og-image.png"
+}
+</script>
+
+<!-- Structured Data: FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is this therapy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Pratibmb is a conversation tool, not a mental health product. If you use it to process grief or difficult emotions, please set time limits and speak to a professional. Built-in session limits and gentle reframes are part of the v1.0 roadmap."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can anyone else see my data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Everything runs on your hardware. There are no servers, no accounts, no cloud storage, no analytics. Your messages, embeddings, models, and profiles stay on your machine. Uninstall the app and the data is gone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work offline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. After the one-time model download (~2.5GB on first launch), Pratibmb works with no internet connection. It uses a local LLM (Gemma-3-4B) and a local embedding model (Nomic Embed). No API calls, no cloud inference."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How accurate is it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The base model captures your general communication style, topics, and relationships well. Optional LoRA fine-tuning (20 min on Apple Silicon) teaches it your specific texting patterns \u2014 abbreviations, language mix, emoji habits. It\u2019s not perfect, but it\u2019s often surprisingly close."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What hardware do I need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Any modern computer with 4GB+ RAM. Apple Silicon Macs get the best experience (Metal GPU acceleration for fine-tuning). NVIDIA GPUs accelerate fine-tuning on Windows/Linux. CPU-only works too, just slower for the fine-tuning step."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why not just use ChatGPT with my messages?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because your private messages are the most intimate data you own. Uploading a decade of conversations to any cloud API \u2014 OpenAI, Google, anyone \u2014 means that data now lives on someone else\u2019s servers, subject to their terms of service, their data breaches, and their training pipelines. Pratibmb exists so you never have to make that trade-off."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "macOS says \"damaged and can't be opened\"",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This happens because the app isn\u2019t signed with an Apple Developer certificate (code signing costs $99/year). It\u2019s safe \u2014 you can verify the source code yourself. To fix it, open Terminal and run: xattr -cr /Applications/Pratibmb.app \u2014 then open the app normally."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use this commercially?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not without a license. Pratibmb is AGPLv3, which means personal use, research, and open-source projects are free. But if you want to use it in a commercial product, offer it as a hosted service, or embed it in closed-source software, you need a commercial license. Contact admin@sparkupcloud.com to discuss terms."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use it for a deceased family member's messages?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Technically yes \u2014 you can import their exported messages and chat with the model. This is emotionally powerful and should be approached with care. We recommend setting session time limits and being mindful that it\u2019s a model, not the person. Dedicated \"legacy mode\" with additional safeguards is planned for v1.0."
+      }
+    }
+  ]
+}
+</script>
+
 </head>
 <body>
 

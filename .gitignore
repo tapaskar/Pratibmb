@@ -10,6 +10,8 @@ venv/
 
 # Build
 build/
+target/
+node_modules/
 dist/
 !dist/homebrew-pratibmb/
 !dist/pratibmb-aur/
