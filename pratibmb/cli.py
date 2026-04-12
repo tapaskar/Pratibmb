@@ -86,11 +86,11 @@ def doctor() -> None:
 
     # Python version
     v = sys.version_info
-    py_ok = v.major == 3 and v.minor >= 10
+    py_ok = v.major == 3 and v.minor >= 9
     icon = "[green]\u2713[/green]" if py_ok else "[red]\u2717[/red]"
     console.print(f"  {icon} Python {v.major}.{v.minor}.{v.micro}", end="")
     if not py_ok:
-        console.print("  [red](need 3.10+)[/red]")
+        console.print("  [red](need 3.9+)[/red]")
         all_ok = False
     else:
         console.print()

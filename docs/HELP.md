@@ -19,7 +19,7 @@ Chat with your 10-years-younger self. 100% local.
 |--|---------|-------------|
 | RAM | 4 GB | 8 GB |
 | Disk | 3 GB (for models) | 10 GB |
-| Python | 3.10+ | 3.11+ |
+| Python | 3.9+ | 3.11+ |
 | GPU | Not required | Apple Silicon or NVIDIA (6GB+ VRAM) for fine-tuning |
 
 ### Models
@@ -296,7 +296,7 @@ pratibmb finetune train
 
 ### "waiting for the local server to start..."
 The Python server hasn't started yet. Wait 10 seconds. If it persists:
-- Check that Python 3.10+ is installed: `python3 --version`
+- Check that Python 3.9+ is installed: `python3 --version`
 - Check that pratibmb is installed: `pip install -e .` from the repo root
 - Check port 11435 is free: `lsof -ti:11435`
 

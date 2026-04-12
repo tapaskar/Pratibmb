@@ -88,7 +88,7 @@ jobs:
             app "Pratibmb.app"
 
             caveats <<~EOS
-              Pratibmb requires Python 3.10+ to be installed on your system.
+              Pratibmb requires Python 3.9+ to be installed on your system.
 
               On first launch, Pratibmb downloads ~2.5GB of AI models.
               After that, it works fully offline — no internet required.
@@ -162,7 +162,7 @@ jobs:
           	url = https://pratibmb.com
           	arch = x86_64
           	license = AGPL-3.0-or-later
-          	depends = python>=3.10
+          	depends = python>=3.9
           	depends = fuse2
           	provides = pratibmb
           	conflicts = pratibmb

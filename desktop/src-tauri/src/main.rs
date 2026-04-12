@@ -201,7 +201,7 @@ fn get_log_dir() -> String {
 /// Find a working Python 3 interpreter.
 ///
 /// Tries python3 first (most systems), then python (Windows). Validates
-/// that the found interpreter is actually Python 3.10+ before returning.
+/// that the found interpreter is actually Python 3.9+ before returning.
 fn find_python() -> Option<String> {
     let candidates = ["python3", "python"];
 
@@ -213,18 +213,18 @@ fn find_python() -> Option<String> {
             Ok(output) => {
                 let version_str = String::from_utf8_lossy(&output.stdout);
                 let version_str = version_str.trim();
-                // Parse "Python 3.X.Y" — require 3.10+
+                // Parse "Python 3.X.Y" — require 3.9+
                 if let Some(ver) = version_str.strip_prefix("Python ") {
                     let parts: Vec<&str> = ver.split('.').collect();
                     if parts.len() >= 2 {
                         let major: u32 = parts[0].parse().unwrap_or(0);
                         let minor: u32 = parts[1].parse().unwrap_or(0);
-                        if major == 3 && minor >= 10 {
+                        if major == 3 && minor >= 9 {
                             log::info!("Found {} ({})", py, version_str);
                             return Some(py.to_string());
                         } else {
                             log::warn!(
-                                "{} is {} (need 3.10+), skipping",
+                                "{} is {} (need 3.9+), skipping",
                                 py, version_str
                             );
                         }
@@ -237,7 +237,7 @@ fn find_python() -> Option<String> {
         }
     }
 
-    log::error!("Python 3.10+ not found. Install from https://python.org");
+    log::error!("Python 3.9+ not found. Install from https://python.org");
     None
 }
 
@@ -500,25 +500,29 @@ fn main() {
         .max_file_size(5_000_000) // 5 MB
         .build();
 
-    log::info!("=== Pratibmb desktop starting ===");
-    log::info!("Log directory: {}", log_dir().display());
-
-    let child = spawn_python_server();
-
-    if child.is_some() {
-        // Poll /health instead of blind sleep
-        wait_for_server(10000);
-    } else {
-        log::warn!("No Python server — app will show connection errors");
-        log::warn!("Install Python 3.10+ and run: pip install -e /path/to/Pratibmb");
-    }
-
     tauri::Builder::default()
-        .manage(ServerProcess(Mutex::new(child)))
         .plugin(log_plugin)
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
+        .setup(|app| {
+            // Now that the log plugin is active, all log::info!() calls are captured
+            log::info!("=== Pratibmb desktop starting ===");
+            log::info!("Log directory: {}", log_dir().display());
+
+            let child = spawn_python_server();
+
+            if child.is_some() {
+                // Poll /health instead of blind sleep
+                wait_for_server(10000);
+            } else {
+                log::warn!("No Python server — app will show connection errors");
+                log::warn!("Install Python 3.9+ and run: pip install -e /path/to/Pratibmb");
+            }
+
+            app.manage(ServerProcess(Mutex::new(child)));
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             init_user, import_file, embed, voice, chat_turn,
             extract_profile, finetune, stats, health,

@@ -3,7 +3,7 @@
 # Or:   powershell -ExecutionPolicy Bypass -File install.ps1
 
 $ErrorActionPreference = "Stop"
-$FILE_VERSION = "0.3.0"  # must match version in desktop/src-tauri/tauri.conf.json
+$FILE_VERSION = "0.4.0"  # must match version in desktop/src-tauri/tauri.conf.json
 $REPO = "tapaskar/Pratibmb"
 $INSTALL_DIR = "$env:USERPROFILE\Pratibmb"
 
@@ -27,12 +27,12 @@ foreach ($cmd in @("python", "python3", "py -3")) {
         if ($pyVersion -match "Python (\d+)\.(\d+)") {
             $major = [int]$Matches[1]
             $minor = [int]$Matches[2]
-            if ($major -eq 3 -and $minor -ge 10) {
+            if ($major -eq 3 -and $minor -ge 9) {
                 $PYTHON = $cmd
                 Write-Ok "Found $cmd ($pyVersion)"
                 break
             } else {
-                Write-Warn "$cmd is $pyVersion (need 3.10+), skipping"
+                Write-Warn "$cmd is $pyVersion (need 3.9+), skipping"
             }
         }
     } catch {
@@ -45,7 +45,7 @@ if (-not $PYTHON) {
     try {
         $pyVersion = & python3 --version 2>&1
         if ($pyVersion -match "Python 3\.(\d+)") {
-            if ([int]$Matches[1] -ge 10) {
+            if ([int]$Matches[1] -ge 9) {
                 $PYTHON = "python3"
                 Write-Ok "Found python3 ($pyVersion)"
             }
@@ -55,7 +55,7 @@ if (-not $PYTHON) {
 
 if (-not $PYTHON) {
     Write-Host ""
-    Write-Warn "Python 3.10+ not found."
+    Write-Warn "Python 3.9+ not found."
     Write-Host ""
     Write-Host "  Install Python from: https://www.python.org/downloads/" -ForegroundColor White
     Write-Host ""
@@ -66,7 +66,7 @@ if (-not $PYTHON) {
     if ($response -ne "n" -and $response -ne "N") {
         Start-Process "https://www.python.org/downloads/"
     }
-    Write-Fail "Install Python 3.10+, then run this script again."
+    Write-Fail "Install Python 3.9+, then run this script again."
 }
 
 # ── Step 2: Check Git ─────────────────────────────────────────────────

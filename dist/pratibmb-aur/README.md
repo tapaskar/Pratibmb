@@ -25,7 +25,7 @@ Pratibmb ingests your personal messaging history (WhatsApp, Facebook, Instagram,
 ## Requirements
 
 - Linux x86_64 (tested on Ubuntu 22.04, Arch, Fedora)
-- Python 3.10+
+- Python 3.9+
 - ~4 GB RAM
 - ~2.5 GB disk for AI models (downloaded on first launch)
 - FUSE 2 (for AppImage)
@@ -46,20 +46,20 @@ If you're not on Arch:
 
 | Format | Download |
 |--------|----------|
-| Debian/Ubuntu | [Pratibmb_0.3.0_amd64.deb](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.3.0_amd64.deb) |
-| AppImage (universal) | [Pratibmb_0.3.0_amd64.AppImage](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.3.0_amd64.AppImage) |
+| Debian/Ubuntu | [Pratibmb_0.4.0_amd64.deb](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.4.0_amd64.deb) |
+| AppImage (universal) | [Pratibmb_0.4.0_amd64.AppImage](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.4.0_amd64.AppImage) |
 
 ### Install .deb
 
 ```bash
-sudo dpkg -i Pratibmb_0.3.0_amd64.deb
+sudo dpkg -i Pratibmb_0.4.0_amd64.deb
 ```
 
 ### Run AppImage
 
 ```bash
-chmod +x Pratibmb_0.3.0_amd64.AppImage
-./Pratibmb_0.3.0_amd64.AppImage
+chmod +x Pratibmb_0.4.0_amd64.AppImage
+./Pratibmb_0.4.0_amd64.AppImage
 ```
 
 ## Uninstall

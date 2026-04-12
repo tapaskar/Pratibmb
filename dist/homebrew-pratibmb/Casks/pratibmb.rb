@@ -18,7 +18,7 @@ cask "pratibmb" do
   app "Pratibmb.app"
 
   caveats <<~EOS
-    Pratibmb requires Python 3.10+ to be installed on your system.
+    Pratibmb requires Python 3.9+ to be installed on your system.
 
     On first launch, Pratibmb downloads ~2.5GB of AI models.
     After that, it works fully offline — no internet required.

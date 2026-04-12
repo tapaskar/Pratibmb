@@ -89,7 +89,7 @@ Pratibmb is free for personal use, open source (AGPLv3), and available for macOS
 - **GitHub:** [github.com/tapaskar/Pratibmb](https://github.com/tapaskar/Pratibmb)
 - **Download:** [pratibmb.com/#downloads](https://pratibmb.com/#downloads)
 
-Models auto-download on first launch. You need Python 3.10+ and about 4GB of RAM.
+Models auto-download on first launch. You need Python 3.9+ and about 4GB of RAM.
 
 If you've ever wondered what you'd say to who you were 10 years ago — now you can try it.
 

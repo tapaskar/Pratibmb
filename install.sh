@@ -3,7 +3,7 @@
 # Usage: curl -fsSL https://pratibmb.com/install.sh | bash
 set -euo pipefail
 
-FILE_VERSION="0.3.0"  # must match version in desktop/src-tauri/tauri.conf.json
+FILE_VERSION="0.4.0"  # must match version in desktop/src-tauri/tauri.conf.json
 REPO="tapaskar/Pratibmb"
 INSTALL_DIR="$HOME/Pratibmb"
 
@@ -35,18 +35,18 @@ for cmd in python3 python; do
         PY_VERSION=$("$cmd" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+')
         PY_MAJOR=$(echo "$PY_VERSION" | cut -d. -f1)
         PY_MINOR=$(echo "$PY_VERSION" | cut -d. -f2)
-        if [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -ge 10 ]; then
+        if [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -ge 9 ]; then
             PYTHON="$cmd"
             ok "Found $cmd ($($cmd --version 2>&1))"
             break
         else
-            warn "$cmd is version $PY_VERSION (need 3.10+), skipping"
+            warn "$cmd is version $PY_VERSION (need 3.9+), skipping"
         fi
     fi
 done
 
 if [ -z "$PYTHON" ]; then
-    fail "Python 3.10+ not found. Install from https://python.org/downloads/"
+    fail "Python 3.9+ not found. Install from https://python.org/downloads/"
 fi
 
 # ── Step 2: Detect platform ───────────────────────────────────────────

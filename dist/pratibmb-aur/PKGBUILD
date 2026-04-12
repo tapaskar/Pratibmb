@@ -1,12 +1,12 @@
 # Maintainer: Tapas <tapas@pratibmb.com>
 pkgname=pratibmb-bin
-pkgver=0.3.0
+pkgver=0.4.0
 pkgrel=1
 pkgdesc="Chat with your 10-years-younger self. 100% local, no cloud, no telemetry"
 arch=('x86_64')
 url="https://pratibmb.com"
 license=('AGPL-3.0-or-later')
-depends=('python>=3.10' 'fuse2')
+depends=('python>=3.9' 'fuse2')
 provides=('pratibmb')
 conflicts=('pratibmb')
 options=('!strip')

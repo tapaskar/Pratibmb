@@ -5,7 +5,7 @@ pkgbase = pratibmb-bin
 	url = https://pratibmb.com
 	arch = x86_64
 	license = AGPL-3.0-or-later
-	depends = python>=3.10
+	depends = python>=3.9
 	depends = fuse2
 	provides = pratibmb
 	conflicts = pratibmb

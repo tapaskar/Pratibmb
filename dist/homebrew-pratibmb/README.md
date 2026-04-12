@@ -23,7 +23,7 @@ Pratibmb ingests your personal messaging history (WhatsApp, Facebook, Instagram,
 
 - macOS 12 (Monterey) or later
 - Apple Silicon (M1/M2/M3/M4) or Intel Mac
-- Python 3.10+
+- Python 3.9+
 - ~4 GB RAM
 - ~2.5 GB disk for AI models (downloaded on first launch)
 
@@ -43,8 +43,8 @@ If you prefer not to use Homebrew:
 
 | Chip | Download |
 |------|----------|
-| Apple Silicon (M1+) | [Pratibmb_0.3.0_aarch64.dmg](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.3.0_aarch64.dmg) |
-| Intel | [Pratibmb_0.3.0_x64.dmg](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.3.0_x64.dmg) |
+| Apple Silicon (M1+) | [Pratibmb_0.4.0_aarch64.dmg](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.4.0_aarch64.dmg) |
+| Intel | [Pratibmb_0.4.0_x64.dmg](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.4.0_x64.dmg) |
 
 ## Uninstall
 

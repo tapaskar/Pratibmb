@@ -19,7 +19,7 @@ Pratibmb ingests your personal messaging history (WhatsApp, Facebook, Instagram,
 ## Requirements
 
 - Windows 10 or Windows 11 (64-bit)
-- Python 3.10+
+- Python 3.9+
 - ~4 GB RAM
 - ~2.5 GB disk for AI models (downloaded on first launch)
 - NVIDIA GPU with 6 GB+ VRAM (optional, for fine-tuning)
@@ -40,8 +40,8 @@ If you prefer not to use winget:
 
 | Format | Download |
 |--------|----------|
-| Installer (.exe) | [Pratibmb_0.3.0_x64-setup.exe](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.3.0_x64-setup.exe) |
-| MSI | [Pratibmb_0.3.0_x64_en-US.msi](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.3.0_x64_en-US.msi) |
+| Installer (.exe) | [Pratibmb_0.4.0_x64-setup.exe](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.4.0_x64-setup.exe) |
+| MSI | [Pratibmb_0.4.0_x64_en-US.msi](https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.4.0_x64_en-US.msi) |
 
 ## Uninstall
 

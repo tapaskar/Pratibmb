@@ -870,9 +870,9 @@ document.getElementById("btn-reset-all").addEventListener("click", async () => {
       errorDiv.className = "bubble bubble-past startup-error";
       errorDiv.textContent =
         "Could not connect to the Pratibmb engine.\n\n" +
-        "This usually means Python 3.10+ is not installed or the pratibmb package is missing.\n\n" +
+        "This usually means Python 3.9+ is not installed or the pratibmb package is missing.\n\n" +
         "To fix:\n" +
-        "1. Install Python 3.10+ from python.org\n" +
+        "1. Install Python 3.9+ from python.org\n" +
         "2. Run: pip install -e /path/to/Pratibmb\n\n" +
         "Then restart the app.";
       chat.appendChild(errorDiv);
