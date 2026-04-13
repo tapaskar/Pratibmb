@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pratibmb Instagram Carousel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #111;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    padding: 40px;
+    justify-content: center;
+  }
+
+  /* Each slide is 1080x1350 (4:5 ratio) — max feed real estate, works for ads */
+  .slide {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* ─── SLIDE 1: THE HOOK ─── */
+  .slide-1 {
+    background: #1a0f0a;
+    background-image:
+      radial-gradient(ellipse at 30% 80%, rgba(139, 90, 43, 0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 20%, rgba(90, 50, 20, 0.1) 0%, transparent 50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px;
+  }
+
+  .slide-1 .hook-text {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 82px;
+    line-height: 1.2;
+    color: #FAF6F1;
+    letter-spacing: -1px;
+    margin-bottom: 60px;
+  }
+
+  .slide-1 .hook-text em {
+    font-style: italic;
+    color: #C4956A;
+  }
+
+  .slide-1 .hook-sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 28px;
+    color: rgba(250, 246, 241, 0.5);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+
+  .slide-1 .swipe-hint {
+    position: absolute;
+    bottom: 50px;
+    right: 60px;
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    color: rgba(250, 246, 241, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .slide-1 .swipe-hint .arrow {
+    font-size: 28px;
+  }
+
+  .slide-1 .dots {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+  }
+
+  .slide-1 .dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(250, 246, 241, 0.2);
+  }
+
+  .slide-1 .dots span:first-child {
+    background: #C4956A;
+  }
+
+  /* ─── SLIDE 2: THE CHAT SCREENSHOT ─── */
+  .slide-2 {
+    background: #FAF6F1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .slide-2 .label-top {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 22px;
+    color: #8B5A2B;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-align: center;
+    padding: 50px 60px 30px;
+  }
+
+  .slide-2 .phone-frame {
+    flex: 1;
+    margin: 0 60px 0;
+    border-radius: 32px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Simulated app header */
+  .phone-frame .app-header {
+    background: #fff;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .phone-frame .app-header .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #3d2b1f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .phone-frame .app-header .name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: #2C1810;
+  }
+
+  .phone-frame .app-header .year-badge {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: #8B5A2B;
+    background: #F5EDE4;
+    padding: 6px 16px;
+    border-radius: 20px;
+  }
+
+  /* Chat messages */
+  .phone-frame .chat {
+    flex: 1;
+    padding: 30px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #FAF6F1;
+  }
+
+  .phone-frame .chat .msg {
+    max-width: 85%;
+    padding: 20px 26px;
+    border-radius: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    line-height: 1.55;
+  }
+
+  .phone-frame .chat .msg-user {
+    align-self: flex-end;
+    background: #fff;
+    color: #2C1810;
+    border: 1px solid #e8e0d8;
+  }
+
+  .phone-frame .chat .msg-bot {
+    align-self: flex-start;
+    background: #3d2b1f;
+    color: #FAF6F1;
+  }
+
+  .slide-2 .caption-bottom {
+    padding: 30px 60px 50px;
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    color: rgba(44, 24, 16, 0.5);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .caption-bottom strong {
+    color: #8B5A2B;
+  }
+
+  /* ─── SLIDE 3: THE EMOTIONAL COPY ─── */
+  .slide-3 {
+    background: #1a0f0a;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 90px;
+  }
+
+  .slide-3 .lines {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-size: 52px;
+    line-height: 1.65;
+    color: rgba(250, 246, 241, 0.55);
+  }
+
+  .slide-3 .lines .highlight {
+    color: #FAF6F1;
+    font-weight: 600;
+  }
+
+  .slide-3 .lines .accent {
+    color: #C4956A;
+    font-weight: 600;
+  }
+
+  .slide-3 .bottom-line {
+    margin-top: 80px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 28px;
+    color: rgba(250, 246, 241, 0.3);
+  }
+
+  /* ─── SLIDE 4: HOW IT WORKS ─── */
+  .slide-4 {
+    background: #FAF6F1;
+    display: flex;
+    flex-direction: column;
+    padding: 80px;
+  }
+
+  .slide-4 .title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 24px;
+    color: #8B5A2B;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 60px;
+  }
+
+  .slide-4 .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    flex: 1;
+  }
+
+  .slide-4 .step {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+  }
+
+  .slide-4 .step-num {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #3d2b1f;
+    color: #FAF6F1;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .slide-4 .step-content {
+    flex: 1;
+  }
+
+  .slide-4 .step-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 34px;
+    color: #2C1810;
+    margin-bottom: 10px;
+  }
+
+  .slide-4 .step-desc {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    color: rgba(44, 24, 16, 0.6);
+    line-height: 1.5;
+  }
+
+  .slide-4 .platforms {
+    margin-top: 50px;
+    padding-top: 40px;
+    border-top: 2px solid #e8e0d8;
+  }
+
+  .slide-4 .platforms-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: #8B5A2B;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+  }
+
+  .slide-4 .platform-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .slide-4 .platform-tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    color: #3d2b1f;
+    background: #fff;
+    padding: 10px 22px;
+    border-radius: 24px;
+    border: 1px solid #e8e0d8;
+  }
+
+  .slide-4 .privacy-badge {
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #3d2b1f;
+    padding: 24px 32px;
+    border-radius: 16px;
+  }
+
+  .slide-4 .privacy-badge .lock {
+    font-size: 36px;
+  }
+
+  .slide-4 .privacy-badge .text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 22px;
+    color: #FAF6F1;
+  }
+
+  .slide-4 .privacy-badge .text span {
+    display: block;
+    font-weight: 300;
+    font-size: 18px;
+    color: rgba(250, 246, 241, 0.6);
+    margin-top: 4px;
+  }
+
+  /* ─── SLIDE 5: CTA ─── */
+  .slide-5 {
+    background: #1a0f0a;
+    background-image:
+      radial-gradient(ellipse at 50% 60%, rgba(139, 90, 43, 0.12) 0%, transparent 60%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 100px;
+  }
+
+  .slide-5 .logo-icon {
+    font-size: 72px;
+    margin-bottom: 30px;
+  }
+
+  .slide-5 .brand {
+    font-family: 'Playfair Display', serif;
+    font-weight: 800;
+    font-size: 88px;
+    color: #FAF6F1;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+
+  .slide-5 .tagline {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 28px;
+    color: rgba(250, 246, 241, 0.5);
+    margin-bottom: 70px;
+  }
+
+  .slide-5 .url-box {
+    background: rgba(250, 246, 241, 0.08);
+    border: 2px solid rgba(196, 149, 106, 0.3);
+    border-radius: 16px;
+    padding: 28px 64px;
+    margin-bottom: 60px;
+  }
+
+  .slide-5 .url-box a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 42px;
+    font-weight: 500;
+    color: #C4956A;
+    text-decoration: none;
+  }
+
+  .slide-5 .badges {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 70px;
+  }
+
+  .slide-5 .badge {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: rgba(250, 246, 241, 0.7);
+    background: rgba(250, 246, 241, 0.06);
+    padding: 12px 28px;
+    border-radius: 30px;
+    border: 1px solid rgba(250, 246, 241, 0.1);
+  }
+
+  .slide-5 .cta-question {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 32px;
+    color: rgba(250, 246, 241, 0.4);
+    max-width: 600px;
+    line-height: 1.5;
+  }
+
+  /* ─── SLIDE 6: AD VARIANT (SINGLE IMAGE) ─── */
+  .slide-6 {
+    background: #1a0f0a;
+    background-image:
+      radial-gradient(ellipse at 30% 70%, rgba(139, 90, 43, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 30%, rgba(90, 50, 20, 0.1) 0%, transparent 40%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 80px;
+  }
+
+  .slide-6 .top-hook {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 68px;
+    line-height: 1.25;
+    color: #FAF6F1;
+  }
+
+  .slide-6 .top-hook em {
+    font-style: italic;
+    color: #C4956A;
+  }
+
+  .slide-6 .mid-chat {
+    background: rgba(250, 246, 241, 0.05);
+    border: 1px solid rgba(250, 246, 241, 0.1);
+    border-radius: 24px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .slide-6 .mid-chat .q {
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    color: rgba(250, 246, 241, 0.6);
+    text-align: right;
+    padding: 14px 24px;
+    background: rgba(250, 246, 241, 0.06);
+    border-radius: 18px;
+    align-self: flex-end;
+  }
+
+  .slide-6 .mid-chat .a {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    line-height: 1.55;
+    color: #FAF6F1;
+    padding: 18px 24px;
+    background: rgba(196, 149, 106, 0.15);
+    border-radius: 18px;
+    border-left: 3px solid #C4956A;
+    align-self: flex-start;
+    max-width: 90%;
+  }
+
+  .slide-6 .bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .slide-6 .bottom-left .brand-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 42px;
+    color: #FAF6F1;
+    margin-bottom: 8px;
+  }
+
+  .slide-6 .bottom-left .url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    color: #C4956A;
+  }
+
+  .slide-6 .bottom-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .slide-6 .bottom-right .micro-badge {
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    color: rgba(250, 246, 241, 0.5);
+    background: rgba(250, 246, 241, 0.06);
+    padding: 8px 20px;
+    border-radius: 20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 1: THE HOOK                                          -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="slide slide-1" id="slide-1">
+  <div class="hook-text">
+    I texted my<br>
+    <em>22-year-old self</em><br>
+    last night.<br><br>
+    He replied.
+  </div>
+  <div class="hook-sub">a true story</div>
+  <div class="dots">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="swipe-hint">swipe <span class="arrow">&rarr;</span></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 2: THE CHAT (proof it works)                         -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="slide slide-2" id="slide-2">
+  <div class="label-top">A real conversation with past-me</div>
+  <div class="phone-frame">
+    <div class="app-header">
+      <div class="avatar">P</div>
+      <div class="name">Pratibmb</div>
+      <div class="year-badge">2018</div>
+    </div>
+    <div class="chat">
+      <div class="msg msg-user">what were my biggest dreams when I was in college?</div>
+      <div class="msg msg-bot">oh man, where do I start! I was convinced I'd build the next big startup &mdash; something that would change how people connect. I spent most of my time sketching app ideas in my notebook instead of studying for exams. I also wanted to travel to Japan and learn to play guitar, though I never got around to the guitar part. the biggest dream was honestly just proving to myself that I could make something people actually used.</div>
+      <div class="msg msg-user">did you ever feel like giving up?</div>
+      <div class="msg msg-bot">yeah, honestly, a lot. especially during junior year when the internship rejections kept coming. but then I'd re-read some of my old journal entries about why I started, and that always pulled me back. I think the stubbornness was stronger than the doubt, you know?</div>
+    </div>
+  </div>
+  <div class="caption-bottom">Responses generated from <strong>real WhatsApp messages</strong> &mdash; nothing made up</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 3: THE EMOTIONAL COPY                                -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="slide slide-3" id="slide-3">
+  <div class="lines">
+    Your old chats are<br>
+    <span class="accent">a time capsule.</span><br><br>
+    <span class="highlight">The way you talked.</span><br>
+    The things you cared about.<br>
+    <span class="highlight">The dreams you had.</span><br>
+    The people you loved.<br><br>
+    There's a version of you<br>
+    in there that <span class="accent">doesn't<br>
+    exist anymore.</span>
+  </div>
+  <div class="bottom-line">What would they say if you texted them?</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 4: HOW IT WORKS                                      -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="slide slide-4" id="slide-4">
+  <div class="title">How it works</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Export your chats</div>
+        <div class="step-desc">WhatsApp, Instagram, Facebook, Gmail, iMessage, Telegram, Twitter, Discord</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Drop them into Pratibmb</div>
+        <div class="step-desc">The app reads your messages and builds a memory of who you were</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Train your digital twin</div>
+        <div class="step-desc">A local AI learns your voice, your relationships, your life events</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Start chatting</div>
+        <div class="step-desc">Pick a year. Ask anything. Get a reply in your own voice from that era.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="privacy-badge">
+    <div class="lock">&#x1F512;</div>
+    <div class="text">
+      100% local. Nothing leaves your machine.
+      <span>No cloud. No API. Works with Wi-Fi off.</span>
+    </div>
+  </div>
+
+  <div class="platforms">
+    <div class="platforms-label">Works with</div>
+    <div class="platform-grid">
+      <span class="platform-tag">WhatsApp</span>
+      <span class="platform-tag">Instagram</span>
+      <span class="platform-tag">Facebook</span>
+      <span class="platform-tag">Gmail</span>
+      <span class="platform-tag">iMessage</span>
+      <span class="platform-tag">Telegram</span>
+      <span class="platform-tag">Twitter / X</span>
+      <span class="platform-tag">Discord</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 5: CTA                                               -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="slide slide-5" id="slide-5">
+  <div class="logo-icon">&#x1F3A9;</div>
+  <div class="brand">Pratibmb</div>
+  <div class="tagline">Chat with your 10-years-younger self</div>
+  <div class="url-box">
+    <a href="https://pratibmb.com">pratibmb.com</a>
+  </div>
+  <div class="badges">
+    <span class="badge">Free</span>
+    <span class="badge">Open Source</span>
+    <span class="badge">No Sign-up</span>
+    <span class="badge">No Cloud</span>
+    <span class="badge">macOS / Windows / Linux</span>
+  </div>
+  <div class="cta-question">What would you ask<br>your younger self?</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 6: STANDALONE AD IMAGE (single image, works alone)   -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="slide slide-6" id="slide-6">
+  <div class="top-hook">
+    What if you could<br>
+    <em>text the person<br>you were<br>10 years ago?</em>
+  </div>
+
+  <div class="mid-chat">
+    <div class="q">what were my biggest dreams in college?</div>
+    <div class="a">I was convinced I'd build the next big startup. I spent most of my time sketching app ideas instead of studying. the biggest dream was proving to myself I could make something people actually used.</div>
+  </div>
+
+  <div class="bottom">
+    <div class="bottom-left">
+      <div class="brand-name">Pratibmb</div>
+      <div class="url">pratibmb.com</div>
+    </div>
+    <div class="bottom-right">
+      <span class="micro-badge">100% local</span>
+      <span class="micro-badge">Free &amp; open source</span>
+      <span class="micro-badge">No cloud</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
