@@ -1,5 +1,10 @@
 # Pratibmb
 
+![Version](https://img.shields.io/github/v/release/tapaskar/Pratibmb?color=brown)
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)
+![Privacy](https://img.shields.io/badge/privacy-100%25%20local-green)
+
 **Chat with your 10-years-younger self. 100% local. No cloud. No telemetry.**
 
 Pratibmb ingests your personal messaging history, builds a private corpus on your machine, and lets you have a conversation with the person who sent those messages years ago. A local LLM learns your voice, your relationships, your life events — and responds as past-you. Everything runs offline. Your data never leaves your computer.
@@ -22,6 +27,25 @@ The most intimate data you own — a decade of private messages — is the one d
 4. **Chat** — pick a year on the slider and start texting past-you. Responses are grounded in your real memories and written in your voice.
 
 Optional **LoRA fine-tuning** teaches the model your specific texting style — abbreviations, language mix, emoji patterns.
+
+## Screenshots
+
+<p align="center">
+<img src="docs/screenshots/10_chat_conversation.png" width="600" alt="Chat with past-you">
+<br><em>A real conversation with past-you, grounded in your actual messages</em>
+</p>
+
+<details>
+<summary>More screenshots</summary>
+
+| | |
+|---|---|
+| <img src="docs/screenshots/11_welcome.png" width="400" alt="Welcome"> | <img src="docs/screenshots/13_import_conversations.png" width="400" alt="Import"> |
+| Welcome & privacy promises | Drag-and-drop import |
+| <img src="docs/screenshots/02_help_whatsapp_facebook.png" width="400" alt="Export help"> | <img src="docs/screenshots/08_pipeline_train.png" width="400" alt="Training"> |
+| Export instructions for 8 platforms | Fine-tune your digital twin |
+
+</details>
 
 ## Supported platforms
 
