@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pratibmb Clinical — Behavioral history for licensed mental health clinicians</title>
+<meta name="description" content="A privacy-first behavioral history tool for licensed mental health clinicians. Surface objective patterns from a patient's own messaging archive — sentiment trajectories, attachment patterns, life events with linguistic signatures. Pre-development; signal-of-interest only.">
+<meta name="keywords" content="clinical psychology software, therapy session prep, behavioral history, LIWC, attachment style assessment, patient communication patterns, HIPAA local AI">
+<meta name="author" content="Pratibmb">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://pratibmb.com/clinical/">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pratibmb.com/clinical/">
+<meta property="og:title" content="Pratibmb Clinical — Behavioral history for therapists">
+<meta property="og:description" content="A proposed privacy-first tool for licensed mental health clinicians: sentiment timelines, communication pattern analysis, and patient-controlled session-prep briefs.">
+<meta property="og:site_name" content="Pratibmb">
+<meta property="og:locale" content="en_US">
+
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="clinical.css">
+<link rel="icon" type="image/png" href="../favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="clinical-body">
+
+<!-- Top Nav -->
+<nav class="cn-nav">
+  <div class="cn-nav-inner">
+    <a href="../" class="cn-brand">
+      <span class="cn-brand-mark">P</span>
+      <span class="cn-brand-text">Pratibmb <em>Clinical</em></span>
+    </a>
+    <div class="cn-nav-links">
+      <a href="#principles">Principles</a>
+      <a href="#research">Research</a>
+      <a href="#contact">Contact</a>
+      <a href="../" class="cn-nav-back">Consumer site &rarr;</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="cn-hero">
+  <div class="cn-container">
+    <div class="cn-eyebrow">Pre-development &middot; Signal-of-interest</div>
+    <h1>The patient's history is sitting on their phone.</h1>
+    <p class="cn-lead">
+      A patient's 5&ndash;10 year message archive contains <em>objective</em> behavioral data
+      that no clinical assessment can match: sleep timing, attachment patterns, emotional
+      trajectories, and life events with the linguistic signatures around them.
+    </p>
+    <p class="cn-lead">
+      Pratibmb Clinical is a proposed extension that surfaces these patterns for clinician
+      review &mdash; running entirely on the patient's own device, with granular consent and
+      revocable access. The clinician interprets. The tool informs.
+    </p>
+    <div class="cn-hero-cta">
+      <a href="#contact" class="cn-btn cn-btn-primary">Register interest</a>
+      <a href="#research" class="cn-btn cn-btn-ghost">Read the research notes</a>
+    </div>
+    <p class="cn-disclaimer-top">
+      Pratibmb Clinical is not yet a product. Pratibmb is not a medical device.
+      Information on this page is positional, not promotional.
+    </p>
+  </div>
+</header>
+
+<!-- The Problem -->
+<section class="cn-section cn-section-dark">
+  <div class="cn-container cn-narrow">
+    <div class="cn-section-label">The problem</div>
+    <h2>Self-report is the only data most therapists have. It is also unreliable.</h2>
+    <p class="cn-body">
+      Clinical assessment depends almost entirely on what the patient says in the room.
+      But what the patient says in the room is shaped by:
+    </p>
+    <ul class="cn-list">
+      <li><strong>Recency bias.</strong> Patients reliably recall the last week. Earlier weeks blur.</li>
+      <li><strong>Mood-congruent memory.</strong> Depressed patients selectively retrieve negative events. Hypomanic patients minimize impairment.</li>
+      <li><strong>Defense mechanisms.</strong> Repression, intellectualization, and denial filter what's available to consciousness, let alone speech.</li>
+      <li><strong>Social desirability.</strong> Patients perform for the therapist they want to please.</li>
+      <li><strong>Limited self-insight.</strong> Most behavioral patterns are invisible to the person living them.</li>
+      <li><strong>Time scarcity.</strong> A 50-minute session cannot reconstruct a 5-year history.</li>
+    </ul>
+    <p class="cn-body">
+      Clinicians know this. They develop heuristics, ask careful questions, and infer
+      patterns over many sessions. The work is excellent. The data inputs are thin.
+    </p>
+  </div>
+</section>
+
+<!-- What's Different -->
+<section class="cn-section">
+  <div class="cn-container cn-narrow">
+    <div class="cn-section-label">What's different</div>
+    <h2>Messages as a longitudinal behavioral archive.</h2>
+    <p class="cn-body">
+      Most patients carry a decade of their own behavioral data in their pocket: every
+      WhatsApp, iMessage, Facebook, and Instagram conversation they've ever sent.
+      That archive is not a transcript of their inner life &mdash; but it is an objective
+      record of their <em>communicated</em> life, and from it many clinically relevant
+      signals are extractable:
+    </p>
+    <div class="cn-grid-3">
+      <div class="cn-card">
+        <div class="cn-card-num">01</div>
+        <h3>Circadian footprint</h3>
+        <p>Distribution of message timestamps yields a high-resolution proxy for sleep timing, regularity, and disruption &mdash; all visible at scale across years.</p>
+      </div>
+      <div class="cn-card">
+        <div class="cn-card-num">02</div>
+        <h3>Affective trajectory</h3>
+        <p>Sentiment scoring of outgoing messages produces a dense longitudinal mood curve, revealing episodic patterns and anniversary reactions that prospective tracking misses.</p>
+      </div>
+      <div class="cn-card">
+        <div class="cn-card-num">03</div>
+        <h3>Relational topology</h3>
+        <p>Communication frequency, latency, and language with each contact maps the patient's social network and how it has changed &mdash; isolation, attrition, new attachments.</p>
+      </div>
+      <div class="cn-card">
+        <div class="cn-card-num">04</div>
+        <h3>Linguistic markers</h3>
+        <p>Pronoun use, time-orientation, negation density, and cognitive complexity have validated correlations with depression, anxiety, and recovery (Pennebaker, LIWC).</p>
+      </div>
+      <div class="cn-card">
+        <div class="cn-card-num">05</div>
+        <h3>Event signatures</h3>
+        <p>Major life events leave linguistic signatures around them &mdash; bursts of activity, vocabulary shifts, changes in conversation partners. The archive shows them.</p>
+      </div>
+      <div class="cn-card">
+        <div class="cn-card-num">06</div>
+        <h3>Attachment patterns</h3>
+        <p>Differential communication style with romantic partners vs. parents vs. friends offers a window into attachment behavior across years.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Principles -->
+<section class="cn-section cn-section-dark" id="principles">
+  <div class="cn-container cn-narrow">
+    <div class="cn-section-label">Operating principles</div>
+    <h2>Eight commitments we will not negotiate.</h2>
+    <p class="cn-body">
+      A clinical tool that surfaces behavioral data carries serious ethical weight.
+      Before any code ships in a clinical context, the following are non-negotiable.
+    </p>
+    <ol class="cn-principles">
+      <li><strong>Information-surfacing, never diagnostic.</strong> No DSM/ICD labels, no risk scores, no automated assessments. Output language is descriptive ("late-night message volume increased 3&times;"), not interpretive ("patient appears manic").</li>
+      <li><strong>All processing local. Always.</strong> Same architecture as consumer Pratibmb. Patient data never leaves the patient's device. The clinician views via screen-share or patient-exported brief.</li>
+      <li><strong>Consent is granular and revocable.</strong> Per category, per relationship, per time range. Default-deny. The patient explicitly opts each item in.</li>
+      <li><strong>Counterparty privacy.</strong> Third-party messages can be aggregated or summarized but never displayed verbatim in clinical outputs.</li>
+      <li><strong>No automated escalation.</strong> Risk-language detection (when implemented) flags patterns for clinician review only. Never contacts authorities, family, or third parties.</li>
+      <li><strong>No payer integration.</strong> Behavioral data must never reach insurance companies, employers, or any party outside the therapeutic relationship.</li>
+      <li><strong>Open-source and auditable.</strong> Methods, model weights, and analyses are published. Clinical institutions can audit before deploying.</li>
+      <li><strong>Validation before clinical claims.</strong> No "clinically validated" language until peer-reviewed studies exist. Until then, the tool is a hypothesis-generator, not evidence.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- Research / Blog -->
+<section class="cn-section" id="research">
+  <div class="cn-container">
+    <div class="cn-section-label">Research notes</div>
+    <h2>What we're reading. What we're thinking about.</h2>
+    <p class="cn-body cn-narrow">
+      Working notes on the empirical literature behind behavioral history analysis &mdash; what's
+      well-established, what's contested, and what remains an open question. Written for
+      clinicians and clinical researchers; references included.
+    </p>
+
+    <div class="cn-articles">
+      <a href="blog/linguistic-markers-depression.html" class="cn-article">
+        <div class="cn-article-meta">
+          <span class="cn-article-tag">Linguistic markers</span>
+          <span class="cn-article-time">14 min read</span>
+        </div>
+        <h3>What language reveals about depression: a working summary of LIWC research</h3>
+        <p>Forty years of research using the Linguistic Inquiry and Word Count framework have produced a robust set of linguistic markers correlated with depressive episodes &mdash; first-person singular pronouns, absolutist words, past-tense orientation. We summarize what's well-replicated, what's overstated, and what an analysis of personal message archives could responsibly extract.</p>
+        <div class="cn-article-footer">
+          <span class="cn-article-arrow">Read the notes &rarr;</span>
+        </div>
+      </a>
+
+      <a href="blog/circadian-signatures.html" class="cn-article">
+        <div class="cn-article-meta">
+          <span class="cn-article-tag">Sleep & circadian</span>
+          <span class="cn-article-time">11 min read</span>
+        </div>
+        <h3>Sleep disruption visible in messaging timestamps: what we can and cannot infer</h3>
+        <p>Message timestamp distributions correlate well with actigraphy in studies of student populations. They miss segmented sleep, ignore non-messaging wakefulness, and are confounded by time-zone shifts and shift work. We outline what circadian inferences from messaging are defensible and what claims overreach the data.</p>
+        <div class="cn-article-footer">
+          <span class="cn-article-arrow">Read the notes &rarr;</span>
+        </div>
+      </a>
+
+      <a href="blog/attachment-from-text.html" class="cn-article">
+        <div class="cn-article-meta">
+          <span class="cn-article-tag">Attachment theory</span>
+          <span class="cn-article-time">16 min read</span>
+        </div>
+        <h3>Attachment patterns are observable in text. They are also easy to misread.</h3>
+        <p>Anxious, avoidant, and secure attachment styles produce measurably different patterns in romantic communication: response latency, message length asymmetry, repair-attempt frequency. The signal is real but coarse, and the literature is mostly cross-sectional. We work through what longitudinal text data could responsibly add.</p>
+        <div class="cn-article-footer">
+          <span class="cn-article-arrow">Read the notes &rarr;</span>
+        </div>
+      </a>
+
+      <a href="blog/self-report-vs-objective.html" class="cn-article">
+        <div class="cn-article-meta">
+          <span class="cn-article-tag">Methodology</span>
+          <span class="cn-article-time">9 min read</span>
+        </div>
+        <h3>Why self-report keeps failing us, and what objective behavioral data adds</h3>
+        <p>Recency bias, mood-congruent memory, and social desirability are not new findings. Yet clinical practice remains overwhelmingly reliant on retrospective patient self-report. We make the case for behavioral data as a <em>complement</em> &mdash; never a replacement &mdash; for the therapeutic interview, with the limits of each clearly drawn.</p>
+        <div class="cn-article-footer">
+          <span class="cn-article-arrow">Read the notes &rarr;</span>
+        </div>
+      </a>
+
+      <a href="blog/ethics-of-behavioral-data.html" class="cn-article">
+        <div class="cn-article-meta">
+          <span class="cn-article-tag">Ethics</span>
+          <span class="cn-article-time">12 min read</span>
+        </div>
+        <h3>Ethics of patient behavioral data in psychotherapy: a working framework</h3>
+        <p>Bringing a patient's behavioral archive into therapy raises questions current professional ethics codes only partially address. We work through informed consent under uncertainty, third-party privacy, the re-traumatization risk of pattern surfacing, and why local-only processing is an ethical commitment, not a feature.</p>
+        <div class="cn-article-footer">
+          <span class="cn-article-arrow">Read the notes &rarr;</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="cn-section cn-section-dark" id="contact">
+  <div class="cn-container cn-narrow">
+    <div class="cn-section-label">If this resonates</div>
+    <h2>We'd like to hear from you.</h2>
+    <p class="cn-body">
+      Pratibmb Clinical is currently a proposal, not a product. Before we build, we want
+      to talk to practicing clinicians &mdash; therapists, psychologists, psychiatrists,
+      clinical researchers &mdash; to understand whether this would actually be useful in
+      your work, and what we'd need to get right.
+    </p>
+    <p class="cn-body">
+      A 30-minute conversation is plenty. Names of pilot participants will be acknowledged
+      (with permission) when we publish.
+    </p>
+    <div class="cn-contact-card">
+      <a href="mailto:admin@sparkupcloud.com?subject=Pratibmb%20Clinical%20%E2%80%94%20interested" class="cn-btn cn-btn-primary cn-btn-large">
+        admin@sparkupcloud.com &rarr;
+      </a>
+      <p class="cn-contact-note">
+        Please mention your role, how long you've been practicing, and your primary
+        modality. We respond within a few days.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="cn-footer">
+  <div class="cn-container">
+    <div class="cn-footer-grid">
+      <div>
+        <div class="cn-footer-brand">Pratibmb <em>Clinical</em></div>
+        <p class="cn-footer-blurb">A proposed behavioral history extension for licensed mental health clinicians. Pre-development.</p>
+      </div>
+      <div>
+        <div class="cn-footer-h">Pratibmb</div>
+        <a href="../">Consumer site</a>
+        <a href="../#how">How it works</a>
+        <a href="../#privacy">Privacy</a>
+        <a href="../#downloads">Download</a>
+      </div>
+      <div>
+        <div class="cn-footer-h">Clinical</div>
+        <a href="#research">Research notes</a>
+        <a href="#principles">Operating principles</a>
+        <a href="https://github.com/tapaskar/Pratibmb/blob/main/docs/CLINICAL_USE_CASE.md">Full proposal &nearr;</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div>
+        <div class="cn-footer-h">Project</div>
+        <a href="https://github.com/tapaskar/Pratibmb">GitHub &nearr;</a>
+        <a href="https://github.com/tapaskar/Pratibmb/blob/main/LICENSE">License (AGPLv3)</a>
+        <a href="mailto:admin@sparkupcloud.com">Email</a>
+      </div>
+    </div>
+    <p class="cn-footer-fine">
+      Pratibmb &copy; 2025&ndash;2026. Pratibmb is not a medical device. Pratibmb Clinical is a
+      proposed product. No clinical claims are made on this site. Any clinical extension
+      will require validation studies and IRB review prior to deployment in care settings.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

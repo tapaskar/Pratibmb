@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleep disruption visible in messaging timestamps — Pratibmb Clinical research notes</title>
+<meta name="description" content="Message timestamp distributions correlate well with actigraphy in some populations. They miss segmented sleep, ignore non-messaging wakefulness, and are confounded by time-zone shifts. What circadian inferences from messaging are defensible and what claims overreach the data.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://pratibmb.com/clinical/blog/circadian-signatures.html">
+<link rel="stylesheet" href="../../style.css">
+<link rel="stylesheet" href="../clinical.css">
+<link rel="icon" type="image/png" href="../../favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="clinical-body">
+
+<nav class="cn-nav">
+  <div class="cn-nav-inner">
+    <a href="../" class="cn-brand">
+      <span class="cn-brand-mark">P</span>
+      <span class="cn-brand-text">Pratibmb <em>Clinical</em></span>
+    </a>
+    <div class="cn-nav-links">
+      <a href="../#research">Research</a>
+      <a href="../#principles">Principles</a>
+      <a href="../#contact">Contact</a>
+      <a href="../../" class="cn-nav-back">Consumer site &rarr;</a>
+    </div>
+  </div>
+</nav>
+
+<article class="cn-container">
+  <div class="cn-article-page">
+    <a href="../#research" class="cn-back-link">&larr; Back to research notes</a>
+    <div class="cn-article-meta">
+      <span class="cn-article-tag">Sleep &amp; circadian</span>
+      <span class="cn-article-time">11 min read</span>
+    </div>
+    <h1>Sleep disruption visible in messaging timestamps: what we can and cannot infer</h1>
+    <p class="cn-deck">
+      Smartphone behavioral signals are, increasingly, a serviceable proxy for actigraphy
+      in healthy young adults &mdash; the population they have been validated in. Their
+      generalization to clinical populations and older adults is incomplete, and the gap
+      between "rough sleep window estimate" and "clinically usable circadian phenotyping"
+      is wider than many digital phenotyping enthusiasts acknowledge.
+    </p>
+
+    <div class="cn-prose">
+      <p>
+        Sleep disruption is a clinical workhorse. It is a precipitant of mood episodes,
+        a symptom of nearly every Axis I disorder, a side effect of most psychotropics,
+        and one of the most actionable targets in psychiatric care. Yet the standard
+        clinical assessment of sleep is a question on a checklist: <em>"How are you
+        sleeping?"</em> Answered, typically, with the same casual estimate the patient
+        gives at the dentist's office.
+      </p>
+      <p>
+        Actigraphy &mdash; wrist-worn accelerometry that infers sleep windows from
+        movement &mdash; has been the research-grade alternative for thirty years. It works,
+        but it requires the patient to wear and charge a device, return it after a study
+        period, and tolerate the obvious novelty effects. In routine clinical practice it
+        is rare.
+      </p>
+      <p>
+        Smartphone-derived behavioral signals offer a third path. The phone is already
+        on the patient, already passively logging timestamps of the patient's
+        interactions with it. If those timestamps can be turned into a defensible
+        estimate of sleep windows, the clinical utility is real: not as a sleep study
+        substitute, but as a continuous, longitudinal, cheap, unobtrusive trace of the
+        patient's circadian rhythm across years.
+      </p>
+
+      <h2>What the validation literature shows</h2>
+      <p>
+        The most-cited validation studies of smartphone-inferred sleep estimates were
+        done in healthy college student populations &mdash; the convenient sample of
+        digital-phenotyping research. In those samples, several papers have reported
+        that simple algorithms applied to phone-screen-on times, or to last-message and
+        first-message times of day, recover sleep onset and offset within ~30 minutes
+        of actigraphy estimates on most nights.
+      </p>
+      <p>
+        Group-level circadian metrics &mdash; mean sleep midpoint, day-to-day regularity
+        (the Sleep Regularity Index, SRI), social jetlag &mdash; track actigraphic
+        equivalents reasonably well, with correlations typically in the 0.6&ndash;0.8 range.
+      </p>
+      <p>
+        These are real findings. They support the use of smartphone-derived signals as a
+        rough but useful population-level proxy. They do not support tight individual
+        sleep-stage estimation, microarousal counting, or anything resembling
+        polysomnographic precision.
+      </p>
+
+      <div class="cn-callout">
+        <div class="cn-callout-label">What the data supports</div>
+        <p>
+          For healthy young adults: rough estimates of sleep onset, sleep offset, sleep
+          midpoint, day-to-day regularity, and weekday/weekend social jetlag. Useful for
+          longitudinal trend visualization, not for diagnostic claims.
+        </p>
+      </div>
+
+      <h2>What messaging timestamps add (and where they fall short of phone-screen data)</h2>
+      <p>
+        Pratibmb operates on messaging archives, not raw phone-screen logs. The
+        difference matters. A messaging archive captures every outgoing message, with
+        precise timestamps, across years &mdash; potentially across many years preceding the
+        first clinical contact. This is a strength: actigraphy gives you 1&ndash;2 weeks of
+        data; a 10-year messaging archive gives you 3,650 days.
+      </p>
+      <p>
+        The weaknesses are also real. Messaging timestamps capture only the moments
+        when the patient was actively typing and sending. Long stretches of phone use
+        (reading, scrolling, watching video, browsing) leave no message-trace and so
+        appear, to the algorithm, as candidate sleep windows. The signal is sparser and
+        noisier than phone-screen data.
+      </p>
+      <p>
+        Practical implication: messaging-derived sleep estimates likely underestimate
+        wakefulness (anyone awake but not texting looks asleep) and so likely
+        overestimate total sleep time. Calibration is feasible at the individual level
+        if anchor information is available (e.g. the patient confirms a few sleep
+        windows manually) but should be assumed otherwise unreliable.
+      </p>
+
+      <h2>What is reasonably extractable</h2>
+      <p>
+        From timestamp data alone, the following are defensible signals that can be
+        surfaced for clinician review &mdash; with appropriate uncertainty disclosed:
+      </p>
+      <ol>
+        <li>
+          <strong>Last-message time of day, by week.</strong> The latest a patient
+          sends a message each night is a serviceable proxy for sleep onset, with the
+          caveat above. Tracking this over years reveals long-term phase shifts.
+        </li>
+        <li>
+          <strong>First-message time of day, by week.</strong> Sleep offset proxy. More
+          reliable than onset because morning routines tend to involve early phone
+          checks.
+        </li>
+        <li>
+          <strong>Late-night message frequency.</strong> Number of messages sent in the
+          02:00&ndash;05:00 window per week. This is a particularly clinically relevant
+          signal, as nocturnal awakenings and reduced sleep need are diagnostic
+          features of mood disorder episodes.
+        </li>
+        <li>
+          <strong>Day-to-day regularity.</strong> Variance in last-message and
+          first-message times across days. A useful proxy for the SRI literature on
+          regularity as a mood-disorder risk factor.
+        </li>
+        <li>
+          <strong>Weekday vs. weekend phase shift.</strong> "Social jetlag" computed
+          from messaging windows. Has independent associations with mood, metabolic
+          health, and chronotype.
+        </li>
+      </ol>
+
+      <h2>What the data cannot support</h2>
+      <p>
+        It is worth being explicit about claims that messaging-timestamp data do
+        <em>not</em> support, no matter how appealing the inference:
+      </p>
+      <ul>
+        <li>
+          <strong>Sleep stage estimation.</strong> No combination of timestamp
+          features can reliably distinguish REM from N3. Any tool that suggests
+          otherwise is overclaiming.
+        </li>
+        <li>
+          <strong>Total sleep time at clinical precision.</strong> Estimates within
+          ~30 minutes per night are realistic in young adults; wider in older,
+          clinical, or shift-working populations.
+        </li>
+        <li>
+          <strong>Detection of segmented sleep.</strong> The algorithm sees a single
+          gap; it cannot tell whether the gap reflects continuous sleep or a sleep-
+          wake-sleep pattern with no messaging during the wakeful period.
+        </li>
+        <li>
+          <strong>Insomnia subtype classification.</strong> Sleep-onset, sleep-
+          maintenance, and early-morning awakening insomnia all produce overlapping
+          timestamp patterns. Disentangling them requires patient-reported anchors.
+        </li>
+        <li>
+          <strong>Anything in shift workers, time-zone travelers, or night-shift
+          populations</strong> without explicit modeling of context. The default
+          algorithm assumes a circadian-synchronized 24-hour pattern.
+        </li>
+      </ul>
+
+      <h2>The clinical case for tracking it anyway</h2>
+      <p>
+        Despite these limits, longitudinal sleep-window estimates from messaging
+        archives have a clinical value that other measures cannot match: they are
+        <em>retrospective</em>. A patient who arrives at first appointment with three
+        years of messaging data can hand the clinician a multi-year sleep-pattern
+        chart. No other tool generates that.
+      </p>
+      <p>
+        For mood disorder differential diagnosis, retrospective circadian patterns are
+        especially valuable. Distinguishing major depressive disorder from bipolar II
+        often turns on whether the patient has had hypomanic episodes in the past
+        &mdash; episodes characterized by, among other features, decreased need for
+        sleep. A patient who reliably maintained 4&ndash;5 hour sleep windows during a
+        period they describe as "very productive" is a different diagnostic picture
+        than one who maintained 8&ndash;9 hours throughout. Messaging timestamps may
+        document the difference where memory cannot.
+      </p>
+      <p>
+        Similarly, identifying anniversary reactions, seasonal patterns, post-
+        partum sleep changes, and medication-related sleep changes &mdash; all hinge on
+        comparing the present to a baseline the patient cannot reliably recall.
+        Smartphone behavioral data give us the baseline.
+      </p>
+
+      <h2>Conservative usage recommendations</h2>
+      <p>
+        For a clinical tool surfacing this data, our current thinking on responsible
+        defaults:
+      </p>
+      <ul>
+        <li>
+          Display sleep-window estimates as <em>shaded ranges</em>, not point
+          estimates, with the uncertainty width visible.
+        </li>
+        <li>
+          Annotate any week with fewer than ~30 outgoing messages as "low confidence"
+          and visually distinct.
+        </li>
+        <li>
+          Surface long-term trends (months, years) more prominently than short-term
+          fluctuations (single weeks). The signal-to-noise ratio is much better at
+          longer time scales.
+        </li>
+        <li>
+          Allow the patient to add anchor data ("I went to bed at midnight last
+          Tuesday") to calibrate the algorithm to their personal patterns.
+        </li>
+        <li>
+          Never display a numerical "sleep quality score." There is no defensible
+          basis for one from this data.
+        </li>
+      </ul>
+
+      <h2>Where this leaves us</h2>
+      <p>
+        Messaging-timestamp analysis offers something clinical sleep assessment has
+        rarely had: a continuous, retrospective, multi-year window into the patient's
+        circadian behavior, derived from data the patient already owns. Used cautiously
+        &mdash; with explicit uncertainty, with anchor calibration, with appropriate
+        humility about clinical populations &mdash; it can complement (never replace)
+        sleep history-taking, and may surface patterns the patient cannot recall and
+        actigraphy cannot reach back far enough to capture.
+      </p>
+      <p>
+        Used incautiously, it is just another digital-phenotyping tool overpromising
+        on a thin evidence base. We intend the former.
+      </p>
+
+      <div class="cn-references">
+        <h3>Selected references</h3>
+        <ol>
+          <li>Wirz-Justice, A. (2006). Biological rhythm disturbances in mood disorders. <em>International Clinical Psychopharmacology</em>, 21, S11&ndash;S15.</li>
+          <li>Wehr, T. A. (1991). Sleep-loss as a possible mediator of diverse causes of mania. <em>British Journal of Psychiatry</em>, 159(4), 576&ndash;578.</li>
+          <li>Phillips, A. J. K., Clerx, W. M., O'Brien, C. S., et al. (2017). Irregular sleep/wake patterns are associated with poorer academic performance and delayed circadian and sleep/wake timing. <em>Scientific Reports</em>, 7(1), 3216.</li>
+          <li>Wittmann, M., Dinich, J., Merrow, M., &amp; Roenneberg, T. (2006). Social jetlag: misalignment of biological and social time. <em>Chronobiology International</em>, 23(1&ndash;2), 497&ndash;509.</li>
+          <li>Saeb, S., Lattie, E. G., Schueller, S. M., Kording, K. P., &amp; Mohr, D. C. (2016). The relationship between mobile phone location sensor data and depressive symptom severity. <em>PeerJ</em>, 4, e2537.</li>
+          <li>Aledavood, T., Lehmann, S., &amp; Saram&auml;ki, J. (2015). Digital daily cycles of individuals. <em>Frontiers in Physics</em>, 3, 73.</li>
+          <li>Mohr, D. C., Zhang, M., &amp; Schueller, S. M. (2017). Personal sensing: understanding mental health using ubiquitous sensors and machine learning. <em>Annual Review of Clinical Psychology</em>, 13, 23&ndash;47.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</article>
+
+<footer class="cn-footer">
+  <div class="cn-container">
+    <p class="cn-footer-fine">
+      Pratibmb &copy; 2025&ndash;2026. Pratibmb is not a medical device. Pratibmb Clinical
+      is a proposed product. No clinical claims are made on this site.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
