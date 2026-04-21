@@ -1,4 +1,8 @@
+# Pratibmb — robots.txt
+# Canonical host: https://pratibmb.com (non-www, HTTPS)
+
 User-agent: *
 Allow: /
+Disallow: /404.html
 
 Sitemap: https://pratibmb.com/sitemap.xml
