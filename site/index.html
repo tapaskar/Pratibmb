@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pratibmb — Chat with your past self using your real messaging history | 100% Local AI</title>
+<title>Pratibmb — A letter to who you used to be | 100% Local AI</title>
 <meta name="description" content="Pratibmb lets you chat with your past self using your own messaging history. 100% local, no cloud, no telemetry. Open source.">
 <meta name="google-site-verification" content="GyIrL8rKE6L4ccXuu-rw06bjnXw_CBRlehoyADdJ9K4">
 <meta name="keywords" content="chat with past self, local AI, offline AI, WhatsApp export, messaging history, digital twin, privacy AI, open source AI, LoRA fine-tuning, personal AI, no cloud AI, self-hosted AI, llama.cpp, Gemma, RAG">
@@ -14,7 +14,7 @@
 <!-- Open Graph / Social sharing -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://pratibmb.com/">
-<meta property="og:title" content="Pratibmb — Chat with your 10-years-younger self">
+<meta property="og:title" content="Pratibmb — A letter to who you used to be">
 <meta property="og:description" content="Import your WhatsApp, Facebook, Instagram, Gmail, iMessage, Telegram, Twitter, or Discord history. A local AI learns your voice and lets you text past-you. No cloud. No API. Everything runs on your machine.">
 <meta property="og:image" content="https://pratibmb.com/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -25,17 +25,16 @@
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Pratibmb — Chat with your 10-years-younger self">
+<meta name="twitter:title" content="Pratibmb — A letter to who you used to be">
 <meta name="twitter:description" content="Import your messaging history. Text past-you. 100% local, no cloud, no telemetry. Open source.">
 <meta name="twitter:image" content="https://pratibmb.com/og-image.png">
 <meta name="twitter:image:alt" content="Pratibmb — Chat with your past self using your real messaging history">
 
-<link rel="stylesheet" href="style.css">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <!-- Structured Data: SoftwareApplication -->
 <script type="application/ld+json">
@@ -47,7 +46,7 @@
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "macOS, Windows, Linux",
   "url": "https://pratibmb.com",
-  "downloadUrl": "https://pratibmb.com/#downloads",
+  "downloadUrl": "https://pratibmb.com/#download",
   "softwareVersion": "0.5.0",
   "license": "https://www.gnu.org/licenses/agpl-3.0.html",
   "offers": {
@@ -76,7 +75,7 @@
       "name": "Is this therapy?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. Pratibmb is a conversation tool, not a mental health product. If you use it to process grief or difficult emotions, please set time limits and speak to a professional. Built-in session limits and gentle reframes are part of the v1.0 roadmap."
+        "text": "No. Pratibmb is a conversation tool, not a mental-health product. If you use it to process grief or difficult emotions, please set time limits and talk to a professional. Built-in session limits and gentle reframes are on the v1.0 roadmap."
       }
     },
     {
@@ -92,7 +91,7 @@
       "name": "Does it work offline?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. After the one-time model download (~2.5GB on first launch), Pratibmb works with no internet connection. It uses a local LLM (Gemma-3-4B) and a local embedding model (Nomic Embed). No API calls, no cloud inference."
+        "text": "Yes. After the one-time model download (~2.5 GB on first launch), Pratibmb works with no internet connection. It uses a local LLM (Gemma-3-4B) and a local embedding model (Nomic Embed). No API calls, no cloud inference."
       }
     },
     {
@@ -100,7 +99,7 @@
       "name": "How accurate is it?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The base model captures your general communication style, topics, and relationships well. Optional LoRA fine-tuning (20 min on Apple Silicon) teaches it your specific texting patterns \u2014 abbreviations, language mix, emoji habits. It\u2019s not perfect, but it\u2019s often surprisingly close."
+        "text": "The base model captures your general style, topics, and relationships well. Optional LoRA fine-tuning (~20 min on Apple Silicon) teaches it your specific texting patterns — abbreviations, language mix, emoji habits. Not perfect, but often surprisingly close."
       }
     },
     {
@@ -108,7 +107,7 @@
       "name": "What hardware do I need?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Any modern computer with 8GB+ RAM. Apple Silicon Macs get the best experience (Metal GPU acceleration for fine-tuning). NVIDIA GPUs accelerate fine-tuning on Windows/Linux. CPU-only works too, just slower for the fine-tuning step."
+        "text": "Any modern computer with 8 GB+ RAM. Apple Silicon Macs get the best experience (Metal GPU acceleration). NVIDIA GPUs accelerate fine-tuning on Windows/Linux. CPU-only works too — just slower."
       }
     },
     {
@@ -116,7 +115,7 @@
       "name": "Why not just use ChatGPT with my messages?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Because your private messages are the most intimate data you own. Uploading a decade of conversations to any cloud API \u2014 OpenAI, Google, anyone \u2014 means that data now lives on someone else\u2019s servers, subject to their terms of service, their data breaches, and their training pipelines. Pratibmb exists so you never have to make that trade-off."
+        "text": "Because your private messages are the most intimate data you own. Uploading a decade of conversations to any cloud API means that data now lives on someone else's servers, subject to their terms, their breaches, and their training pipelines. Pratibmb exists so you never have to make that trade-off."
       }
     },
     {
@@ -124,7 +123,7 @@
       "name": "macOS says \"damaged and can't be opened\"",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "This happens because the app isn\u2019t signed with an Apple Developer certificate (code signing costs $99/year). It\u2019s safe \u2014 you can verify the source code yourself. To fix it, open Terminal and run: xattr -cr /Applications/Pratibmb.app \u2014 then open the app normally."
+        "text": "The app isn't signed with an Apple Developer certificate (code signing costs $99/year). It's safe — you can verify the source yourself. To fix, run in Terminal: xattr -cr /Applications/Pratibmb.app"
       }
     },
     {
@@ -132,7 +131,7 @@
       "name": "Can I use this commercially?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Not without a license. Pratibmb is AGPLv3, which means personal use, research, and open-source projects are free. But if you want to use it in a commercial product, offer it as a hosted service, or embed it in closed-source software, you need a commercial license. Contact admin@sparkupcloud.com to discuss terms."
+        "text": "Not without a license. Pratibmb is AGPLv3, so personal use, research, and open-source projects are free. Embedding in a proprietary product, offering as a hosted service, or distributing in closed-source software requires a separate commercial license. Contact admin@sparkupcloud.com."
       }
     },
     {
@@ -140,7 +139,7 @@
       "name": "Can I use it for a deceased family member's messages?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Technically yes \u2014 you can import their exported messages and chat with the model. This is emotionally powerful and should be approached with care. We recommend setting session time limits and being mindful that it\u2019s a model, not the person. Dedicated \"legacy mode\" with additional safeguards is planned for v1.0."
+        "text": "Technically, yes — you can import their exported messages and chat with the model. This is emotionally powerful and should be approached with care. We recommend session time limits and remembering that it is a model, not the person. A dedicated \"legacy mode\" with additional safeguards is planned for v1.0."
       }
     }
   ]
@@ -161,7 +160,7 @@
 }
 </script>
 
-<!-- Structured Data: WebSite (enables sitelinks search) -->
+<!-- Structured Data: WebSite -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -177,371 +176,894 @@
 }
 </script>
 
+<style>
+  :root{
+    --paper:#f3ede2;
+    --paper-2:#ece4d3;
+    --ink:#14110e;
+    --ink-2:#3a342c;
+    --muted:#6a6155;
+    --rule:#d8cfbd;
+    --ember:#c0401f;
+    --ember-ink:#7a2913;
+    --ok:#4b6a3a;
+    --display:"Fraunces", "Times New Roman", serif;
+    --sans:"Inter Tight", system-ui, sans-serif;
+    --mono:"JetBrains Mono", ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:17px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    background-image:
+      radial-gradient(1200px 600px at 85% -10%, rgba(192,64,31,.06), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(20,17,14,.05), transparent 60%);
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;
+    background-image:
+      repeating-radial-gradient(circle at 20% 30%, rgba(20,17,14,.025) 0 1px, transparent 1px 3px),
+      repeating-radial-gradient(circle at 70% 80%, rgba(20,17,14,.02) 0 1px, transparent 1px 4px);
+    mix-blend-mode:multiply;
+    z-index:1;
+  }
+  main, header, footer{position:relative; z-index:2}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1200px; margin:0 auto; padding:0 40px}
+  @media (max-width:700px){ .wrap{padding:0 22px} }
+
+  /* NAV */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter: blur(12px);
+    background:rgba(243,237,226,.72);
+    border-bottom:1px solid var(--rule);
+  }
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; height:64px}
+  .brand{display:flex; align-items:center; gap:12px; font-family:var(--display); font-weight:500; font-size:22px; letter-spacing:-.01em}
+  .brand .mark{
+    width:28px; height:28px; border-radius:50%;
+    background:var(--ink); color:var(--paper);
+    display:grid; place-items:center; font-family:var(--display); font-style:italic; font-size:16px;
+  }
+  .nav-links{display:flex; gap:28px; font-size:14px; color:var(--ink-2)}
+  .nav-links a{position:relative; padding:4px 0}
+  .nav-links a:hover{color:var(--ember)}
+  .nav-cta{display:flex; gap:10px; align-items:center}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 18px; border-radius:999px;
+    font-family:var(--sans); font-size:14px; font-weight:500;
+    border:1px solid var(--ink); color:var(--ink); background:transparent;
+    transition:all .2s ease;
+    cursor:pointer;
+  }
+  .btn:hover{background:var(--ink); color:var(--paper)}
+  .btn.primary{background:var(--ink); color:var(--paper)}
+  .btn.primary:hover{background:var(--ember); border-color:var(--ember)}
+  .btn.ghost{border-color:transparent; padding-left:8px; padding-right:8px}
+  .btn.ember{background:var(--ember); color:#fff; border-color:var(--ember)}
+  .btn.ember:hover{background:var(--ember-ink); border-color:var(--ember-ink)}
+  @media (max-width:820px){ .nav-links{display:none} }
+
+  /* HERO */
+  .hero{ padding:96px 0 56px; position:relative; overflow:hidden; }
+  .hero-grid{ display:grid; grid-template-columns: 1.2fr .9fr; gap:80px; align-items:center; }
+  @media (max-width:960px){ .hero-grid{grid-template-columns:1fr; gap:48px} }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--ember-ink);
+    display:inline-flex; align-items:center; gap:10px;
+    margin-bottom:28px;
+  }
+  .eyebrow::before{ content:""; width:28px; height:1px; background:var(--ember-ink); }
+  h1.display{
+    font-family:var(--display);
+    font-optical-sizing:auto;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    font-weight:400;
+    font-size: clamp(44px, 6.8vw, 88px);
+    line-height:.98;
+    letter-spacing:-.025em;
+    margin:0 0 28px;
+    color:var(--ink);
+  }
+  h1.display em{
+    font-style:italic; font-weight:300; color:var(--ember);
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+  }
+  .hero-lede{ font-size:19px; line-height:1.55; color:var(--ink-2); max-width:56ch; margin:0 0 36px; }
+  .hero-lede b{font-weight:500; color:var(--ink)}
+  .hero-ctas{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+  .hero-meta{
+    display:flex; flex-wrap:wrap; gap:22px; margin-top:36px;
+    font-family:var(--mono); font-size:12px; color:var(--muted); letter-spacing:.06em;
+  }
+  .hero-meta span{display:inline-flex; align-items:center; gap:8px}
+  .hero-meta .dot{width:6px; height:6px; border-radius:50%; background:var(--ok)}
+
+  /* hero letter visual */
+  .letter{
+    position:relative; background:#fbf6ec;
+    border:1px solid var(--rule); border-radius:14px;
+    padding:28px 28px 24px;
+    box-shadow: 0 1px 0 #fff inset, 0 30px 60px -30px rgba(20,17,14,.25), 0 10px 24px -16px rgba(20,17,14,.15);
+    transform:rotate(-.4deg);
+    max-width:440px; margin-left:auto;
+  }
+  .letter::before{ content:""; position:absolute; inset:10px; border:1px dashed var(--rule); border-radius:8px; pointer-events:none; }
+  .letter-head{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:11px; color:var(--muted);
+    letter-spacing:.12em; text-transform:uppercase;
+    border-bottom:1px solid var(--rule); padding-bottom:12px; margin-bottom:16px;
+  }
+  .letter-head .to{color:var(--ink)}
+  .msg{ display:flex; gap:10px; margin:10px 0; font-size:14.5px; line-height:1.5; }
+  .msg .who{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+    color:var(--muted); text-transform:uppercase; padding-top:3px; min-width:64px;
+  }
+  .msg .bubble{
+    background:#fff; border:1px solid var(--rule); border-radius:10px 10px 10px 2px;
+    padding:9px 12px; color:var(--ink);
+  }
+  .msg.me .bubble{
+    background:var(--ink); color:var(--paper); border-color:var(--ink);
+    border-radius:10px 10px 2px 10px;
+  }
+  .msg.me{flex-direction:row-reverse}
+  .msg.me .who{text-align:right; color:var(--ember-ink)}
+  .typing{
+    display:inline-flex; gap:4px; align-items:center;
+    padding:9px 12px; background:#fff; border:1px solid var(--rule);
+    border-radius:10px 10px 10px 2px;
+  }
+  .typing span{ width:6px; height:6px; border-radius:50%; background:var(--muted); animation: blink 1.2s infinite ease-in-out; }
+  .typing span:nth-child(2){animation-delay:.15s}
+  .typing span:nth-child(3){animation-delay:.3s}
+  @keyframes blink{ 0%,60%,100%{opacity:.25; transform:translateY(0)} 30%{opacity:1; transform:translateY(-2px)} }
+  .letter-foot{
+    margin-top:16px; padding-top:12px; border-top:1px solid var(--rule);
+    display:flex; justify-content:space-between; font-family:var(--mono); font-size:10.5px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase;
+  }
+  .stamp{
+    position:absolute; right:-14px; top:-14px;
+    width:86px; height:86px; border-radius:50%;
+    border:1.5px dashed var(--ember); color:var(--ember);
+    display:grid; place-items:center; text-align:center;
+    font-family:var(--display); font-style:italic; font-weight:400; font-size:13px; line-height:1.1;
+    background:radial-gradient(circle at 30% 30%, #fff, #f3ede2);
+    transform:rotate(8deg);
+  }
+
+  /* SECTION PRIMITIVES */
+  section{padding:96px 0; border-top:1px solid var(--rule)}
+  .section-head{display:flex; justify-content:space-between; align-items:end; gap:40px; margin-bottom:56px}
+  .section-head h2{
+    font-family:var(--display); font-weight:400;
+    font-size: clamp(32px, 4.2vw, 52px);
+    line-height:1.02; letter-spacing:-.02em;
+    margin:0; max-width:18ch;
+  }
+  .section-head h2 em{color:var(--ember); font-style:italic; font-weight:300}
+  .section-head .note{
+    font-family:var(--mono); font-size:11px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--muted); white-space:nowrap;
+  }
+  @media (max-width:720px){ .section-head{flex-direction:column; align-items:flex-start; gap:14px} }
+
+  /* ESSAY */
+  .essay{padding:120px 0 96px}
+  .essay-body{
+    max-width:68ch; margin:0 auto;
+    font-family:var(--display); font-weight:300;
+    font-size: clamp(22px, 2.4vw, 30px);
+    line-height:1.45; letter-spacing:-.005em;
+    color:var(--ink-2);
+    text-align:left;
+  }
+  .essay-body p{margin:0 0 1em}
+  .essay-body b{font-weight:500; color:var(--ink)}
+  .essay-body em{font-style:italic; color:var(--ember)}
+  .essay-body .dropcap::first-letter{
+    font-weight:600; font-size:4.2em; line-height:.82;
+    float:left; margin:.06em .12em 0 0; color:var(--ember);
+    font-style:italic;
+  }
+  .pull-quotes{ margin-top:72px; display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
+  @media (max-width:820px){ .pull-quotes{grid-template-columns:1fr} }
+  .pull{
+    border-top:1px solid var(--ink); padding-top:18px;
+    font-family:var(--display); font-weight:400; font-size:20px; line-height:1.35;
+    color:var(--ink);
+  }
+  .pull cite{
+    display:block; margin-top:14px; font-family:var(--mono); font-style:normal;
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted);
+  }
+
+  /* HOW IT WORKS */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid var(--ink); border-radius:16px; overflow:hidden; background:#fbf6ec}
+  .steps .step{padding:32px; border-right:1px solid var(--rule); position:relative; min-height:260px}
+  .steps .step:last-child{border-right:none}
+  @media (max-width:900px){ .steps{grid-template-columns:1fr 1fr} .steps .step:nth-child(2){border-right:none} .steps .step:nth-child(-n+2){border-bottom:1px solid var(--rule)} }
+  @media (max-width:560px){ .steps{grid-template-columns:1fr} .steps .step{border-right:none; border-bottom:1px solid var(--rule)} .steps .step:last-child{border-bottom:none} }
+  .step-num{
+    font-family:var(--display); font-style:italic; font-weight:300;
+    font-size:56px; line-height:1; color:var(--ember); margin-bottom:24px;
+    letter-spacing:-.02em;
+  }
+  .step h3{ font-family:var(--display); font-weight:500; font-size:22px; letter-spacing:-.01em; margin:0 0 10px; }
+  .step p{margin:0; color:var(--ink-2); font-size:15px; line-height:1.55}
+  .step .tag{
+    position:absolute; top:20px; right:20px;
+    font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--muted);
+  }
+
+  /* PLATFORMS */
+  .platforms-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--rule); border:1px solid var(--rule); border-radius:14px; overflow:hidden;
+  }
+  @media (max-width:820px){ .platforms-grid{grid-template-columns:repeat(2,1fr)} }
+  .plat{
+    background:var(--paper); padding:28px 24px;
+    display:flex; flex-direction:column; gap:8px;
+    transition:background .2s ease;
+  }
+  .plat:hover{background:#fbf6ec}
+  .plat .name{font-family:var(--display); font-size:22px; font-weight:500; letter-spacing:-.01em}
+  .plat .fmt{font-family:var(--mono); font-size:11px; letter-spacing:.1em; color:var(--muted); text-transform:uppercase}
+  .plat .glyph{
+    width:34px; height:34px; border-radius:8px;
+    border:1px solid var(--ink); display:grid; place-items:center;
+    font-family:var(--display); font-weight:500; font-size:16px;
+    margin-bottom:14px; color:var(--ink);
+  }
+  .plat.featured{background:var(--ink); color:var(--paper)}
+  .plat.featured .fmt{color:#c5bca9}
+  .plat.featured .glyph{border-color:var(--paper); color:var(--paper)}
+
+  /* PRIVACY */
+  .privacy-wrap{
+    background:var(--ink); color:var(--paper);
+    border-radius:20px; padding:72px 56px;
+    position:relative; overflow:hidden;
+  }
+  .privacy-wrap::before{
+    content:""; position:absolute; inset:0;
+    background-image:
+      radial-gradient(600px 300px at 90% 10%, rgba(192,64,31,.2), transparent 60%),
+      radial-gradient(500px 260px at 10% 110%, rgba(192,64,31,.12), transparent 60%);
+  }
+  .privacy-wrap > *{position:relative}
+  .privacy-head{display:flex; justify-content:space-between; align-items:end; gap:32px; margin-bottom:56px}
+  .privacy-head h2{font-family:var(--display); font-weight:400; font-size: clamp(36px, 5vw, 64px); line-height:1; letter-spacing:-.02em; margin:0; max-width:14ch}
+  .privacy-head h2 em{color:var(--ember); font-style:italic; font-weight:300}
+  .privacy-head .note{font-family:var(--mono); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#a89e8a}
+  .priv-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:32px}
+  @media (max-width:900px){ .priv-grid{grid-template-columns:1fr 1fr} }
+  @media (max-width:560px){ .priv-grid{grid-template-columns:1fr} }
+  .priv-item{border-top:1px solid rgba(255,255,255,.18); padding-top:20px}
+  .priv-item .k{
+    font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#a89e8a;
+    display:flex; align-items:center; gap:10px;
+  }
+  .priv-item .k .dot{width:6px; height:6px; border-radius:50%; background:var(--ember)}
+  .priv-item h3{font-family:var(--display); font-weight:500; font-size:26px; margin:14px 0 8px; letter-spacing:-.01em}
+  .priv-item p{margin:0; color:#d3ccb9; font-size:14.5px; line-height:1.55}
+
+  /* DOWNLOAD */
+  .download-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px}
+  @media (max-width:900px){ .download-grid{grid-template-columns:1fr} }
+  .dl{
+    background:#fbf6ec; border:1px solid var(--rule); border-radius:14px;
+    padding:28px; display:flex; flex-direction:column; gap:16px;
+    position:relative;
+  }
+  .dl h3{font-family:var(--display); font-weight:500; font-size:26px; margin:0; letter-spacing:-.01em}
+  .dl .os{font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted)}
+  .dl p{margin:0; color:var(--ink-2); font-size:14.5px}
+  .dl pre{
+    margin:0; padding:14px 16px; background:var(--ink); color:var(--paper);
+    border-radius:8px; font-family:var(--mono); font-size:13px; overflow:auto;
+  }
+  .dl .links{display:flex; gap:12px; flex-wrap:wrap; margin-top:auto; padding-top:6px}
+  .dl .links a{font-family:var(--mono); font-size:12px; letter-spacing:.05em; color:var(--ember-ink); border-bottom:1px solid var(--ember-ink); padding-bottom:2px}
+  .dl .links a:hover{color:var(--ember); border-color:var(--ember)}
+  .install-hero{
+    background:var(--ink); color:var(--paper);
+    border-radius:14px; padding:28px;
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    margin-bottom:32px;
+  }
+  .install-hero h3{font-family:var(--display); font-weight:400; font-size:24px; margin:0}
+  .install-hero .cmds{display:flex; gap:16px; flex-wrap:wrap}
+  .install-hero code{font-family:var(--mono); font-size:13px; background:rgba(255,255,255,.07); padding:10px 14px; border-radius:8px; white-space:nowrap; border:1px solid rgba(255,255,255,.12)}
+  @media (max-width:820px){ .install-hero{flex-direction:column; align-items:flex-start} }
+
+  /* FINETUNE TABLE */
+  .ft-table{border:1px solid var(--ink); border-radius:14px; overflow:hidden; background:#fbf6ec}
+  .ft-row{display:grid; grid-template-columns: 1.2fr .9fr .7fr .9fr 1fr; align-items:center; padding:18px 22px; border-bottom:1px solid var(--rule); font-size:14px}
+  .ft-row:last-child{border-bottom:none}
+  .ft-row.head{background:var(--ink); color:var(--paper); font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase}
+  .ft-row .plat-name{font-family:var(--display); font-weight:500; font-size:17px}
+  .ft-row code{font-family:var(--mono); font-size:12px; color:var(--ember-ink); background:rgba(192,64,31,.08); padding:4px 8px; border-radius:5px; white-space:nowrap}
+  .ft-row .yes{color:var(--ok); font-weight:500}
+  .ft-row .no{color:var(--muted)}
+  @media (max-width:900px){
+    .ft-row{grid-template-columns:1fr; gap:6px; padding:16px 18px}
+    .ft-row.head{display:none}
+    .ft-row .plat-name{font-size:20px; margin-bottom:4px}
+    .ft-row > *:not(.plat-name)::before{content:attr(data-label) " — "; font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--muted)}
+  }
+
+  /* FAQ */
+  .faq{max-width:820px; margin:0 auto}
+  details{ border-top:1px solid var(--rule); padding:22px 0; }
+  details:last-of-type{border-bottom:1px solid var(--rule)}
+  summary{
+    list-style:none;
+    font-family:var(--display); font-weight:500; font-size:22px; letter-spacing:-.01em;
+    cursor:pointer; display:flex; justify-content:space-between; gap:20px; align-items:center;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::after{
+    content:"+"; font-family:var(--display); font-weight:300; font-size:30px; color:var(--ember);
+    transition:transform .25s ease;
+  }
+  details[open] summary::after{content:"–"; transform:rotate(0)}
+  details p{color:var(--ink-2); font-size:16px; line-height:1.6; margin:16px 0 0; max-width:70ch}
+  details p code{font-family:var(--mono); font-size:13px; background:#fbf6ec; padding:3px 7px; border-radius:4px; border:1px solid var(--rule)}
+
+  /* CLINICAL */
+  .clinical{
+    background:#fbf6ec;
+    border:1px solid var(--ink);
+    border-radius:20px; padding:56px;
+    display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center;
+  }
+  @media (max-width:900px){ .clinical{grid-template-columns:1fr; padding:36px} }
+  .clinical .tag-line{font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--ember-ink); margin-bottom:20px}
+  .clinical h2{font-family:var(--display); font-weight:400; font-size: clamp(30px, 4vw, 44px); line-height:1.05; letter-spacing:-.02em; margin:0 0 20px; max-width:18ch}
+  .clinical h2 em{color:var(--ember); font-style:italic; font-weight:300}
+  .clinical p{color:var(--ink-2); margin:0 0 28px; font-size:16px; max-width:52ch}
+  .clinical .chart{
+    aspect-ratio:1/1;
+    border:1px solid var(--rule);
+    background:#f3ede2;
+    border-radius:14px;
+    padding:28px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* CTA */
+  .cta{padding:120px 0; text-align:center}
+  .cta h2{font-family:var(--display); font-weight:400; font-style:italic; font-size: clamp(40px, 6vw, 84px); line-height:1; letter-spacing:-.025em; margin:0 0 28px; color:var(--ink)}
+  .cta h2 .n{font-style:normal; color:var(--ember)}
+  .cta p{color:var(--ink-2); font-size:18px; max-width:52ch; margin:0 auto 36px}
+  .cta-row{display:flex; justify-content:center; gap:14px; flex-wrap:wrap}
+
+  /* FOOTER */
+  footer{
+    border-top:1px solid var(--rule);
+    padding:48px 0 56px;
+    font-size:14px; color:var(--muted);
+  }
+  .foot-grid{display:flex; justify-content:space-between; align-items:flex-start; gap:40px; flex-wrap:wrap}
+  .foot-brand{max-width:360px}
+  .foot-brand p{margin:12px 0 0; font-family:var(--display); font-style:italic; font-weight:300; color:var(--ink-2); font-size:16px}
+  .foot-cols{display:flex; gap:56px; flex-wrap:wrap}
+  .foot-col h4{font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink); margin:0 0 14px}
+  .foot-col a{display:block; color:var(--ink-2); padding:4px 0}
+  .foot-col a:hover{color:var(--ember)}
+  .foot-bottom{
+    margin-top:48px; padding-top:20px; border-top:1px solid var(--rule);
+    display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap;
+    font-family:var(--mono); font-size:11px; letter-spacing:.1em; color:var(--muted);
+  }
+
+  .reveal{opacity:0; transform:translateY(14px); animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards}
+  .reveal.d1{animation-delay:.05s}
+  .reveal.d2{animation-delay:.15s}
+  .reveal.d3{animation-delay:.28s}
+  .reveal.d4{animation-delay:.42s}
+  .reveal.d5{animation-delay:.56s}
+  @keyframes rise{to{opacity:1; transform:translateY(0)}}
+
+  ::selection{background:var(--ember); color:#fff}
+</style>
 </head>
 <body>
 
-<!-- Hero -->
-<header class="hero">
-  <div class="container">
-    <img src="logo.svg" alt="Pratibmb — Chat with your past self" class="hero-logo" width="200" height="200">
-    <h1 class="tagline">Chat with your 10-years-younger self.</h1>
-    <p class="subtitle">Import your WhatsApp, Facebook, Instagram, Gmail, iMessage, Telegram, Twitter, or Discord history. A local AI learns your voice and lets you text past-you. No cloud. No API. Everything runs on your machine.</p>
-    <div class="hero-cta">
-      <a href="#downloads" class="btn btn-primary">Download</a>
-      <a href="https://github.com/tapaskar/Pratibmb" class="btn btn-secondary">GitHub</a>
-    </div>
-    <div class="hero-badges">
-      <span class="badge">100% local</span>
-      <span class="badge">no cloud</span>
-      <span class="badge">no telemetry</span>
-      <span class="badge">AGPLv3 + Commercial</span>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="/">
+      <span class="mark">P</span>
+      <span>Pratibmb</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#platforms">Platforms</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#download">Download</a>
+      <a href="clinical/">Clinical</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn ghost" href="https://github.com/tapaskar/Pratibmb">GitHub ↗</a>
+      <a class="btn primary" href="#download">Install</a>
     </div>
   </div>
 </header>
 
-<!-- Emotional Hook -->
-<section class="hook" id="why">
-  <div class="container">
-    <h2>What would you say to who you were 10 years ago?</h2>
-    <p class="hook-text">Your old messages &mdash; thousands of conversations across WhatsApp, Facebook, Instagram, Gmail, iMessage, Telegram, Twitter, and Discord &mdash; contain a version of you that no longer exists. The way you talked, the things you cared about, the jokes you made, the people you loved. Pratibmb brings that person back.</p>
-    <div class="hook-cards">
-      <div class="hook-card">
-        <div class="hook-icon">&#128172;</div>
-        <p>"I found messages from 2014 where I was excited about a job I'd completely forgotten about"</p>
+<main>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow reveal d1">A local-first memory machine · v0.5</div>
+      <h1 class="display reveal d2">
+        A letter to <br/>
+        who you <em>used to be</em>.
+      </h1>
+      <p class="hero-lede reveal d3">
+        Import a decade of <b>WhatsApp, iMessage, Instagram, Gmail, Telegram, Twitter, Discord, or Facebook</b> — and a model that runs entirely on your laptop learns the cadence of your old self, and lets you text them back.
+      </p>
+      <div class="hero-ctas reveal d4">
+        <a class="btn ember" href="#download">Install Pratibmb →</a>
+        <a class="btn" href="#how">How it works</a>
       </div>
-      <div class="hook-card">
-        <div class="hook-icon">&#128557;</div>
-        <p>"My 2016 self texted completely differently. More emojis, more slang, more exclamation marks"</p>
+      <div class="hero-meta reveal d5">
+        <span><span class="dot"></span>100% local inference</span>
+        <span>No cloud · No telemetry</span>
+        <span>AGPLv3 + Commercial</span>
       </div>
-      <div class="hook-card">
-        <div class="hook-icon">&#129303;</div>
-        <p>"Chatting with past-me about my old friendships was unexpectedly moving"</p>
+    </div>
+
+    <aside class="letter reveal d3" aria-hidden="true">
+      <div class="stamp">to<br/>2014·me</div>
+      <div class="letter-head">
+        <span class="to">Conversation · 2014</span>
+        <span>local · offline</span>
+      </div>
+      <div class="msg me">
+        <span class="who">You · 2026</span>
+        <span class="bubble">you have no idea what's coming, bud.</span>
+      </div>
+      <div class="msg">
+        <span class="who">You · 2014</span>
+        <span class="bubble">haha what?? also did you talk to priya yet lol</span>
+      </div>
+      <div class="msg me">
+        <span class="who">You · 2026</span>
+        <span class="bubble">i want to tell you to quit that job sooner.</span>
+      </div>
+      <div class="msg">
+        <span class="who">You · 2014</span>
+        <span class="typing"><span></span><span></span><span></span></span>
+      </div>
+      <div class="letter-foot">
+        <span>gemma · 4b · local</span>
+        <span>↑ enter to send</span>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ESSAY / WHY -->
+<section class="essay" id="why">
+  <div class="wrap">
+    <div class="essay-body">
+      <p class="dropcap">Somewhere on your phone, in a folder you haven't opened in years, there is a person who no longer exists. They're still making jokes you wouldn't make now. Still using emojis you'd be embarrassed by. Still in love, or afraid, or ambitious about things you've long since resolved or forgotten.</p>
+      <p>Pratibmb takes those thousands of <b>real messages</b> — the ones you actually sent and received — and builds a small local model that talks the way you used to talk. <em>Not a persona. Not a chatbot.</em> A close-enough sketch of a self you can greet again.</p>
+      <p>And because the one dataset you should never hand to somebody else's API is a decade of private messages, <b>every byte stays on your machine</b>.</p>
+    </div>
+
+    <div class="pull-quotes">
+      <div class="pull reveal d1">
+        "I found messages from 2014 where I was excited about a job I'd completely forgotten about."
+        <cite>— early tester</cite>
+      </div>
+      <div class="pull reveal d2">
+        "My 2016 self texted completely differently. More emojis, more slang, more exclamation marks."
+        <cite>— early tester</cite>
+      </div>
+      <div class="pull reveal d3">
+        "Chatting with past-me about my old friendships was unexpectedly moving."
+        <cite>— early tester</cite>
       </div>
     </div>
   </div>
 </section>
 
-<!-- How It Works -->
-<section class="how-it-works" id="how">
-  <div class="container">
-    <h2>How It Works</h2>
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-icon">1</div>
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Four steps, <em>no servers</em>.</h2>
+      <div class="note">Architecture · fig. 01</div>
+    </div>
+
+    <div class="steps">
+      <article class="step">
+        <span class="tag">01 · Ingest</span>
+        <div class="step-num">i.</div>
         <h3>Import</h3>
-        <p>Export your chat history from any platform. Drop the files into Pratibmb. Messages are parsed and stored in a local SQLite database on your machine.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-icon">2</div>
+        <p>Export your chat history from any platform. Drop the files in. Pratibmb auto-detects the format and parses everything into a local SQLite database.</p>
+      </article>
+      <article class="step">
+        <span class="tag">02 · Represent</span>
+        <div class="step-num">ii.</div>
         <h3>Embed</h3>
-        <p>A local embedding model (84MB) creates semantic representations of your messages. This happens on your CPU/GPU. No text leaves your device.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-icon">3</div>
+        <p>A tiny 84MB embedding model runs on your CPU or GPU and builds semantic vectors of every message. Not a single byte leaves your machine.</p>
+      </article>
+      <article class="step">
+        <span class="tag">03 · Understand</span>
+        <div class="step-num">iii.</div>
         <h3>Profile</h3>
-        <p>A local LLM (2.3GB) analyzes your conversations to extract relationships, life events, interests, and communication style. All on-device.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-icon">4</div>
+        <p>A 2.3GB local LLM extracts the shape of your past: the people who mattered, the events, the interests, the verbal tics and cadences that made you, you.</p>
+      </article>
+      <article class="step">
+        <span class="tag">04 · Speak</span>
+        <div class="step-num">iv.</div>
         <h3>Chat</h3>
-        <p>Pick a year and start texting. Past-you responds in your voice, grounded in your real memories. Optional LoRA fine-tuning makes it even more authentic.</p>
+        <p>Pick a year. Start typing. A younger version of you replies — in your voice, grounded in your real memories. Optional LoRA tuning makes it eerier.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORMS -->
+<section id="platforms">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Eight platforms, <em>one format</em>.</h2>
+      <div class="note">Supported imports</div>
+    </div>
+
+    <div class="platforms-grid">
+      <div class="plat featured">
+        <div class="glyph">W</div>
+        <div class="name">WhatsApp</div>
+        <div class="fmt">Export chat · .txt</div>
+      </div>
+      <div class="plat">
+        <div class="glyph">F</div>
+        <div class="name">Facebook</div>
+        <div class="fmt">Download Your Information · JSON</div>
+      </div>
+      <div class="plat">
+        <div class="glyph">I</div>
+        <div class="name">Instagram</div>
+        <div class="fmt">Download Your Information · JSON</div>
+      </div>
+      <div class="plat">
+        <div class="glyph">G</div>
+        <div class="name">Gmail</div>
+        <div class="fmt">Google Takeout · MBOX</div>
+      </div>
+      <div class="plat">
+        <div class="glyph">iM</div>
+        <div class="name">iMessage</div>
+        <div class="fmt">macOS chat.db · SQLite</div>
+      </div>
+      <div class="plat">
+        <div class="glyph">T</div>
+        <div class="name">Telegram</div>
+        <div class="fmt">Desktop export · JSON</div>
+      </div>
+      <div class="plat">
+        <div class="glyph">X</div>
+        <div class="name">Twitter / X</div>
+        <div class="fmt">Archive · .js</div>
+      </div>
+      <div class="plat">
+        <div class="glyph">D</div>
+        <div class="name">Discord</div>
+        <div class="fmt">DiscordChatExporter · JSON</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Supported Platforms -->
-<section class="platforms" id="platforms">
-  <div class="container">
-    <h2>8 Platforms Supported</h2>
-    <p class="section-sub">Export your history from any of these. Pratibmb auto-detects the format.</p>
-    <div class="platform-grid">
-      <div class="platform-card">
-        <div class="platform-icon">&#128172;</div>
-        <h3>WhatsApp</h3>
-        <p>Export Chat as .txt</p>
+<!-- PRIVACY -->
+<section id="privacy" style="border-top:none">
+  <div class="wrap">
+    <div class="privacy-wrap">
+      <div class="privacy-head">
+        <h2>Privacy isn't a policy. <em>It's the architecture.</em></h2>
+        <div class="note">Receipts, not promises</div>
       </div>
-      <div class="platform-card">
-        <div class="platform-icon">&#128101;</div>
-        <h3>Facebook</h3>
-        <p>Download Your Information (JSON)</p>
-      </div>
-      <div class="platform-card">
-        <div class="platform-icon">&#128247;</div>
-        <h3>Instagram</h3>
-        <p>Download Your Information (JSON)</p>
-      </div>
-      <div class="platform-card">
-        <div class="platform-icon">&#9993;</div>
-        <h3>Gmail</h3>
-        <p>Google Takeout (MBOX)</p>
-      </div>
-      <div class="platform-card">
-        <div class="platform-icon">&#128488;</div>
-        <h3>iMessage</h3>
-        <p>macOS chat.db (SQLite)</p>
-      </div>
-      <div class="platform-card">
-        <div class="platform-icon">&#9992;</div>
-        <h3>Telegram</h3>
-        <p>Desktop Export (JSON)</p>
-      </div>
-      <div class="platform-card">
-        <div class="platform-icon">&#128038;</div>
-        <h3>Twitter / X</h3>
-        <p>Download Archive (.js)</p>
-      </div>
-      <div class="platform-card">
-        <div class="platform-icon">&#127918;</div>
-        <h3>Discord</h3>
-        <p>DiscordChatExporter (JSON)</p>
+
+      <div class="priv-grid">
+        <div class="priv-item">
+          <div class="k"><span class="dot"></span>01 · Local</div>
+          <h3>On your hardware</h3>
+          <p>Every computation — embedding, profiling, inference, tuning — runs on your own CPU or GPU. Messages never leave the machine.</p>
+        </div>
+        <div class="priv-item">
+          <div class="k"><span class="dot"></span>02 · No cloud</div>
+          <h3>No API keys</h3>
+          <p>No OpenAI, no remote inference, no silent upload. Works with Wi-Fi disabled after the first model download.</p>
+        </div>
+        <div class="priv-item">
+          <div class="k"><span class="dot"></span>03 · No telemetry</div>
+          <h3>No phone home</h3>
+          <p>Zero analytics, zero crash reports, zero usage tracking. Inspect the network. Inspect the source. Don't trust — verify.</p>
+        </div>
+        <div class="priv-item">
+          <div class="k"><span class="dot"></span>04 · Open</div>
+          <h3>Auditable</h3>
+          <p>AGPLv3 for personal and open-source use, with a commercial license for everything else. Every line of code is readable.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Downloads -->
-<section class="downloads" id="downloads">
-  <div class="container">
-    <h2>Download Pratibmb</h2>
-    <p class="section-sub">Free. Open source. Runs offline after first model download (~2.5GB one-time).</p>
-    <div class="one-liner">
-      <p>One-command install:</p>
-      <div class="install-cmd"><code># macOS / Linux<br>curl -fsSL https://pratibmb.com/install.sh | bash</code></div>
-      <div class="install-cmd"><code># Windows (PowerShell)<br>irm https://pratibmb.com/install.ps1 | iex</code></div>
-      <p class="one-liner-note">Installs the desktop app + Python package + all dependencies.</p>
+<!-- DOWNLOAD -->
+<section id="download">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Install in <em>one line</em>.</h2>
+      <div class="note">Free · Open source · ~2.5 GB one-time</div>
     </div>
+
+    <div class="install-hero">
+      <h3>One-command install</h3>
+      <div class="cmds">
+        <code># macOS / Linux
+curl -fsSL https://pratibmb.com/install.sh | bash</code>
+        <code># Windows PowerShell
+irm https://pratibmb.com/install.ps1 | iex</code>
+      </div>
+    </div>
+
     <div class="download-grid">
-      <div class="download-card">
-        <div class="dl-icon">&#63743;</div>
+      <article class="dl">
+        <div class="os">macOS · Apple Silicon + Intel</div>
         <h3>macOS</h3>
-        <p>M1/M2/M3/M4 and Intel Macs. Fine-tuning via MLX included out of the box on Apple Silicon.</p>
-        <div class="install-cmd">
-          <code>brew tap tapaskar/pratibmb<br>brew install --cask pratibmb</code>
+        <p>M1 / M2 / M3 / M4 and Intel. MLX fine-tuning included out of the box on Apple Silicon.</p>
+        <pre>brew tap tapaskar/pratibmb
+brew install --cask pratibmb</pre>
+        <div class="links">
+          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_aarch64.dmg">.dmg apple silicon</a>
+          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_x64.dmg">.dmg intel</a>
         </div>
-        <div class="dl-links">
-          <span class="dl-or">or download directly:</span>
-          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_aarch64.dmg" class="btn btn-download">.dmg (Apple Silicon)</a>
-          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_x64.dmg" class="btn btn-download">.dmg (Intel)</a>
-        </div>
-        <div class="dl-size">~450 MB install &middot; includes MLX fine-tuning</div>
-        <div class="dl-note-inline">
-          <strong>First launch:</strong> If macOS says &ldquo;damaged and can&rsquo;t be opened&rdquo;, run:<br>
-          <code>xattr -cr /Applications/Pratibmb.app</code>
-        </div>
-      </div>
-      <div class="download-card">
-        <div class="dl-icon">&#128039;</div>
+      </article>
+
+      <article class="dl">
+        <div class="os">Linux · Ubuntu / Debian / Arch</div>
         <h3>Linux</h3>
-        <p>Ubuntu/Debian (.deb) or universal (.AppImage). CUDA GPU or CPU.</p>
-        <div class="install-cmd">
-          <code>yay -S pratibmb-bin</code>
+        <p>.deb, .AppImage, or AUR. CUDA acceleration for fine-tuning on NVIDIA; CPU fallback available.</p>
+        <pre>yay -S pratibmb-bin</pre>
+        <div class="links">
+          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_amd64.deb">.deb amd64</a>
+          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_amd64.AppImage">.AppImage</a>
         </div>
-        <div class="dl-links">
-          <span class="dl-or">or download directly:</span>
-          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_amd64.deb" class="btn btn-download">.deb (amd64)</a>
-          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_amd64.AppImage" class="btn btn-download">.AppImage</a>
-        </div>
-        <div class="dl-size">~150 MB install &middot; fine-tuning is a <a href="#finetune">one-command add-on</a> (+3&ndash;5 GB)</div>
-      </div>
-      <div class="download-card">
-        <div class="dl-icon">&#127987;</div>
+      </article>
+
+      <article class="dl">
+        <div class="os">Windows · 10 / 11 · 64-bit</div>
         <h3>Windows</h3>
-        <p>Windows 10/11 (64-bit). NVIDIA CUDA acceleration for fine-tuning.</p>
-        <div class="install-cmd">
-          <code>winget install tapaskar.Pratibmb</code>
+        <p>Winget, MSI or .exe installer. NVIDIA CUDA acceleration for fine-tuning on supported GPUs.</p>
+        <pre>winget install tapaskar.Pratibmb</pre>
+        <div class="links">
+          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_x64-setup.exe">.exe installer</a>
+          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_x64_en-US.msi">.msi</a>
         </div>
-        <div class="dl-links">
-          <span class="dl-or">or download directly:</span>
-          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_x64-setup.exe" class="btn btn-download">.exe installer</a>
-          <a href="https://github.com/tapaskar/Pratibmb/releases/latest/download/Pratibmb_0.5.0_x64_en-US.msi" class="btn btn-download">.msi</a>
+      </article>
+    </div>
+
+    <p style="margin-top:28px; font-family:var(--mono); font-size:12px; letter-spacing:.05em; color:var(--muted); text-align:center">
+      Requires Python 3.9+ and ~8 GB RAM. Models (~2.5 GB) download on first launch.
+    </p>
+  </div>
+</section>
+
+<!-- FINE-TUNE -->
+<section id="finetune">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Optional: <em>learn your voice</em>.</h2>
+      <div class="note">LoRA · adapters · local</div>
+    </div>
+
+    <p style="max-width:62ch; margin:-16px 0 32px; color:var(--ink-2); font-size:17px">
+      The base model already captures the bulk of your communication style. LoRA tuning sharpens the details — your abbreviations, your code-switches, your emoji habits.
+    </p>
+
+    <div class="ft-table">
+      <div class="ft-row head">
+        <div>Platform</div><div>Backend</div><div>GPU</div><div>Time ≈ 1500 pairs</div><div>Install</div>
+      </div>
+      <div class="ft-row">
+        <div class="plat-name">macOS · Apple Silicon</div>
+        <div data-label="Backend">MLX-LM</div>
+        <div data-label="GPU" class="no">Metal (no GPU)</div>
+        <div data-label="Time" class="yes">~20 min</div>
+        <div data-label="Install">Included</div>
+      </div>
+      <div class="ft-row">
+        <div class="plat-name">Windows / Linux · NVIDIA</div>
+        <div data-label="Backend">PyTorch · PEFT · QLoRA</div>
+        <div data-label="GPU" class="yes">6 GB+ VRAM</div>
+        <div data-label="Time" class="yes">~30 min</div>
+        <div data-label="Install"><code>pip install "pratibmb[finetune-pytorch]"</code></div>
+      </div>
+      <div class="ft-row">
+        <div class="plat-name">Linux · CPU-only</div>
+        <div data-label="Backend">PyTorch</div>
+        <div data-label="GPU" class="no">None</div>
+        <div data-label="Time" class="no">~2 hours</div>
+        <div data-label="Install"><code>pip install "pratibmb[finetune-pytorch]"</code></div>
+      </div>
+      <div class="ft-row">
+        <div class="plat-name">macOS · Intel</div>
+        <div data-label="Backend" class="no">—</div>
+        <div data-label="GPU" class="no">—</div>
+        <div data-label="Time" class="no">—</div>
+        <div data-label="Install" class="no">Not available</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLINICAL -->
+<section id="clinical" style="border-top:none; padding-top:48px">
+  <div class="wrap">
+    <div class="clinical">
+      <div>
+        <div class="tag-line">Pratibmb · Clinical — in preview</div>
+        <h2>The patient's history is already <em>on their phone</em>.</h2>
+        <p>A clinical extension for licensed mental health professionals: sentiment timelines, communication-pattern analysis, and patient-controlled session-prep briefs. Same local-first architecture. Designed to surface patterns for clinician review — never to diagnose.</p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap">
+          <a class="btn" href="clinical/">Read more →</a>
+          <a class="btn ember" href="mailto:admin@sparkupcloud.com?subject=Pratibmb%20Clinical">Get in touch ↗</a>
         </div>
-        <div class="dl-size">~150 MB install &middot; fine-tuning is a <a href="#finetune">one-command add-on</a> (+3&ndash;5 GB)</div>
       </div>
-    </div>
-    <p class="dl-note">Requires Python 3.9+ and ~8GB RAM. AI models (~2.5GB) are downloaded on first launch. <a href="https://github.com/tapaskar/Pratibmb#installation">Setup guide</a></p>
-  </div>
-</section>
-
-<!-- Fine-Tuning -->
-<section class="finetuning" id="finetune">
-  <div class="container">
-    <h2>Fine-Tune on Your Voice</h2>
-    <p class="section-sub">Optional LoRA training teaches the model your texting style &mdash; abbreviations, language mix, emoji patterns. The base model works well without it; fine-tuning makes it sound more like you.</p>
-    <table class="ft-table">
-      <thead>
-        <tr>
-          <th>Platform</th>
-          <th>Training Backend</th>
-          <th>GPU Required?</th>
-          <th>Time (~1500 pairs)</th>
-          <th>Install</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>macOS (Apple Silicon)</td>
-          <td>MLX-LM</td>
-          <td>No (uses Metal)</td>
-          <td>~20 min</td>
-          <td><span class="ft-included">Included</span></td>
-        </tr>
-        <tr>
-          <td>macOS (Intel)</td>
-          <td>&mdash;</td>
-          <td>&mdash;</td>
-          <td>&mdash;</td>
-          <td><span class="ft-na">Not available</span></td>
-        </tr>
-        <tr>
-          <td>Windows / Linux (NVIDIA)</td>
-          <td>PyTorch + PEFT + QLoRA</td>
-          <td>Yes (6GB+ VRAM)</td>
-          <td>~30 min</td>
-          <td><code>pip install "pratibmb[finetune-pytorch]"</code></td>
-        </tr>
-        <tr>
-          <td>Linux (CPU-only)</td>
-          <td>PyTorch (no quantization)</td>
-          <td>No</td>
-          <td>~2 hours</td>
-          <td><code>pip install "pratibmb[finetune-pytorch]"</code></td>
-        </tr>
-      </tbody>
-    </table>
-    <p class="ft-note">On macOS Apple Silicon, MLX fine-tuning is included in the standard install (~450 MB total). On Windows and Linux, the PyTorch fine-tuning add-on is a separate install (+3&ndash;5 GB) to keep the base package lightweight (~150 MB).</p>
-  </div>
-</section>
-
-<!-- Privacy -->
-<section class="privacy" id="privacy">
-  <div class="container">
-    <h2>Privacy by Architecture</h2>
-    <p class="section-sub">Not just a policy. The code enforces it.</p>
-    <div class="privacy-grid">
-      <div class="privacy-card">
-        <div class="priv-icon">&#128274;</div>
-        <h3>100% Local</h3>
-        <p>Every computation runs on your hardware. Messages, embeddings, models, and profiles never leave your machine.</p>
+      <div class="chart" aria-hidden="true">
+        <svg viewBox="0 0 340 340" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+              <path d="M 34 0 L 0 0 0 34" fill="none" stroke="#d8cfbd" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="340" height="340" fill="url(#grid)"/>
+          <line x1="30" y1="300" x2="320" y2="300" stroke="#14110e" stroke-width="1"/>
+          <line x1="30" y1="40" x2="30" y2="300" stroke="#14110e" stroke-width="1"/>
+          <line x1="30" y1="170" x2="320" y2="170" stroke="#14110e" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.5"/>
+          <path d="M 30 180 C 70 120, 110 250, 150 200 S 210 80, 250 150 S 300 240, 320 130"
+                fill="none" stroke="#c0401f" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="70" cy="155" r="4" fill="#14110e"/>
+          <circle cx="150" cy="200" r="4" fill="#14110e"/>
+          <circle cx="210" cy="105" r="4" fill="#c0401f"/>
+          <circle cx="280" cy="180" r="4" fill="#14110e"/>
+          <text x="30" y="25" font-family="JetBrains Mono, monospace" font-size="10" fill="#6a6155" letter-spacing="1">SENTIMENT TIMELINE · 2014 – 2024</text>
+          <text x="30" y="320" font-family="JetBrains Mono, monospace" font-size="9" fill="#6a6155" letter-spacing="1">2014    2016    2018    2020    2022    2024</text>
+          <text x="320" y="135" font-family="Fraunces, serif" font-style="italic" font-size="11" fill="#c0401f" text-anchor="end">peak · 2021</text>
+        </svg>
       </div>
-      <div class="privacy-card">
-        <div class="priv-icon">&#9729;</div>
-        <h3>No Cloud</h3>
-        <p>No OpenAI API, no cloud inference, no remote servers. Works with Wi-Fi off after the initial model download.</p>
-      </div>
-      <div class="privacy-card">
-        <div class="priv-icon">&#128200;</div>
-        <h3>No Telemetry</h3>
-        <p>Zero analytics, no crash reports, no usage tracking, no phone-home. Check the source code yourself.</p>
-      </div>
-      <div class="privacy-card">
-        <div class="priv-icon">&#128736;</div>
-        <h3>Open Source</h3>
-        <p>Dual-licensed: AGPLv3 for open use, commercial license available for proprietary products. Every line is auditable. Don't trust us &mdash; verify.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Open Source -->
-<section class="opensource" id="opensource">
-  <div class="container">
-    <h2>Built in the Open</h2>
-    <div class="license-notice">
-      <p class="license-highlight">Free for personal use. Commercial use is prohibited without a license.</p>
-    </div>
-    <p>Pratibmb is released under the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">AGPLv3</a> &mdash; free for individuals, researchers, and open-source projects. <strong>Commercial use, including embedding in proprietary products, offering as a hosted service, or distributing in closed-source software, requires a separate commercial license.</strong> Contact <a href="mailto:admin@sparkupcloud.com">admin@sparkupcloud.com</a> for terms.</p>
-    <p>Your most intimate data &mdash; a decade of private messages &mdash; is the one dataset you should never upload to somebody else's API. That's why Pratibmb exists.</p>
-    <div class="os-links">
-      <a href="https://github.com/tapaskar/Pratibmb" class="btn btn-secondary">View on GitHub</a>
-      <a href="https://github.com/tapaskar/Pratibmb/issues" class="btn btn-secondary">Report Issue</a>
     </div>
   </div>
 </section>
 
 <!-- FAQ -->
-<section class="faq" id="faq">
-  <div class="container">
-    <h2>Frequently Asked Questions</h2>
-    <div class="faq-list">
-      <details class="faq-item">
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Questions, <em>asked quietly</em>.</h2>
+      <div class="note">FAQ</div>
+    </div>
+
+    <div class="faq">
+      <details>
         <summary>Is this therapy?</summary>
-        <p>No. Pratibmb is a conversation tool, not a mental health product. If you use it to process grief or difficult emotions, please set time limits and speak to a professional. Built-in session limits and gentle reframes are part of the v1.0 roadmap.</p>
+        <p>No. Pratibmb is a conversation tool, not a mental-health product. If you use it to process grief or difficult emotions, please set time limits and talk to a professional. Built-in session limits and gentle reframes are on the v1.0 roadmap.</p>
       </details>
-      <details class="faq-item">
+      <details>
         <summary>Can anyone else see my data?</summary>
         <p>No. Everything runs on your hardware. There are no servers, no accounts, no cloud storage, no analytics. Your messages, embeddings, models, and profiles stay on your machine. Uninstall the app and the data is gone.</p>
       </details>
-      <details class="faq-item">
+      <details>
         <summary>Does it work offline?</summary>
-        <p>Yes. After the one-time model download (~2.5GB on first launch), Pratibmb works with no internet connection. It uses a local LLM (Gemma-3-4B) and a local embedding model (Nomic Embed). No API calls, no cloud inference.</p>
+        <p>Yes. After the one-time model download (~2.5 GB on first launch), Pratibmb works with no internet connection. It uses a local LLM (Gemma-3-4B) and a local embedding model (Nomic Embed). No API calls, no cloud inference.</p>
       </details>
-      <details class="faq-item">
+      <details>
         <summary>How accurate is it?</summary>
-        <p>The base model captures your general communication style, topics, and relationships well. Optional LoRA fine-tuning (20 min on Apple Silicon) teaches it your specific texting patterns &mdash; abbreviations, language mix, emoji habits. It's not perfect, but it's often surprisingly close.</p>
+        <p>The base model captures your general style, topics, and relationships well. Optional LoRA fine-tuning (~20 min on Apple Silicon) teaches it your specific texting patterns — abbreviations, language mix, emoji habits. Not perfect, but often surprisingly close.</p>
       </details>
-      <details class="faq-item">
+      <details>
         <summary>What hardware do I need?</summary>
-        <p>Any modern computer with 8GB+ RAM. Apple Silicon Macs get the best experience (Metal GPU acceleration for fine-tuning). NVIDIA GPUs accelerate fine-tuning on Windows/Linux. CPU-only works too, just slower for the fine-tuning step.</p>
+        <p>Any modern computer with 8 GB+ RAM. Apple Silicon Macs get the best experience (Metal GPU acceleration). NVIDIA GPUs accelerate fine-tuning on Windows/Linux. CPU-only works too — just slower.</p>
       </details>
-      <details class="faq-item">
+      <details>
         <summary>Why not just use ChatGPT with my messages?</summary>
-        <p>Because your private messages are the most intimate data you own. Uploading a decade of conversations to any cloud API &mdash; OpenAI, Google, anyone &mdash; means that data now lives on someone else's servers, subject to their terms of service, their data breaches, and their training pipelines. Pratibmb exists so you never have to make that trade-off.</p>
+        <p>Because your private messages are the most intimate data you own. Uploading a decade of conversations to any cloud API means that data now lives on someone else's servers, subject to their terms, their breaches, and their training pipelines. Pratibmb exists so you never have to make that trade-off.</p>
       </details>
-      <details class="faq-item">
+      <details>
         <summary>macOS says "damaged and can't be opened"</summary>
-        <p>This happens because the app isn't signed with an Apple Developer certificate (code signing costs $99/year). It's safe &mdash; you can <a href="https://github.com/tapaskar/Pratibmb">verify the source code yourself</a>. To fix it, open Terminal and run: <code>xattr -cr /Applications/Pratibmb.app</code> &mdash; then open the app normally.</p>
+        <p>The app isn't signed with an Apple Developer certificate (code signing costs $99/year). It's safe — you can <a href="https://github.com/tapaskar/Pratibmb" style="color:var(--ember); border-bottom:1px solid var(--ember)">verify the source yourself</a>. To fix, run in Terminal: <code>xattr -cr /Applications/Pratibmb.app</code></p>
       </details>
-      <details class="faq-item">
+      <details>
         <summary>Can I use this commercially?</summary>
-        <p>Not without a license. Pratibmb is AGPLv3, which means personal use, research, and open-source projects are free. But if you want to use it in a commercial product, offer it as a hosted service, or embed it in closed-source software, you need a commercial license. Contact <a href="mailto:admin@sparkupcloud.com">admin@sparkupcloud.com</a> to discuss terms.</p>
+        <p>Not without a license. Pratibmb is AGPLv3, so personal use, research, and open-source projects are free. Embedding in a proprietary product, offering as a hosted service, or distributing in closed-source software requires a separate commercial license. Contact <a href="mailto:admin@sparkupcloud.com" style="color:var(--ember); border-bottom:1px solid var(--ember)">admin@sparkupcloud.com</a>.</p>
       </details>
-      <details class="faq-item">
+      <details>
         <summary>Can I use it for a deceased family member's messages?</summary>
-        <p>Technically yes &mdash; you can import their exported messages and chat with the model. This is emotionally powerful and should be approached with care. We recommend setting session time limits and being mindful that it's a model, not the person. Dedicated "legacy mode" with additional safeguards is planned for v1.0.</p>
+        <p>Technically, yes — you can import their exported messages and chat with the model. This is emotionally powerful and should be approached with care. We recommend session time limits and remembering that it is a model, not the person. A dedicated "legacy mode" with additional safeguards is planned for v1.0.</p>
       </details>
     </div>
   </div>
 </section>
 
-<!-- For Clinicians (slim CTA — full content lives at /clinical/) -->
-<section class="clinicians" id="clinicians">
-  <div class="container">
-    <div class="clinicians-card">
-      <div class="clinicians-tag">Pratibmb <em>Clinical</em> &middot; Coming</div>
-      <h2>The patient's history is sitting on their phone.</h2>
-      <p class="clinicians-lead">
-        We're exploring a clinical extension for licensed mental health professionals
-        &mdash; sentiment timelines, communication pattern analysis, and patient-controlled
-        session-prep briefs. Same local-first architecture. Designed to surface patterns
-        for clinician review, never to diagnose.
-      </p>
-      <div class="clinicians-cta">
-        <a href="clinical/" class="clinicians-btn">
-          Read more &rarr;
-        </a>
-        <a href="mailto:admin@sparkupcloud.com?subject=Pratibmb%20Clinical%20%E2%80%94%20interested" class="clinicians-link">
-          Get in touch &nearr;
-        </a>
+<!-- CTA -->
+<section class="cta" style="border-top:none">
+  <div class="wrap">
+    <h2>What would you say <br/>to <span class="n">2014·you</span>?</h2>
+    <p>Free. Open source. Runs offline after first launch. Your messages stay where they belong — on your machine.</p>
+    <div class="cta-row">
+      <a class="btn ember" href="#download">Install Pratibmb →</a>
+      <a class="btn" href="https://github.com/tapaskar/Pratibmb">View source ↗</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="brand"><span class="mark">P</span><span>Pratibmb</span></div>
+        <p>A letter to who you used to be. Made with care. No cookies, no tracking pixels, no external requests on this page.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Product</h4>
+          <a href="#how">How it works</a>
+          <a href="#platforms">Platforms</a>
+          <a href="#download">Download</a>
+          <a href="#finetune">Fine-tuning</a>
+        </div>
+        <div class="foot-col">
+          <h4>Trust</h4>
+          <a href="#privacy">Privacy</a>
+          <a href="#faq">FAQ</a>
+          <a href="https://github.com/tapaskar/Pratibmb/blob/main/LICENSE">License</a>
+        </div>
+        <div class="foot-col">
+          <h4>Clinical</h4>
+          <a href="clinical/">Overview</a>
+          <a href="mailto:admin@sparkupcloud.com?subject=Pratibmb%20Clinical">Contact</a>
+        </div>
+        <div class="foot-col">
+          <h4>Source</h4>
+          <a href="https://github.com/tapaskar/Pratibmb">GitHub</a>
+          <a href="https://github.com/tapaskar/Pratibmb/issues">Report issue</a>
+          <a href="https://github.com/tapaskar/Pratibmb/blob/main/docs/HELP.md">Documentation</a>
+        </div>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer>
-  <div class="container">
-    <p>Pratibmb &copy; 2025&ndash;2026. <a href="https://github.com/tapaskar/Pratibmb/blob/main/LICENSE">AGPLv3</a> + <a href="mailto:admin@sparkupcloud.com">Commercial</a> &middot; <a href="https://github.com/tapaskar/Pratibmb">Source</a> &middot; <a href="https://github.com/tapaskar/Pratibmb/blob/main/docs/HELP.md">Documentation</a></p>
-    <p class="footer-note">Made with care. No cookies, no tracking pixels, no external requests on this page.</p>
-    <nav class="footer-nav" aria-label="Footer">
-      <a href="#how">How It Works</a> &middot;
-      <a href="#platforms">Platforms</a> &middot;
-      <a href="#downloads">Download</a> &middot;
-      <a href="#finetune">Fine-Tuning</a> &middot;
-      <a href="#privacy">Privacy</a> &middot;
-      <a href="#faq">FAQ</a> &middot;
-      <a href="#clinicians">For Clinicians</a>
-    </nav>
+    <div class="foot-bottom">
+      <span>Pratibmb © 2025–2026 · AGPLv3 + Commercial</span>
+      <span>Designed for one-person attention</span>
+    </div>
   </div>
 </footer>
 
